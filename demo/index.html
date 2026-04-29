@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glow Light Card Demo</title>
+    <script type="module" src="/dist/glow-light-card.js"></script>
+    <style>
+      :root {
+        --primary-text-color: #f4f7fb;
+        --secondary-text-color: #aeb8c6;
+        --divider-color: rgb(255 255 255 / 12%);
+      }
+
+      body {
+        align-items: center;
+        background:
+          radial-gradient(circle at 18% 18%, #24415f, transparent 34%),
+          radial-gradient(circle at 82% 15%, #463a4a, transparent 38%),
+          #080b10;
+        color: var(--primary-text-color);
+        display: flex;
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        justify-content: center;
+        margin: 0;
+        min-height: 100vh;
+      }
+
+      main {
+        display: grid;
+        gap: 14px;
+        width: min(560px, calc(100vw - 32px));
+      }
+
+      .group-title {
+        align-items: center;
+        color: #d8dee8;
+        display: flex;
+        font-size: 14px;
+        gap: 8px;
+        margin: 0 0 2px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      @media (max-width: 620px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1 class="group-title">Lights</h1>
+      <section class="grid">
+        <glow-light-card id="lanai"></glow-light-card>
+        <glow-light-card id="bar"></glow-light-card>
+      </section>
+    </main>
+
+    <script type="module">
+      if (!customElements.get('ha-card')) {
+        customElements.define('ha-card', class extends HTMLElement {});
+      }
+
+      if (!customElements.get('ha-icon')) {
+        customElements.define(
+          'ha-icon',
+          class extends HTMLElement {
+            static get observedAttributes() {
+              return ['icon'];
+            }
+
+            connectedCallback() {
+              this.render();
+            }
+
+            attributeChangedCallback() {
+              this.render();
+            }
+
+            render() {
+              const icon = this.getAttribute('icon') || '';
+              this.textContent = icon.includes('outdoor')
+                ? '↪'
+                : icon.includes('ceiling')
+                  ? '▣'
+                  : '●';
+            }
+          },
+        );
+      }
+
+      const states = {
+        'light.lanai_lights': {
+          entity_id: 'light.lanai_lights',
+          state: 'off',
+          attributes: {
+            friendly_name: 'Lanai Lights',
+            brightness: 0,
+          },
+        },
+        'light.bar_lights': {
+          entity_id: 'light.bar_lights',
+          state: 'on',
+          attributes: {
+            friendly_name: 'Bar Lights',
+            brightness: 255,
+          },
+        },
+      };
+
+      const hass = {
+        states,
+        callService(domain, service, data) {
+          if (service !== 'toggle') return;
+          const entity = states[data.entity_id];
+          entity.state = entity.state === 'on' ? 'off' : 'on';
+          document.querySelectorAll('glow-light-card').forEach((card) => {
+            card.hass = { ...hass, states: { ...states } };
+          });
+        },
+      };
+
+      const lanai = document.querySelector('#lanai');
+      lanai.setConfig({
+        entity: 'light.lanai_lights',
+        icon: 'mdi:outdoor-lamp',
+      });
+      lanai.hass = hass;
+
+      const bar = document.querySelector('#bar');
+      bar.setConfig({
+        entity: 'light.bar_lights',
+        icon: 'mdi:ceiling-light',
+        width: '100%',
+      });
+      bar.hass = hass;
+    </script>
+  </body>
+</html>
