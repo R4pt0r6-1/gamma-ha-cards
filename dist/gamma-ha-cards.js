@@ -3,7 +3,7 @@
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const L = globalThis, rt = L.ShadowRoot && (L.ShadyCSS === void 0 || L.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, ot = Symbol(), xt = /* @__PURE__ */ new WeakMap();
+const N = globalThis, rt = N.ShadowRoot && (N.ShadyCSS === void 0 || N.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, ot = Symbol(), xt = /* @__PURE__ */ new WeakMap();
 let jt = class {
   constructor(t, e, i) {
     if (this._$cssResult$ = !0, i !== ot) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
@@ -32,7 +32,7 @@ const qt = (n) => new jt(typeof n == "string" ? n : n + "", void 0, ot), f = (n,
 }, Jt = (n, t) => {
   if (rt) n.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
   else for (const e of t) {
-    const i = document.createElement("style"), r = L.litNonce;
+    const i = document.createElement("style"), r = N.litNonce;
     r !== void 0 && i.setAttribute("nonce", r), i.textContent = e.cssText, n.appendChild(i);
   }
 }, vt = rt ? (n) => n : (n) => n instanceof CSSStyleSheet ? ((t) => {
@@ -284,50 +284,50 @@ k.elementStyles = [], k.shadowRootOptions = { mode: "open" }, k[P("elementProper
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const T = globalThis, $t = (n) => n, z = T.trustedTypes, _t = z ? z.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, Bt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Vt = "?" + x, ee = `<${Vt}>`, _ = document, O = () => _.createComment(""), E = (n) => n === null || typeof n != "object" && typeof n != "function", nt = Array.isArray, ie = (n) => nt(n) || typeof (n == null ? void 0 : n[Symbol.iterator]) == "function", R = `[ 	
-\f\r]`, A = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, kt = /-->/g, Ct = />/g, w = RegExp(`>|${R}(?:([^\\s"'>=/]+)(${R}*=${R}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), St = /'/g, At = /"/g, Ft = /^(?:script|style|textarea|title)$/i, re = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), a = re(1), C = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), Pt = /* @__PURE__ */ new WeakMap(), y = _.createTreeWalker(_, 129);
+const O = globalThis, $t = (n) => n, z = O.trustedTypes, _t = z ? z.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, Vt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Bt = "?" + x, ee = `<${Bt}>`, _ = document, E = () => _.createComment(""), I = (n) => n === null || typeof n != "object" && typeof n != "function", nt = Array.isArray, ie = (n) => nt(n) || typeof (n == null ? void 0 : n[Symbol.iterator]) == "function", R = `[ 	
+\f\r]`, T = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, kt = /-->/g, Ct = />/g, w = RegExp(`>|${R}(?:([^\\s"'>=/]+)(${R}*=${R}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), St = /'/g, Tt = /"/g, Ft = /^(?:script|style|textarea|title)$/i, re = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), a = re(1), C = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), At = /* @__PURE__ */ new WeakMap(), y = _.createTreeWalker(_, 129);
 function Wt(n, t) {
   if (!nt(n) || !n.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return _t !== void 0 ? _t.createHTML(t) : t;
 }
 const oe = (n, t) => {
   const e = n.length - 1, i = [];
-  let r, o = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", s = A;
+  let r, o = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", s = T;
   for (let c = 0; c < e; c++) {
     const l = n[c];
     let p, u, d = -1, m = 0;
-    for (; m < l.length && (s.lastIndex = m, u = s.exec(l), u !== null); ) m = s.lastIndex, s === A ? u[1] === "!--" ? s = kt : u[1] !== void 0 ? s = Ct : u[2] !== void 0 ? (Ft.test(u[2]) && (r = RegExp("</" + u[2], "g")), s = w) : u[3] !== void 0 && (s = w) : s === w ? u[0] === ">" ? (s = r ?? A, d = -1) : u[1] === void 0 ? d = -2 : (d = s.lastIndex - u[2].length, p = u[1], s = u[3] === void 0 ? w : u[3] === '"' ? At : St) : s === At || s === St ? s = w : s === kt || s === Ct ? s = A : (s = w, r = void 0);
+    for (; m < l.length && (s.lastIndex = m, u = s.exec(l), u !== null); ) m = s.lastIndex, s === T ? u[1] === "!--" ? s = kt : u[1] !== void 0 ? s = Ct : u[2] !== void 0 ? (Ft.test(u[2]) && (r = RegExp("</" + u[2], "g")), s = w) : u[3] !== void 0 && (s = w) : s === w ? u[0] === ">" ? (s = r ?? T, d = -1) : u[1] === void 0 ? d = -2 : (d = s.lastIndex - u[2].length, p = u[1], s = u[3] === void 0 ? w : u[3] === '"' ? Tt : St) : s === Tt || s === St ? s = w : s === kt || s === Ct ? s = T : (s = w, r = void 0);
     const b = s === w && n[c + 1].startsWith("/>") ? " " : "";
-    o += s === A ? l + ee : d >= 0 ? (i.push(p), l.slice(0, d) + Bt + l.slice(d) + x + b) : l + x + (d === -2 ? c : b);
+    o += s === T ? l + ee : d >= 0 ? (i.push(p), l.slice(0, d) + Vt + l.slice(d) + x + b) : l + x + (d === -2 ? c : b);
   }
   return [Wt(n, o + (n[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
 };
-class I {
+class U {
   constructor({ strings: t, _$litType$: e }, i) {
     let r;
     this.parts = [];
     let o = 0, s = 0;
     const c = t.length - 1, l = this.parts, [p, u] = oe(t, e);
-    if (this.el = I.createElement(p, i), y.currentNode = this.el.content, e === 2 || e === 3) {
+    if (this.el = U.createElement(p, i), y.currentNode = this.el.content, e === 2 || e === 3) {
       const d = this.el.content.firstChild;
       d.replaceWith(...d.childNodes);
     }
     for (; (r = y.nextNode()) !== null && l.length < c; ) {
       if (r.nodeType === 1) {
-        if (r.hasAttributes()) for (const d of r.getAttributeNames()) if (d.endsWith(Bt)) {
-          const m = u[s++], b = r.getAttribute(d).split(x), D = /([.?@])?(.*)/.exec(m);
-          l.push({ type: 1, index: o, name: D[2], strings: b, ctor: D[1] === "." ? se : D[1] === "?" ? ae : D[1] === "@" ? le : H }), r.removeAttribute(d);
+        if (r.hasAttributes()) for (const d of r.getAttributeNames()) if (d.endsWith(Vt)) {
+          const m = u[s++], b = r.getAttribute(d).split(x), L = /([.?@])?(.*)/.exec(m);
+          l.push({ type: 1, index: o, name: L[2], strings: b, ctor: L[1] === "." ? se : L[1] === "?" ? ae : L[1] === "@" ? le : H }), r.removeAttribute(d);
         } else d.startsWith(x) && (l.push({ type: 6, index: o }), r.removeAttribute(d));
         if (Ft.test(r.tagName)) {
           const d = r.textContent.split(x), m = d.length - 1;
           if (m > 0) {
             r.textContent = z ? z.emptyScript : "";
-            for (let b = 0; b < m; b++) r.append(d[b], O()), y.nextNode(), l.push({ type: 2, index: ++o });
-            r.append(d[m], O());
+            for (let b = 0; b < m; b++) r.append(d[b], E()), y.nextNode(), l.push({ type: 2, index: ++o });
+            r.append(d[m], E());
           }
         }
-      } else if (r.nodeType === 8) if (r.data === Vt) l.push({ type: 2, index: o });
+      } else if (r.nodeType === 8) if (r.data === Bt) l.push({ type: 2, index: o });
       else {
         let d = -1;
         for (; (d = r.data.indexOf(x, d + 1)) !== -1; ) l.push({ type: 7, index: o }), d += x.length - 1;
@@ -344,7 +344,7 @@ function S(n, t, e = n, i) {
   var s, c;
   if (t === C) return t;
   let r = i !== void 0 ? (s = e._$Co) == null ? void 0 : s[i] : e._$Cl;
-  const o = E(t) ? void 0 : t._$litDirective$;
+  const o = I(t) ? void 0 : t._$litDirective$;
   return (r == null ? void 0 : r.constructor) !== o && ((c = r == null ? void 0 : r._$AO) == null || c.call(r, !1), o === void 0 ? r = void 0 : (r = new o(n), r._$AT(n, e, i)), i !== void 0 ? (e._$Co ?? (e._$Co = []))[i] = r : e._$Cl = r), r !== void 0 && (t = S(n, r._$AS(n, t.values), r, i)), t;
 }
 class ne {
@@ -364,7 +364,7 @@ class ne {
     for (; l !== void 0; ) {
       if (s === l.index) {
         let p;
-        l.type === 2 ? p = new U(o, o.nextSibling, this, t) : l.type === 1 ? p = new l.ctor(o, l.name, l.strings, this, t) : l.type === 6 && (p = new ce(o, this, t)), this._$AV.push(p), l = i[++c];
+        l.type === 2 ? p = new D(o, o.nextSibling, this, t) : l.type === 1 ? p = new l.ctor(o, l.name, l.strings, this, t) : l.type === 6 && (p = new ce(o, this, t)), this._$AV.push(p), l = i[++c];
       }
       s !== (l == null ? void 0 : l.index) && (o = y.nextNode(), s++);
     }
@@ -375,7 +375,7 @@ class ne {
     for (const i of this._$AV) i !== void 0 && (i.strings !== void 0 ? (i._$AI(t, i, e), e += i.strings.length - 2) : i._$AI(t[e])), e++;
   }
 }
-class U {
+class D {
   get _$AU() {
     var t;
     return ((t = this._$AM) == null ? void 0 : t._$AU) ?? this._$Cv;
@@ -395,7 +395,7 @@ class U {
     return this._$AB;
   }
   _$AI(t, e = this) {
-    t = S(this, t, e), E(t) ? t === h || t == null || t === "" ? (this._$AH !== h && this._$AR(), this._$AH = h) : t !== this._$AH && t !== C && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : ie(t) ? this.k(t) : this._(t);
+    t = S(this, t, e), I(t) ? t === h || t == null || t === "" ? (this._$AH !== h && this._$AR(), this._$AH = h) : t !== this._$AH && t !== C && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : ie(t) ? this.k(t) : this._(t);
   }
   O(t) {
     return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -404,11 +404,11 @@ class U {
     this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
   }
   _(t) {
-    this._$AH !== h && E(this._$AH) ? this._$AA.nextSibling.data = t : this.T(_.createTextNode(t)), this._$AH = t;
+    this._$AH !== h && I(this._$AH) ? this._$AA.nextSibling.data = t : this.T(_.createTextNode(t)), this._$AH = t;
   }
   $(t) {
     var o;
-    const { values: e, _$litType$: i } = t, r = typeof i == "number" ? this._$AC(t) : (i.el === void 0 && (i.el = I.createElement(Wt(i.h, i.h[0]), this.options)), i);
+    const { values: e, _$litType$: i } = t, r = typeof i == "number" ? this._$AC(t) : (i.el === void 0 && (i.el = U.createElement(Wt(i.h, i.h[0]), this.options)), i);
     if (((o = this._$AH) == null ? void 0 : o._$AD) === r) this._$AH.p(e);
     else {
       const s = new ne(r, this), c = s.u(this.options);
@@ -416,14 +416,14 @@ class U {
     }
   }
   _$AC(t) {
-    let e = Pt.get(t.strings);
-    return e === void 0 && Pt.set(t.strings, e = new I(t)), e;
+    let e = At.get(t.strings);
+    return e === void 0 && At.set(t.strings, e = new U(t)), e;
   }
   k(t) {
     nt(this._$AH) || (this._$AH = [], this._$AR());
     const e = this._$AH;
     let i, r = 0;
-    for (const o of t) r === e.length ? e.push(i = new U(this.O(O()), this.O(O()), this, this.options)) : i = e[r], i._$AI(o), r++;
+    for (const o of t) r === e.length ? e.push(i = new D(this.O(E()), this.O(E()), this, this.options)) : i = e[r], i._$AI(o), r++;
     r < e.length && (this._$AR(i && i._$AB.nextSibling, r), e.length = r);
   }
   _$AR(t = this._$AA.nextSibling, e) {
@@ -451,11 +451,11 @@ class H {
   _$AI(t, e = this, i, r) {
     const o = this.strings;
     let s = !1;
-    if (o === void 0) t = S(this, t, e, 0), s = !E(t) || t !== this._$AH && t !== C, s && (this._$AH = t);
+    if (o === void 0) t = S(this, t, e, 0), s = !I(t) || t !== this._$AH && t !== C, s && (this._$AH = t);
     else {
       const c = t;
       let l, p;
-      for (t = o[0], l = 0; l < o.length - 1; l++) p = S(this, c[i + l], e, l), p === C && (p = this._$AH[l]), s || (s = !E(p) || p !== this._$AH[l]), p === h ? t = h : t !== h && (t += (p ?? "") + o[l + 1]), this._$AH[l] = p;
+      for (t = o[0], l = 0; l < o.length - 1; l++) p = S(this, c[i + l], e, l), p === C && (p = this._$AH[l]), s || (s = !I(p) || p !== this._$AH[l]), p === h ? t = h : t !== h && (t += (p ?? "") + o[l + 1]), this._$AH[l] = p;
     }
     s && !r && this.j(t);
   }
@@ -504,14 +504,14 @@ class ce {
     S(this, t);
   }
 }
-const B = T.litHtmlPolyfillSupport;
-B == null || B(I, U), (T.litHtmlVersions ?? (T.litHtmlVersions = [])).push("3.3.2");
+const V = O.litHtmlPolyfillSupport;
+V == null || V(U, D), (O.litHtmlVersions ?? (O.litHtmlVersions = [])).push("3.3.2");
 const he = (n, t, e) => {
   const i = (e == null ? void 0 : e.renderBefore) ?? t;
   let r = i._$litPart$;
   if (r === void 0) {
     const o = (e == null ? void 0 : e.renderBefore) ?? null;
-    i._$litPart$ = r = new U(t.insertBefore(O(), o), o, void 0, e ?? {});
+    i._$litPart$ = r = new D(t.insertBefore(E(), o), o, void 0, e ?? {});
   }
   return r._$AI(n), r;
 };
@@ -548,10 +548,10 @@ class g extends k {
 }
 var Ht;
 g._$litElement$ = !0, g.finalized = !0, (Ht = $.litElementHydrateSupport) == null || Ht.call($, { LitElement: g });
-const V = $.litElementPolyfillSupport;
-V == null || V({ LitElement: g });
+const B = $.litElementPolyfillSupport;
+B == null || B({ LitElement: g });
 ($.litElementVersions ?? ($.litElementVersions = [])).push("4.2.2");
-const Tt = {
+const Pt = {
   icon: "mdi:ceiling-light",
   width: "260px",
   fill_container: !1,
@@ -905,7 +905,7 @@ const st = class st extends g {
     if (!(t != null && t.entity))
       throw new Error("Entity is required");
     this.config = {
-      ...Tt,
+      ...Pt,
       ...t
     }, this.style.setProperty(
       "--glow-card-width",
@@ -959,7 +959,7 @@ const st = class st extends g {
   }
   get icon() {
     var t;
-    return this.config.icon || ((t = this.entity) == null ? void 0 : t.attributes.icon) || Tt.icon;
+    return this.config.icon || ((t = this.entity) == null ? void 0 : t.attributes.icon) || Pt.icon;
   }
   dispatchMoreInfo() {
     this.dispatchEvent(
@@ -2038,7 +2038,8 @@ const ge = {
   border_radius: "999px",
   show_state: !0,
   locked_color: "#45d158",
-  unlocked_color: "#ff8a1c",
+  unlocked_color: "#ff3b30",
+  pending_color: "#ff8a1c",
   jammed_color: "#ff3b30",
   off_color: "#697382",
   background: "#101722",
@@ -2066,7 +2067,8 @@ const ht = class ht extends g {
         --lock-card-height: 64px;
         --lock-card-radius: 999px;
         --lock-locked-color: #45d158;
-        --lock-unlocked-color: #ff8a1c;
+        --lock-unlocked-color: #ff3b30;
+        --lock-pending-color: #ff8a1c;
         --lock-jammed-color: #ff3b30;
         --lock-off-color: #697382;
         --lock-background: #101722;
@@ -2349,7 +2351,7 @@ const ht = class ht extends g {
     ), this.style.setProperty("--lock-card-height", this.config.height ?? "64px"), this.style.setProperty(
       "--lock-card-radius",
       this.config.border_radius ?? "999px"
-    ), this.style.setProperty("--lock-locked-color", this.config.locked_color ?? "#45d158"), this.style.setProperty("--lock-unlocked-color", this.config.unlocked_color ?? "#ff8a1c"), this.style.setProperty("--lock-jammed-color", this.config.jammed_color ?? "#ff3b30"), this.style.setProperty("--lock-off-color", this.config.off_color ?? "#697382"), this.style.setProperty("--lock-background", this.config.background ?? "#101722");
+    ), this.style.setProperty("--lock-locked-color", this.config.locked_color ?? "#45d158"), this.style.setProperty("--lock-unlocked-color", this.config.unlocked_color ?? "#ff3b30"), this.style.setProperty("--lock-pending-color", this.config.pending_color ?? "#ff8a1c"), this.style.setProperty("--lock-jammed-color", this.config.jammed_color ?? "#ff3b30"), this.style.setProperty("--lock-off-color", this.config.off_color ?? "#697382"), this.style.setProperty("--lock-background", this.config.background ?? "#101722");
   }
   getCardSize() {
     return 1;
@@ -2365,21 +2367,24 @@ const ht = class ht extends g {
     var t;
     return ((t = this.entity) == null ? void 0 : t.state) === "jammed";
   }
+  get effectiveState() {
+    var t;
+    return this.optimisticState ?? ((t = this.entity) == null ? void 0 : t.state);
+  }
+  get isPending() {
+    return this.effectiveState === "locking" || this.effectiveState === "unlocking";
+  }
   get isLocked() {
-    var t, e;
-    return this.optimisticLocked !== void 0 ? this.optimisticLocked : ((t = this.entity) == null ? void 0 : t.state) === "locked" || ((e = this.entity) == null ? void 0 : e.state) === "locking";
+    return this.optimisticLocked !== void 0 ? this.optimisticLocked : this.effectiveState === "locked" || this.effectiveState === "locking";
   }
   get displayName() {
     var t;
     return this.config.name || ((t = this.entity) == null ? void 0 : t.attributes.friendly_name) || this.config.entity;
   }
   get displayState() {
-    var e;
     if (this.isUnavailable)
       return "Unavailable";
-    if (this.optimisticLocked !== void 0)
-      return this.optimisticLocked ? "Locked" : "Unlocked";
-    const t = (e = this.entity) == null ? void 0 : e.state;
+    const t = this.effectiveState;
     return t === "locking" ? "Locking" : t === "unlocking" ? "Unlocking" : t === "jammed" ? "Jammed" : t === "locked" ? "Locked" : "Unlocked";
   }
   get icon() {
@@ -2394,20 +2399,28 @@ const ht = class ht extends g {
       })
     );
   }
-  setOptimisticLocked(t) {
-    window.clearTimeout(this.optimisticTimer), this.optimisticLocked = t, this.optimisticTimer = window.setTimeout(() => {
-      this.optimisticLocked = void 0;
-    }, 1800);
+  setOptimisticLockState(t) {
+    window.clearTimeout(this.optimisticTimer), this.optimisticLocked = t, this.optimisticState = t ? "locking" : "unlocking", this.optimisticTimer = window.setTimeout(() => {
+      this.clearOptimisticLocked();
+    }, 8e3);
   }
   clearOptimisticLocked() {
-    window.clearTimeout(this.optimisticTimer), this.optimisticLocked = void 0;
+    window.clearTimeout(this.optimisticTimer), this.optimisticLocked = void 0, this.optimisticState = void 0;
+  }
+  updated() {
+    var t, e;
+    if (this.optimisticState === "locking" && ((t = this.entity) == null ? void 0 : t.state) === "locked") {
+      this.clearOptimisticLocked();
+      return;
+    }
+    this.optimisticState === "unlocking" && ((e = this.entity) == null ? void 0 : e.state) === "unlocked" && this.clearOptimisticLocked();
   }
   trackServiceResult(t) {
     t && typeof t.catch == "function" && t.catch(() => this.clearOptimisticLocked());
   }
   callLockService(t) {
     var e;
-    this.setOptimisticLocked(t), this.trackServiceResult(
+    this.setOptimisticLockState(t), this.trackServiceResult(
       (e = this.hass) == null ? void 0 : e.callService("lock", t ? "lock" : "unlock", {
         entity_id: this.config.entity
       })
@@ -2448,7 +2461,7 @@ const ht = class ht extends g {
   render() {
     if (!this.config)
       return a``;
-    const t = this.isUnavailable ? this.config.off_color ?? "#697382" : this.isJammed ? this.config.jammed_color ?? "#ff3b30" : this.isLocked ? this.config.locked_color ?? "#45d158" : this.config.unlocked_color ?? "#ff8a1c", e = this.isUnavailable ? "0" : "1", i = this.isLocked ? "locked" : this.isJammed ? "jammed" : "unlocked";
+    const t = this.isUnavailable ? this.config.off_color ?? "#697382" : this.isJammed ? this.config.jammed_color ?? "#ff3b30" : this.isPending ? this.config.pending_color ?? "#ff8a1c" : this.isLocked ? this.config.locked_color ?? "#45d158" : this.config.unlocked_color ?? "#ff3b30", e = this.isUnavailable ? "0" : "1", i = this.isPending ? "pending" : this.isLocked ? "locked" : this.isJammed ? "jammed" : "unlocked";
     return a`
       <ha-card
         style="
@@ -2493,7 +2506,8 @@ ht.properties = {
   hass: { attribute: !1 },
   config: { state: !0 },
   holdActive: { state: !0 },
-  optimisticLocked: { state: !0 }
+  optimisticLocked: { state: !0 },
+  optimisticState: { state: !0 }
 };
 let Y = ht;
 customElements.get("glow-lock-card") || customElements.define("glow-lock-card", Y);
@@ -2667,7 +2681,8 @@ const dt = class dt extends g {
           <h3>Style</h3>
           <div class="grid">
             ${this.renderTextInput("Locked Color", "locked_color", "#45d158")}
-            ${this.renderTextInput("Unlocked Color", "unlocked_color", "#ff8a1c")}
+            ${this.renderTextInput("Unlocked Color", "unlocked_color", "#ff3b30")}
+            ${this.renderTextInput("Pending Color", "pending_color", "#ff8a1c")}
             ${this.renderTextInput("Jammed Color", "jammed_color", "#ff3b30")}
             ${this.renderTextInput("Off Color", "off_color", "#697382")}
             ${this.renderTextInput("Background", "background", "#101722")}
@@ -2711,8 +2726,8 @@ const Dt = {
   icon: "mdi:thermostat",
   width: "320px",
   fill_container: !1,
-  height: "72px",
-  border_radius: "999px",
+  height: "384px",
+  border_radius: "18px",
   show_state: !0,
   show_current: !0,
   show_controls: !0,
@@ -2725,7 +2740,7 @@ const Dt = {
   tap_action: "more-info",
   hold_action: "more-info",
   animated: !0
-}, Nt = ["more-info", "none"];
+}, Lt = ["more-info", "none"];
 function me(n, t) {
   n.dispatchEvent(
     new CustomEvent("config-changed", {
@@ -2735,7 +2750,7 @@ function me(n, t) {
     })
   );
 }
-function N(n, t) {
+function M(n, t) {
   if (typeof n == "number" && Number.isFinite(n))
     return n;
   if (typeof n == "string") {
@@ -2753,8 +2768,8 @@ const pt = class pt extends g {
     return f`
       :host {
         --thermostat-card-width: 320px;
-        --thermostat-card-height: 72px;
-        --thermostat-card-radius: 999px;
+        --thermostat-card-height: 384px;
+        --thermostat-card-radius: 18px;
         --thermostat-heat-color: #ff8a1c;
         --thermostat-cool-color: #2f80ff;
         --thermostat-idle-color: #45d158;
@@ -2775,21 +2790,12 @@ const pt = class pt extends g {
       }
 
       .thermostat {
-        align-items: center;
+        align-items: stretch;
         background:
-          radial-gradient(
-            circle at 15% 50%,
-            color-mix(in srgb, var(--thermostat-hot-color) 14%, transparent),
-            transparent 44%
-          ),
+          radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--thermostat-state-color) 18%, transparent), transparent 42%),
+          radial-gradient(circle at 12% 12%, rgb(255 255 255 / 7%), transparent 36%),
           linear-gradient(
-            118deg,
-            color-mix(in srgb, var(--thermostat-warm-color) 12%, transparent) 0%,
-            color-mix(in srgb, var(--thermostat-state-color) 7%, transparent) 48%,
-            color-mix(in srgb, var(--thermostat-hot-color) 14%, transparent) 100%
-          ),
-          linear-gradient(
-            135deg,
+            145deg,
             color-mix(in srgb, var(--thermostat-background) 92%, #ffffff 7%),
             color-mix(in srgb, var(--thermostat-background) 92%, #000000 13%)
           );
@@ -2819,13 +2825,13 @@ const pt = class pt extends g {
         color: var(--primary-text-color, #f4f7fb);
         cursor: pointer;
         display: grid;
-        gap: 9px;
-        grid-template-columns: 42px minmax(0, 1fr) auto;
+        gap: 16px;
+        grid-template-rows: auto minmax(0, 1fr) auto;
         min-height: var(--thermostat-card-height);
         overflow: hidden;
-        padding: 8px 10px 8px 9px;
+        padding: 18px;
         position: relative;
-        text-align: left;
+        text-align: center;
         width: 100%;
       }
 
@@ -2854,17 +2860,17 @@ const pt = class pt extends g {
 
       .thermostat::after {
         border: 1px solid
-          color-mix(in srgb, var(--thermostat-state-color) 86%, transparent);
+          color-mix(in srgb, var(--thermostat-state-color) 42%, transparent);
         border-radius: inherit;
         box-shadow:
           inset 0 0 11px
-            color-mix(in srgb, var(--thermostat-state-color) 34%, transparent),
+            color-mix(in srgb, var(--thermostat-state-color) 18%, transparent),
           0 0 10px
-            color-mix(in srgb, var(--thermostat-state-color) 60%, transparent),
+            color-mix(in srgb, var(--thermostat-state-color) 28%, transparent),
           0 0 22px
-            color-mix(in srgb, var(--thermostat-state-color) 44%, transparent),
+            color-mix(in srgb, var(--thermostat-state-color) 22%, transparent),
           0 0 46px
-            color-mix(in srgb, var(--thermostat-state-color) 26%, transparent);
+            color-mix(in srgb, var(--thermostat-state-color) 12%, transparent);
         content: '';
         inset: -1px;
         opacity: var(--thermostat-glow-opacity);
@@ -2909,16 +2915,23 @@ const pt = class pt extends g {
         z-index: 0;
       }
 
-      .icon-shell,
-      .content,
+      .header,
+      .dial,
       .controls {
         position: relative;
         z-index: 2;
       }
 
+      .header {
+        align-items: center;
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 42px minmax(0, 1fr);
+        text-align: left;
+      }
+
       .icon-shell {
         align-items: center;
-        align-self: center;
         background:
           radial-gradient(
             circle,
@@ -2941,14 +2954,10 @@ const pt = class pt extends g {
         color: currentColor;
       }
 
-      .content {
-        align-self: center;
+      .title-block {
         display: flex;
         flex-direction: column;
-        justify-self: center;
         min-width: 0;
-        text-align: center;
-        width: 100%;
       }
 
       .name {
@@ -2972,31 +2981,101 @@ const pt = class pt extends g {
         white-space: nowrap;
       }
 
-      .target {
+      .dial {
+        align-self: center;
+        aspect-ratio: 1;
+        background:
+          radial-gradient(circle at center, color-mix(in srgb, var(--thermostat-background) 92%, #ffffff 5%) 0 54%, transparent 55%),
+          conic-gradient(
+            from 215deg,
+            color-mix(in srgb, var(--thermostat-state-color) 88%, #ffffff 8%) 0deg var(--thermostat-arc-degrees),
+            rgb(255 255 255 / 10%) var(--thermostat-arc-degrees) 290deg,
+            transparent 290deg 360deg
+          );
+        border-radius: 999px;
+        box-shadow:
+          inset 0 0 0 1px rgb(255 255 255 / 7%),
+          inset 0 12px 26px rgb(255 255 255 / 5%),
+          0 0 34px color-mix(in srgb, var(--thermostat-state-color) 18%, transparent);
+        display: grid;
+        justify-self: center;
+        max-width: 220px;
+        place-items: center;
+        position: relative;
+        width: 76%;
+      }
+
+      .dial::before {
+        background:
+          radial-gradient(circle, color-mix(in srgb, var(--thermostat-state-color) 14%, transparent), transparent 72%),
+          linear-gradient(145deg, rgb(255 255 255 / 8%), rgb(0 0 0 / 18%));
+        border: 1px solid rgb(255 255 255 / 9%);
+        border-radius: inherit;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 10%);
+        content: '';
+        inset: 18%;
+        position: absolute;
+      }
+
+      .dial-center {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        z-index: 1;
+      }
+
+      .mode {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 15px;
+        font-size: 13px;
         font-weight: 650;
-        line-height: 1.15;
-        margin-top: 2px;
+        line-height: 1.1;
+        margin-bottom: 12px;
+      }
+
+      .target {
+        align-items: flex-start;
+        color: var(--primary-text-color, #f4f7fb);
+        display: inline-flex;
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 1;
+        white-space: nowrap;
+      }
+
+      .unit {
+        color: var(--primary-text-color, #f4f7fb);
+        font-size: 17px;
+        font-weight: 650;
+        line-height: 1;
+        margin-left: 2px;
+        padding-top: 5px;
+      }
+
+      .current {
+        color: var(--secondary-text-color, #b7c0ce);
+        font-size: 13px;
+        line-height: 1.2;
+        margin-top: 8px;
         white-space: nowrap;
       }
 
       .controls {
-        align-items: center;
-        align-self: center;
-        background: rgb(255 255 255 / 6%);
-        border: 1px solid rgb(255 255 255 / 9%);
-        border-radius: 999px;
+        align-self: end;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
         display: inline-grid;
-        gap: 2px;
-        grid-template-columns: 30px 30px;
-        padding: 3px;
+        gap: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: 0;
+        width: 100%;
       }
 
       .control {
         align-items: center;
-        background: transparent;
-        border: 0;
+        background: rgb(255 255 255 / 7%);
+        border: 1px solid rgb(255 255 255 / 10%);
         border-radius: 999px;
         color: var(--secondary-text-color, #b7c0ce);
         cursor: pointer;
@@ -3004,11 +3083,11 @@ const pt = class pt extends g {
         font: inherit;
         font-size: 18px;
         font-weight: 650;
-        height: 30px;
+        height: 42px;
         justify-content: center;
         letter-spacing: 0;
         padding: 0;
-        width: 30px;
+        width: 100%;
       }
 
       .control:active {
@@ -3049,17 +3128,6 @@ const pt = class pt extends g {
         }
       }
 
-      @media (max-width: 520px) {
-        .thermostat {
-          grid-template-columns: 40px minmax(0, 1fr);
-        }
-
-        .controls {
-          grid-column: 1 / -1;
-          width: 100%;
-        }
-      }
-
       @media (prefers-reduced-motion: reduce) {
         .thermostat.active.animated::after {
           animation: none;
@@ -3084,20 +3152,20 @@ const pt = class pt extends g {
     this.config = {
       ...Dt,
       ...t,
-      temperature_step: N(t.temperature_step, 1)
+      temperature_step: M(t.temperature_step, 1)
     }, this.style.setProperty(
       "--thermostat-card-width",
       this.config.fill_container ? "100%" : this.config.width ?? "320px"
-    ), this.style.setProperty("--thermostat-card-height", this.config.height ?? "72px"), this.style.setProperty(
+    ), this.style.setProperty("--thermostat-card-height", this.config.height ?? "384px"), this.style.setProperty(
       "--thermostat-card-radius",
-      this.config.border_radius ?? "999px"
+      this.config.border_radius ?? "18px"
     ), this.style.setProperty("--thermostat-heat-color", this.config.heat_color ?? "#ff8a1c"), this.style.setProperty("--thermostat-cool-color", this.config.cool_color ?? "#2f80ff"), this.style.setProperty("--thermostat-idle-color", this.config.idle_color ?? "#45d158"), this.style.setProperty("--thermostat-off-color", this.config.off_color ?? "#697382"), this.style.setProperty(
       "--thermostat-background",
       this.config.background ?? "#101722"
     );
   }
   getCardSize() {
-    return 1;
+    return 4;
   }
   get entity() {
     var t;
@@ -3114,6 +3182,14 @@ const pt = class pt extends g {
     var t, e;
     return String(((t = this.entity) == null ? void 0 : t.attributes.hvac_action) || ((e = this.entity) == null ? void 0 : e.state) || "idle");
   }
+  get isCooling() {
+    var t;
+    return this.hvacAction === "cooling" || ((t = this.entity) == null ? void 0 : t.state) === "cool";
+  }
+  get isHeating() {
+    var t;
+    return this.hvacAction === "heating" || ((t = this.entity) == null ? void 0 : t.state) === "heat";
+  }
   get unit() {
     var t;
     return String(((t = this.entity) == null ? void 0 : t.attributes.temperature_unit) || "°");
@@ -3122,6 +3198,14 @@ const pt = class pt extends g {
     var e;
     const t = (e = this.entity) == null ? void 0 : e.attributes.current_temperature;
     return typeof t == "number" ? t : void 0;
+  }
+  get minTemperature() {
+    var t;
+    return M((t = this.entity) == null ? void 0 : t.attributes.min_temp, 55);
+  }
+  get maxTemperature() {
+    var t;
+    return M((t = this.entity) == null ? void 0 : t.attributes.max_temp, 85);
   }
   get targetTemperature() {
     var r, o, s;
@@ -3140,16 +3224,28 @@ const pt = class pt extends g {
   get displayState() {
     return this.isUnavailable ? "Unavailable" : this.isOff ? "Off" : this.config.show_current && this.currentTemperature !== void 0 ? `${this.formatTemperature(this.currentTemperature)} now` : this.hvacAction;
   }
+  get modeLabel() {
+    return this.isUnavailable ? "Unavailable" : this.isOff ? "Off" : this.isCooling ? "Cool" : this.isHeating ? "Heat" : "Idle";
+  }
+  get currentLabel() {
+    return this.currentTemperature === void 0 ? this.hvacAction : this.formatTemperature(this.currentTemperature);
+  }
   get icon() {
     var t;
     return this.config.icon || ((t = this.entity) == null ? void 0 : t.attributes.icon) || Dt.icon;
   }
   get stateColor() {
-    var t, e;
-    return this.isOff || this.isUnavailable ? this.config.off_color ?? "#697382" : this.hvacAction === "cooling" || ((t = this.entity) == null ? void 0 : t.state) === "cool" ? this.config.cool_color ?? "#2f80ff" : this.hvacAction === "heating" || ((e = this.entity) == null ? void 0 : e.state) === "heat" ? this.config.heat_color ?? "#ff8a1c" : this.config.idle_color ?? "#45d158";
+    return this.isOff || this.isUnavailable ? this.config.off_color ?? "#697382" : this.isCooling ? this.config.cool_color ?? "#2f80ff" : this.isHeating ? this.config.heat_color ?? "#ff8a1c" : this.config.idle_color ?? "#45d158";
   }
   formatTemperature(t) {
     return `${Math.round(t * 10) / 10}${this.unit}`;
+  }
+  formatTemperatureValue(t) {
+    return `${Math.round(t * 10) / 10}`;
+  }
+  get arcDegrees() {
+    const t = this.minTemperature, e = this.maxTemperature, i = Math.max(1, e - t), r = Math.max(0, Math.min(1, (this.targetTemperature - t) / i));
+    return Math.round(24 + r * 266);
   }
   dispatchMoreInfo() {
     this.dispatchEvent(
@@ -3163,7 +3259,7 @@ const pt = class pt extends g {
   setOptimisticTemperature(t) {
     window.clearTimeout(this.optimisticTimer), this.optimisticTemperature = t, this.optimisticTimer = window.setTimeout(() => {
       this.optimisticTemperature = void 0;
-    }, 1800);
+    }, 8e3);
   }
   clearOptimisticTemperature() {
     window.clearTimeout(this.optimisticTimer), this.optimisticTemperature = void 0;
@@ -3171,20 +3267,25 @@ const pt = class pt extends g {
   trackServiceResult(t) {
     t && typeof t.catch == "function" && t.catch(() => this.clearOptimisticTemperature());
   }
+  updated() {
+    var e;
+    const t = (e = this.entity) == null ? void 0 : e.attributes.temperature;
+    this.optimisticTemperature !== void 0 && typeof t == "number" && Math.abs(t - this.optimisticTemperature) < 0.1 && this.clearOptimisticTemperature();
+  }
   setTargetTemperature(t) {
-    var o, s, c;
+    var o;
     if (this.isUnavailable || this.isOff)
       return;
-    const e = N((o = this.entity) == null ? void 0 : o.attributes.min_temp, -1 / 0), i = N((s = this.entity) == null ? void 0 : s.attributes.max_temp, 1 / 0), r = Math.min(i, Math.max(e, t));
+    const e = this.minTemperature, i = this.maxTemperature, r = Math.min(i, Math.max(e, t));
     this.setOptimisticTemperature(r), this.trackServiceResult(
-      (c = this.hass) == null ? void 0 : c.callService("climate", "set_temperature", {
+      (o = this.hass) == null ? void 0 : o.callService("climate", "set_temperature", {
         entity_id: this.config.entity,
         temperature: r
       })
     );
   }
   adjustTemperature(t) {
-    const e = N(this.config.temperature_step, 1);
+    const e = M(this.config.temperature_step, 1);
     this.setTargetTemperature(this.targetTemperature + t * e);
   }
   performAction(t) {
@@ -3242,19 +3343,20 @@ const pt = class pt extends g {
   render() {
     if (!this.config)
       return a``;
-    const t = this.stateColor, e = !this.isOff && !this.isUnavailable, i = e ? "1" : "0";
+    const t = this.stateColor, e = !this.isOff && !this.isUnavailable, i = e ? "1" : "0", r = this.isCooling;
     return a`
       <ha-card
         style="
           --thermostat-state-color: ${t};
-          --thermostat-warm-color: ${this.hvacAction === "cooling" ? "color-mix(in srgb, " + t + " 86%, #94d6ff)" : "color-mix(in srgb, " + t + " 86%, #ffd26a)"};
-          --thermostat-hot-color: ${this.hvacAction === "cooling" ? "color-mix(in srgb, " + t + " 80%, #4fb3ff)" : "color-mix(in srgb, " + t + " 80%, #ff4f00)"};
+          --thermostat-warm-color: ${r ? "color-mix(in srgb, " + t + " 86%, #94d6ff)" : "color-mix(in srgb, " + t + " 86%, #ffd26a)"};
+          --thermostat-hot-color: ${r ? "color-mix(in srgb, " + t + " 80%, #4fb3ff)" : "color-mix(in srgb, " + t + " 80%, #ff4f00)"};
           --thermostat-glow-opacity: ${i};
           --thermostat-border-strength: ${e ? "78%" : "24%"};
           --thermostat-inner-ring-width: ${e ? "1px" : "0px"};
           --thermostat-inner-ring-strength: ${e ? "28%" : "0%"};
           --thermostat-outer-blur: ${e ? "30px" : "0"};
           --thermostat-outer-strength: ${e ? "28%" : "0%"};
+          --thermostat-arc-degrees: ${this.arcDegrees}deg;
         "
       >
         <div
@@ -3270,13 +3372,24 @@ const pt = class pt extends g {
         >
           <span class="ambient-glow"></span>
           <span class="outline-glow"></span>
-          <span class="icon-shell">
-            <ha-icon icon=${this.icon}></ha-icon>
+          <span class="header">
+            <span class="icon-shell">
+              <ha-icon icon=${this.icon}></ha-icon>
+            </span>
+            <span class="title-block">
+              <span class="name">${this.displayName}</span>
+              ${this.config.show_state ? a`<span class="state">${this.displayState}</span>` : h}
+            </span>
           </span>
-          <span class="content">
-            <span class="name">${this.displayName}</span>
-            ${this.config.show_state ? a`<span class="state">${this.displayState}</span>` : h}
-            <span class="target">${this.formatTemperature(this.targetTemperature)}</span>
+          <span class="dial">
+            <span class="dial-center">
+              <span class="mode">${this.modeLabel}</span>
+              <span class="target">
+                <span>${this.formatTemperatureValue(this.targetTemperature)}</span>
+                <span class="unit">${this.unit}</span>
+              </span>
+              ${this.config.show_current ? a`<span class="current">${this.currentLabel}</span>` : h}
+            </span>
           </span>
           ${this.config.show_controls ? this.renderControls() : h}
         </div>
@@ -3460,8 +3573,8 @@ const ut = class ut extends g {
             ${this.renderTextInput("Name", "name", "Thermostat")}
             ${this.renderIconPicker("Icon", "icon")}
             ${this.renderTextInput("Width", "width", "320px")}
-            ${this.renderTextInput("Height", "height", "72px")}
-            ${this.renderTextInput("Radius", "border_radius", "999px")}
+            ${this.renderTextInput("Height", "height", "384px")}
+            ${this.renderTextInput("Radius", "border_radius", "18px")}
             ${this.renderNumberInput("Temperature Step", "temperature_step", "1")}
           </div>
           <div class="grid">
@@ -3489,11 +3602,11 @@ const ut = class ut extends g {
         <section class="section">
           <h3>Actions</h3>
           <div class="grid">
-            ${this.renderSelect("Tap Action", "tap_action", Nt, "more-info")}
+            ${this.renderSelect("Tap Action", "tap_action", Lt, "more-info")}
             ${this.renderSelect(
       "Hold Action",
       "hold_action",
-      Nt,
+      Lt,
       "more-info"
     )}
           </div>
@@ -3513,7 +3626,7 @@ window.customCards.push({
   preview: !0,
   type: "glow-thermostat-card",
   name: "Glow Thermostat Card",
-  description: "A compact thermostat card with instant setpoint controls."
+  description: "A dial-style thermostat card with instant setpoint controls."
 });
 const Mt = {
   title: "Outlets",
@@ -3532,7 +3645,7 @@ const Mt = {
   tap_action: "toggle",
   hold_action: "more-info",
   animated: !0
-}, Lt = ["toggle", "more-info", "none"], be = ["duplex", "grid", "stack"];
+}, Nt = ["toggle", "more-info", "none"], be = ["duplex", "grid", "stack"];
 function xe(n, t) {
   n.dispatchEvent(
     new CustomEvent("config-changed", {
@@ -4540,11 +4653,11 @@ const ft = class ft extends g {
         <section class="section">
           <h3>Actions</h3>
           <div class="grid">
-            ${this.renderSelect("Tap Action", "tap_action", Lt, "toggle")}
+            ${this.renderSelect("Tap Action", "tap_action", Nt, "toggle")}
             ${this.renderSelect(
       "Hold Action",
       "hold_action",
-      Lt,
+      Nt,
       "more-info"
     )}
           </div>
@@ -4597,7 +4710,7 @@ function ye(n, t) {
     })
   );
 }
-function M(n, t) {
+function A(n, t) {
   if (typeof n == "number" && Number.isFinite(n))
     return n;
   if (typeof n == "string") {
@@ -4686,6 +4799,8 @@ const mt = class mt extends g {
         padding: 8px 10px 8px 9px;
         position: relative;
         text-align: left;
+        touch-action: manipulation;
+        user-select: none;
         width: 100%;
       }
 
@@ -4713,13 +4828,13 @@ const mt = class mt extends g {
       }
 
       .fan::after {
-        border: 1px solid color-mix(in srgb, var(--fan-state-color) 86%, transparent);
+        border: 1px solid color-mix(in srgb, var(--fan-state-color) 24%, transparent);
         border-radius: inherit;
         box-shadow:
-          inset 0 0 11px color-mix(in srgb, var(--fan-state-color) 34%, transparent),
-          0 0 10px color-mix(in srgb, var(--fan-state-color) 60%, transparent),
-          0 0 22px color-mix(in srgb, var(--fan-state-color) 44%, transparent),
-          0 0 46px color-mix(in srgb, var(--fan-state-color) 26%, transparent);
+          inset 0 0 16px color-mix(in srgb, var(--fan-state-color) 12%, transparent),
+          0 0 18px color-mix(in srgb, var(--fan-state-color) 20%, transparent),
+          0 0 42px color-mix(in srgb, var(--fan-state-color) 14%, transparent),
+          0 0 82px color-mix(in srgb, var(--fan-state-color) 8%, transparent);
         content: '';
         inset: -1px;
         opacity: var(--fan-on-opacity);
@@ -4737,11 +4852,11 @@ const mt = class mt extends g {
       }
 
       .outline-glow {
-        border: 1px solid color-mix(in srgb, var(--fan-state-color) 52%, transparent);
+        border: 1px solid color-mix(in srgb, var(--fan-state-color) 18%, transparent);
         box-shadow:
-          0 0 6px color-mix(in srgb, var(--fan-state-color) 62%, transparent),
-          0 0 18px color-mix(in srgb, var(--fan-state-color) 46%, transparent),
-          0 0 38px color-mix(in srgb, var(--fan-state-color) 28%, transparent);
+          0 0 12px color-mix(in srgb, var(--fan-state-color) 22%, transparent),
+          0 0 34px color-mix(in srgb, var(--fan-state-color) 14%, transparent),
+          0 0 70px color-mix(in srgb, var(--fan-state-color) 8%, transparent);
         inset: 2px;
         opacity: var(--fan-on-opacity);
         z-index: 1;
@@ -4751,10 +4866,10 @@ const mt = class mt extends g {
         background:
           radial-gradient(
             ellipse at center,
-            color-mix(in srgb, var(--fan-state-color) 20%, transparent),
-            transparent 70%
+            color-mix(in srgb, var(--fan-state-color) 12%, transparent),
+            transparent 78%
           );
-        filter: blur(13px);
+        filter: blur(18px);
         inset: 7px;
         opacity: var(--fan-on-opacity);
         z-index: 0;
@@ -4855,6 +4970,8 @@ const mt = class mt extends g {
         letter-spacing: 0;
         min-width: 0;
         padding: 0 6px;
+        touch-action: manipulation;
+        user-select: none;
       }
 
       .speed.active {
@@ -4864,10 +4981,10 @@ const mt = class mt extends g {
             color-mix(in srgb, var(--fan-state-color) 22%, transparent),
             transparent 78%
           ),
-          color-mix(in srgb, var(--fan-state-color) 22%, #ffffff 3%);
+          color-mix(in srgb, var(--fan-state-color) 18%, #ffffff 3%);
         box-shadow:
           inset 0 1px 0 rgb(255 255 255 / 10%),
-          0 0 14px color-mix(in srgb, var(--fan-state-color) 38%, transparent);
+          0 0 16px color-mix(in srgb, var(--fan-state-color) 16%, transparent);
         color: var(--primary-text-color, #f4f7fb);
       }
 
@@ -4904,17 +5021,6 @@ const mt = class mt extends g {
         }
       }
 
-      @media (max-width: 520px) {
-        .fan {
-          grid-template-columns: 40px minmax(0, 1fr);
-        }
-
-        .speed-buttons {
-          grid-column: 1 / -1;
-          width: 100%;
-        }
-      }
-
       @media (prefers-reduced-motion: reduce) {
         .fan.on.animated::after,
         .fan.on.animated .icon-shell ha-icon {
@@ -4938,9 +5044,9 @@ const mt = class mt extends g {
     this.config = {
       ...zt,
       ...t,
-      speed_1_percentage: M(t.speed_1_percentage, 33),
-      speed_2_percentage: M(t.speed_2_percentage, 66),
-      speed_3_percentage: M(t.speed_3_percentage, 100)
+      speed_1_percentage: A(t.speed_1_percentage, 33),
+      speed_2_percentage: A(t.speed_2_percentage, 66),
+      speed_3_percentage: A(t.speed_3_percentage, 100)
     }, this.style.setProperty(
       "--fan-card-width",
       this.config.fill_container ? "100%" : this.config.width ?? "260px"
@@ -4965,14 +5071,23 @@ const mt = class mt extends g {
   }
   get percentage() {
     var t;
-    return this.optimisticLevel !== void 0 ? this.optimisticLevel === 0 ? 0 : this.percentageForLevel(this.optimisticLevel) : this.isOn ? M((t = this.entity) == null ? void 0 : t.attributes.percentage, 100) : 0;
+    return this.optimisticLevel !== void 0 ? this.optimisticLevel === 0 ? 0 : this.percentageForLevel(this.optimisticLevel) : this.isOn ? A((t = this.entity) == null ? void 0 : t.attributes.percentage, 100) : 0;
   }
-  get level() {
-    const t = this.percentage;
-    if (!this.isOn || t <= 0)
+  get entityPercentage() {
+    var t, e;
+    return ((t = this.entity) == null ? void 0 : t.state) !== "on" ? 0 : A((e = this.entity) == null ? void 0 : e.attributes.percentage, 100);
+  }
+  levelFromPercentage(t) {
+    if (t <= 0)
       return 0;
     const e = this.config.speed_1_percentage ?? 33, i = this.config.speed_2_percentage ?? 66;
     return t <= (e + i) / 2 ? 1 : t < (i + (this.config.speed_3_percentage ?? 100)) / 2 ? 2 : 3;
+  }
+  get entityLevel() {
+    return this.levelFromPercentage(this.entityPercentage);
+  }
+  get level() {
+    return this.optimisticLevel !== void 0 ? this.optimisticLevel : this.levelFromPercentage(this.percentage);
   }
   get domain() {
     return this.config.entity.split(".")[0] || "fan";
@@ -5003,13 +5118,16 @@ const mt = class mt extends g {
   setOptimisticLevel(t) {
     window.clearTimeout(this.optimisticTimer), this.optimisticLevel = t, this.optimisticTimer = window.setTimeout(() => {
       this.optimisticLevel = void 0;
-    }, 1800);
+    }, 8e3);
   }
   clearOptimisticLevel() {
     window.clearTimeout(this.optimisticTimer), this.optimisticLevel = void 0;
   }
   trackServiceResult(t) {
     t && typeof t.catch == "function" && t.catch(() => this.clearOptimisticLevel());
+  }
+  updated() {
+    this.optimisticLevel !== void 0 && this.entityLevel === this.optimisticLevel && this.clearOptimisticLevel();
   }
   setLevel(t) {
     var e, i, r;
@@ -5024,7 +5142,7 @@ const mt = class mt extends g {
       }
       if (this.domain === "fan") {
         this.trackServiceResult(
-          (i = this.hass) == null ? void 0 : i.callService("fan", "set_percentage", {
+          (i = this.hass) == null ? void 0 : i.callService("fan", "turn_on", {
             entity_id: this.config.entity,
             percentage: this.percentageForLevel(t)
           })
@@ -5067,7 +5185,7 @@ const mt = class mt extends g {
     this.performTapAction();
   }
   handleSpeedPointerDown(t, e) {
-    t.stopPropagation(), this.handledSpeedPointer = !0, window.setTimeout(() => {
+    t.preventDefault(), t.stopPropagation(), this.handledSpeedPointer = !0, window.setTimeout(() => {
       this.handledSpeedPointer = !1;
     }, 500), this.setLevel(e);
   }
@@ -5113,11 +5231,11 @@ const mt = class mt extends g {
           --fan-warm-color: ${this.isOn ? "color-mix(in srgb, " + t + " 86%, #a8ffb2)" : t};
           --fan-hot-color: ${this.isOn ? "color-mix(in srgb, " + t + " 80%, #00ff66)" : t};
           --fan-on-opacity: ${e};
-          --fan-border-strength: ${this.isOn ? "78%" : "24%"};
+          --fan-border-strength: ${this.isOn ? "26%" : "18%"};
           --fan-inner-ring-width: ${this.isOn ? "1px" : "0px"};
-          --fan-inner-ring-strength: ${this.isOn ? "28%" : "0%"};
-          --fan-outer-blur: ${this.isOn ? "30px" : "0"};
-          --fan-outer-strength: ${this.isOn ? "28%" : "0%"};
+          --fan-inner-ring-strength: ${this.isOn ? "8%" : "0%"};
+          --fan-outer-blur: ${this.isOn ? "50px" : "0"};
+          --fan-outer-strength: ${this.isOn ? "10%" : "0%"};
         "
       >
         <div

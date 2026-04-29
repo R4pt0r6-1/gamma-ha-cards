@@ -22,6 +22,7 @@ type HomeAssistant = {
 };
 
 type ActionMode = 'toggle' | 'lock' | 'unlock' | 'more-info' | 'none';
+type OptimisticLockState = 'locking' | 'unlocking';
 
 interface GlowLockCardConfig {
   type?: string;
@@ -38,6 +39,7 @@ interface GlowLockCardConfig {
   show_state?: boolean;
   locked_color?: string;
   unlocked_color?: string;
+  pending_color?: string;
   jammed_color?: string;
   off_color?: string;
   background?: string;
@@ -61,7 +63,8 @@ const DEFAULT_CONFIG: Omit<GlowLockCardConfig, 'entity'> = {
   border_radius: '999px',
   show_state: true,
   locked_color: '#45d158',
-  unlocked_color: '#ff8a1c',
+  unlocked_color: '#ff3b30',
+  pending_color: '#ff8a1c',
   jammed_color: '#ff3b30',
   off_color: '#697382',
   background: '#101722',
@@ -91,6 +94,7 @@ export class GlowLockCard extends LitElement {
     config: { state: true },
     holdActive: { state: true },
     optimisticLocked: { state: true },
+    optimisticState: { state: true },
   };
 
   public hass?: HomeAssistant;
@@ -99,6 +103,7 @@ export class GlowLockCard extends LitElement {
   private optimisticTimer?: number;
   private holdActive = false;
   private optimisticLocked?: boolean;
+  private optimisticState?: OptimisticLockState;
 
   static get styles(): CSSResultGroup {
     return css`
@@ -107,7 +112,8 @@ export class GlowLockCard extends LitElement {
         --lock-card-height: 64px;
         --lock-card-radius: 999px;
         --lock-locked-color: #45d158;
-        --lock-unlocked-color: #ff8a1c;
+        --lock-unlocked-color: #ff3b30;
+        --lock-pending-color: #ff8a1c;
         --lock-jammed-color: #ff3b30;
         --lock-off-color: #697382;
         --lock-background: #101722;
@@ -402,7 +408,8 @@ export class GlowLockCard extends LitElement {
       this.config.border_radius ?? '999px',
     );
     this.style.setProperty('--lock-locked-color', this.config.locked_color ?? '#45d158');
-    this.style.setProperty('--lock-unlocked-color', this.config.unlocked_color ?? '#ff8a1c');
+    this.style.setProperty('--lock-unlocked-color', this.config.unlocked_color ?? '#ff3b30');
+    this.style.setProperty('--lock-pending-color', this.config.pending_color ?? '#ff8a1c');
     this.style.setProperty('--lock-jammed-color', this.config.jammed_color ?? '#ff3b30');
     this.style.setProperty('--lock-off-color', this.config.off_color ?? '#697382');
     this.style.setProperty('--lock-background', this.config.background ?? '#101722');
@@ -424,12 +431,20 @@ export class GlowLockCard extends LitElement {
     return this.entity?.state === 'jammed';
   }
 
+  private get effectiveState(): string | undefined {
+    return this.optimisticState ?? this.entity?.state;
+  }
+
+  private get isPending(): boolean {
+    return this.effectiveState === 'locking' || this.effectiveState === 'unlocking';
+  }
+
   private get isLocked(): boolean {
     if (this.optimisticLocked !== undefined) {
       return this.optimisticLocked;
     }
 
-    return this.entity?.state === 'locked' || this.entity?.state === 'locking';
+    return this.effectiveState === 'locked' || this.effectiveState === 'locking';
   }
 
   private get displayName(): string {
@@ -445,11 +460,7 @@ export class GlowLockCard extends LitElement {
       return 'Unavailable';
     }
 
-    if (this.optimisticLocked !== undefined) {
-      return this.optimisticLocked ? 'Locked' : 'Unlocked';
-    }
-
-    const state = this.entity?.state;
+    const state = this.effectiveState;
 
     if (state === 'locking') {
       return 'Locking';
@@ -490,17 +501,30 @@ export class GlowLockCard extends LitElement {
     );
   }
 
-  private setOptimisticLocked(locked: boolean): void {
+  private setOptimisticLockState(locked: boolean): void {
     window.clearTimeout(this.optimisticTimer);
     this.optimisticLocked = locked;
+    this.optimisticState = locked ? 'locking' : 'unlocking';
     this.optimisticTimer = window.setTimeout(() => {
-      this.optimisticLocked = undefined;
-    }, 1800);
+      this.clearOptimisticLocked();
+    }, 8000);
   }
 
   private clearOptimisticLocked(): void {
     window.clearTimeout(this.optimisticTimer);
     this.optimisticLocked = undefined;
+    this.optimisticState = undefined;
+  }
+
+  protected updated(): void {
+    if (this.optimisticState === 'locking' && this.entity?.state === 'locked') {
+      this.clearOptimisticLocked();
+      return;
+    }
+
+    if (this.optimisticState === 'unlocking' && this.entity?.state === 'unlocked') {
+      this.clearOptimisticLocked();
+    }
   }
 
   private trackServiceResult(result: Promise<unknown> | void): void {
@@ -510,7 +534,7 @@ export class GlowLockCard extends LitElement {
   }
 
   private callLockService(locked: boolean): void {
-    this.setOptimisticLocked(locked);
+    this.setOptimisticLockState(locked);
     this.trackServiceResult(
       this.hass?.callService('lock', locked ? 'lock' : 'unlock', {
         entity_id: this.config.entity,
@@ -572,11 +596,19 @@ export class GlowLockCard extends LitElement {
       ? this.config.off_color ?? '#697382'
       : this.isJammed
         ? this.config.jammed_color ?? '#ff3b30'
+        : this.isPending
+          ? this.config.pending_color ?? '#ff8a1c'
         : this.isLocked
           ? this.config.locked_color ?? '#45d158'
-          : this.config.unlocked_color ?? '#ff8a1c';
+          : this.config.unlocked_color ?? '#ff3b30';
     const glowOpacity = this.isUnavailable ? '0' : '1';
-    const statusClass = this.isLocked ? 'locked' : this.isJammed ? 'jammed' : 'unlocked';
+    const statusClass = this.isPending
+      ? 'pending'
+      : this.isLocked
+        ? 'locked'
+        : this.isJammed
+          ? 'jammed'
+          : 'unlocked';
 
     return html`
       <ha-card
@@ -853,7 +885,8 @@ class GlowLockCardEditor extends LitElement {
           <h3>Style</h3>
           <div class="grid">
             ${this.renderTextInput('Locked Color', 'locked_color', '#45d158')}
-            ${this.renderTextInput('Unlocked Color', 'unlocked_color', '#ff8a1c')}
+            ${this.renderTextInput('Unlocked Color', 'unlocked_color', '#ff3b30')}
+            ${this.renderTextInput('Pending Color', 'pending_color', '#ff8a1c')}
             ${this.renderTextInput('Jammed Color', 'jammed_color', '#ff3b30')}
             ${this.renderTextInput('Off Color', 'off_color', '#697382')}
             ${this.renderTextInput('Background', 'background', '#101722')}

@@ -7,7 +7,7 @@ A fast Home Assistant Lovelace card collection for compact, animated dashboard c
 - `custom:glow-light-card` - a resizable glowing toggle card for lights and other toggleable entities.
 - `custom:glow-switch-card` - a compact switch-only button with a green on-state outline glow.
 - `custom:glow-lock-card` - a compact smart lock card with instant lock and unlock feedback.
-- `custom:glow-thermostat-card` - a compact thermostat card with instant setpoint controls.
+- `custom:glow-thermostat-card` - a dial-style thermostat card with instant setpoint controls.
 - `custom:dual-outlet-card` - one duplex socket card for two switch entities, with independent tap toggles and a red on-state outline glow.
 - `custom:speed-fan-card` - a compact fan card with Off, 1, 2, and 3 speed controls.
 
@@ -114,7 +114,8 @@ name: Front Door
 | `border_radius`  | `string`  | `999px`                  | CSS border radius.                |
 | `show_state`     | `boolean` | `true`                   | Show state text under the name.   |
 | `locked_color`   | `string`  | `#45d158`                | Glow color when locked.           |
-| `unlocked_color` | `string`  | `#ff8a1c`                | Glow color when unlocked.         |
+| `unlocked_color` | `string`  | `#ff3b30`                | Glow color when unlocked.         |
+| `pending_color`  | `string`  | `#ff8a1c`                | Glow color while locking or unlocking. |
 | `jammed_color`   | `string`  | `#ff3b30`                | Glow color when jammed.           |
 | `background`     | `string`  | `#101722`                | Base card background.             |
 | `tap_action`     | `string`  | `toggle`                 | `toggle`, `lock`, `unlock`, `more-info`, or `none`. |
@@ -139,8 +140,8 @@ temperature_step: 1
 | `icon`             | `string`  | `mdi:thermostat`  | Icon shown on the left.           |
 | `width`            | `string`  | `320px`           | CSS width of the card.            |
 | `fill_container`   | `boolean` | `false`           | Stretch the card to the full dashboard column width. |
-| `height`           | `string`  | `72px`            | CSS minimum height of the card.   |
-| `border_radius`    | `string`  | `999px`           | CSS border radius.                |
+| `height`           | `string`  | `384px`           | CSS minimum height of the card.   |
+| `border_radius`    | `string`  | `18px`            | CSS border radius.                |
 | `show_state`       | `boolean` | `true`            | Show current state text.          |
 | `show_current`     | `boolean` | `true`            | Show current temperature when available. |
 | `show_controls`    | `boolean` | `true`            | Show `-` and `+` setpoint buttons. |

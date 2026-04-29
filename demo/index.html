@@ -279,6 +279,9 @@
           if (domain === 'fan' && service === 'set_percentage') {
             entity.state = Number(data.percentage) > 0 ? 'on' : 'off';
             entity.attributes.percentage = Number(data.percentage);
+          } else if (domain === 'fan' && service === 'turn_on' && data.percentage !== undefined) {
+            entity.state = Number(data.percentage) > 0 ? 'on' : 'off';
+            entity.attributes.percentage = Number(data.percentage);
           } else if (domain === 'lock' && service === 'lock') {
             entity.state = 'locked';
           } else if (domain === 'lock' && service === 'unlock') {

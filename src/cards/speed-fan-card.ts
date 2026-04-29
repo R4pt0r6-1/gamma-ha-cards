@@ -204,6 +204,8 @@ export class SpeedFanCard extends LitElement {
         padding: 8px 10px 8px 9px;
         position: relative;
         text-align: left;
+        touch-action: manipulation;
+        user-select: none;
         width: 100%;
       }
 
@@ -231,13 +233,13 @@ export class SpeedFanCard extends LitElement {
       }
 
       .fan::after {
-        border: 1px solid color-mix(in srgb, var(--fan-state-color) 86%, transparent);
+        border: 1px solid color-mix(in srgb, var(--fan-state-color) 24%, transparent);
         border-radius: inherit;
         box-shadow:
-          inset 0 0 11px color-mix(in srgb, var(--fan-state-color) 34%, transparent),
-          0 0 10px color-mix(in srgb, var(--fan-state-color) 60%, transparent),
-          0 0 22px color-mix(in srgb, var(--fan-state-color) 44%, transparent),
-          0 0 46px color-mix(in srgb, var(--fan-state-color) 26%, transparent);
+          inset 0 0 16px color-mix(in srgb, var(--fan-state-color) 12%, transparent),
+          0 0 18px color-mix(in srgb, var(--fan-state-color) 20%, transparent),
+          0 0 42px color-mix(in srgb, var(--fan-state-color) 14%, transparent),
+          0 0 82px color-mix(in srgb, var(--fan-state-color) 8%, transparent);
         content: '';
         inset: -1px;
         opacity: var(--fan-on-opacity);
@@ -255,11 +257,11 @@ export class SpeedFanCard extends LitElement {
       }
 
       .outline-glow {
-        border: 1px solid color-mix(in srgb, var(--fan-state-color) 52%, transparent);
+        border: 1px solid color-mix(in srgb, var(--fan-state-color) 18%, transparent);
         box-shadow:
-          0 0 6px color-mix(in srgb, var(--fan-state-color) 62%, transparent),
-          0 0 18px color-mix(in srgb, var(--fan-state-color) 46%, transparent),
-          0 0 38px color-mix(in srgb, var(--fan-state-color) 28%, transparent);
+          0 0 12px color-mix(in srgb, var(--fan-state-color) 22%, transparent),
+          0 0 34px color-mix(in srgb, var(--fan-state-color) 14%, transparent),
+          0 0 70px color-mix(in srgb, var(--fan-state-color) 8%, transparent);
         inset: 2px;
         opacity: var(--fan-on-opacity);
         z-index: 1;
@@ -269,10 +271,10 @@ export class SpeedFanCard extends LitElement {
         background:
           radial-gradient(
             ellipse at center,
-            color-mix(in srgb, var(--fan-state-color) 20%, transparent),
-            transparent 70%
+            color-mix(in srgb, var(--fan-state-color) 12%, transparent),
+            transparent 78%
           );
-        filter: blur(13px);
+        filter: blur(18px);
         inset: 7px;
         opacity: var(--fan-on-opacity);
         z-index: 0;
@@ -373,6 +375,8 @@ export class SpeedFanCard extends LitElement {
         letter-spacing: 0;
         min-width: 0;
         padding: 0 6px;
+        touch-action: manipulation;
+        user-select: none;
       }
 
       .speed.active {
@@ -382,10 +386,10 @@ export class SpeedFanCard extends LitElement {
             color-mix(in srgb, var(--fan-state-color) 22%, transparent),
             transparent 78%
           ),
-          color-mix(in srgb, var(--fan-state-color) 22%, #ffffff 3%);
+          color-mix(in srgb, var(--fan-state-color) 18%, #ffffff 3%);
         box-shadow:
           inset 0 1px 0 rgb(255 255 255 / 10%),
-          0 0 14px color-mix(in srgb, var(--fan-state-color) 38%, transparent);
+          0 0 16px color-mix(in srgb, var(--fan-state-color) 16%, transparent);
         color: var(--primary-text-color, #f4f7fb);
       }
 
@@ -419,17 +423,6 @@ export class SpeedFanCard extends LitElement {
       @keyframes fan-spin {
         to {
           transform: rotate(360deg);
-        }
-      }
-
-      @media (max-width: 520px) {
-        .fan {
-          grid-template-columns: 40px minmax(0, 1fr);
-        }
-
-        .speed-buttons {
-          grid-column: 1 / -1;
-          width: 100%;
         }
       }
 
@@ -515,10 +508,16 @@ export class SpeedFanCard extends LitElement {
     return toNumber(this.entity?.attributes.percentage, 100);
   }
 
-  private get level(): FanLevel {
-    const percentage = this.percentage;
+  private get entityPercentage(): number {
+    if (this.entity?.state !== 'on') {
+      return 0;
+    }
 
-    if (!this.isOn || percentage <= 0) {
+    return toNumber(this.entity?.attributes.percentage, 100);
+  }
+
+  private levelFromPercentage(percentage: number): FanLevel {
+    if (percentage <= 0) {
       return 0;
     }
 
@@ -534,6 +533,18 @@ export class SpeedFanCard extends LitElement {
     }
 
     return 3;
+  }
+
+  private get entityLevel(): FanLevel {
+    return this.levelFromPercentage(this.entityPercentage);
+  }
+
+  private get level(): FanLevel {
+    if (this.optimisticLevel !== undefined) {
+      return this.optimisticLevel;
+    }
+
+    return this.levelFromPercentage(this.percentage);
   }
 
   private get domain(): string {
@@ -596,7 +607,7 @@ export class SpeedFanCard extends LitElement {
     this.optimisticLevel = level;
     this.optimisticTimer = window.setTimeout(() => {
       this.optimisticLevel = undefined;
-    }, 1800);
+    }, 8000);
   }
 
   private clearOptimisticLevel(): void {
@@ -607,6 +618,15 @@ export class SpeedFanCard extends LitElement {
   private trackServiceResult(result: Promise<unknown> | void): void {
     if (result && typeof result.catch === 'function') {
       result.catch(() => this.clearOptimisticLevel());
+    }
+  }
+
+  protected updated(): void {
+    if (
+      this.optimisticLevel !== undefined &&
+      this.entityLevel === this.optimisticLevel
+    ) {
+      this.clearOptimisticLevel();
     }
   }
 
@@ -628,7 +648,7 @@ export class SpeedFanCard extends LitElement {
 
     if (this.domain === 'fan') {
       this.trackServiceResult(
-        this.hass?.callService('fan', 'set_percentage', {
+        this.hass?.callService('fan', 'turn_on', {
           entity_id: this.config.entity,
           percentage: this.percentageForLevel(level),
         }),
@@ -687,6 +707,7 @@ export class SpeedFanCard extends LitElement {
   }
 
   private handleSpeedPointerDown(event: Event, level: FanLevel): void {
+    event.preventDefault();
     event.stopPropagation();
     this.handledSpeedPointer = true;
     window.setTimeout(() => {
@@ -755,11 +776,11 @@ export class SpeedFanCard extends LitElement {
             ? 'color-mix(in srgb, ' + stateColor + ' 80%, #00ff66)'
             : stateColor};
           --fan-on-opacity: ${onOpacity};
-          --fan-border-strength: ${this.isOn ? '78%' : '24%'};
+          --fan-border-strength: ${this.isOn ? '26%' : '18%'};
           --fan-inner-ring-width: ${this.isOn ? '1px' : '0px'};
-          --fan-inner-ring-strength: ${this.isOn ? '28%' : '0%'};
-          --fan-outer-blur: ${this.isOn ? '30px' : '0'};
-          --fan-outer-strength: ${this.isOn ? '28%' : '0%'};
+          --fan-inner-ring-strength: ${this.isOn ? '8%' : '0%'};
+          --fan-outer-blur: ${this.isOn ? '50px' : '0'};
+          --fan-outer-strength: ${this.isOn ? '10%' : '0%'};
         "
       >
         <div
