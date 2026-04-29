@@ -197,11 +197,11 @@ export class SpeedFanCard extends LitElement {
         color: var(--primary-text-color, #f4f7fb);
         cursor: pointer;
         display: grid;
-        gap: 9px;
-        grid-template-columns: 42px minmax(0, 1fr) auto;
+        gap: 8px;
+        grid-template-columns: 46px minmax(0, 1fr) auto;
         min-height: var(--fan-card-height);
         overflow: hidden;
-        padding: 8px 10px 8px 9px;
+        padding: 8px 10px 8px 10px;
         position: relative;
         text-align: left;
         touch-action: manipulation;
@@ -301,9 +301,9 @@ export class SpeedFanCard extends LitElement {
         border-radius: 999px;
         color: var(--fan-state-color);
         display: inline-flex;
-        height: 36px;
+        height: 38px;
         justify-content: center;
-        width: 36px;
+        width: 38px;
       }
 
       .icon-shell ha-icon {

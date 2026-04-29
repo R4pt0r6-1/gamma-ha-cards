@@ -177,10 +177,10 @@ export class GlowLockCard extends LitElement {
         cursor: pointer;
         display: grid;
         gap: 8px;
-        grid-template-columns: 42px minmax(0, 1fr) 18px;
+        grid-template-columns: 46px minmax(0, 1fr);
         min-height: var(--lock-card-height);
         overflow: hidden;
-        padding: 8px 12px 8px 9px;
+        padding: 8px 14px 8px 10px;
         position: relative;
         text-align: left;
         width: 100%;
@@ -288,9 +288,9 @@ export class GlowLockCard extends LitElement {
         border-radius: 999px;
         color: var(--lock-state-color);
         display: inline-flex;
-        height: 36px;
+        height: 38px;
         justify-content: center;
-        width: 36px;
+        width: 38px;
       }
 
       .icon-shell ha-icon {
@@ -330,15 +330,16 @@ export class GlowLockCard extends LitElement {
       }
 
       .status-dot {
-        align-self: center;
         background: color-mix(in srgb, var(--lock-state-color) 82%, #ffffff 2%);
         border-radius: 999px;
         box-shadow:
           0 0 10px color-mix(in srgb, var(--lock-state-color) 54%, transparent),
           0 0 20px color-mix(in srgb, var(--lock-state-color) 28%, transparent);
         height: 8px;
-        justify-self: end;
         opacity: var(--lock-dot-opacity);
+        position: absolute;
+        right: 16px;
+        top: calc(50% - 4px);
         width: 8px;
       }
 
