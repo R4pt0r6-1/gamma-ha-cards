@@ -50,7 +50,7 @@ const DEFAULT_CONFIG: Omit<GlowSwitchCardConfig, 'entity'> = {
   icon: 'mdi:toggle-switch',
   width: '260px',
   fill_container: false,
-  height: '64px',
+  height: '56px',
   border_radius: '999px',
   show_state: true,
   on_color: '#45d158',
@@ -95,7 +95,7 @@ export class GlowSwitchCard extends LitElement {
     return css`
       :host {
         --switch-card-width: 260px;
-        --switch-card-height: 64px;
+        --switch-card-height: 56px;
         --switch-card-radius: 999px;
         --switch-on-color: #45d158;
         --switch-off-color: #697382;
@@ -194,17 +194,17 @@ export class GlowSwitchCard extends LitElement {
 
       .switch-button::after {
         border: 1px solid
-          color-mix(in srgb, var(--switch-state-color) 86%, transparent);
+          color-mix(in srgb, var(--switch-state-color) 24%, transparent);
         border-radius: inherit;
         box-shadow:
-          inset 0 0 11px
-            color-mix(in srgb, var(--switch-state-color) 34%, transparent),
-          0 0 10px
-            color-mix(in srgb, var(--switch-state-color) 60%, transparent),
-          0 0 22px
-            color-mix(in srgb, var(--switch-state-color) 44%, transparent),
-          0 0 46px
-            color-mix(in srgb, var(--switch-state-color) 26%, transparent);
+          inset 0 0 16px
+            color-mix(in srgb, var(--switch-state-color) 12%, transparent),
+          0 0 18px
+            color-mix(in srgb, var(--switch-state-color) 20%, transparent),
+          0 0 42px
+            color-mix(in srgb, var(--switch-state-color) 14%, transparent),
+          0 0 82px
+            color-mix(in srgb, var(--switch-state-color) 8%, transparent);
         content: '';
         inset: -1px;
         opacity: var(--switch-on-opacity);
@@ -223,14 +223,14 @@ export class GlowSwitchCard extends LitElement {
 
       .outline-glow {
         border: 1px solid
-          color-mix(in srgb, var(--switch-state-color) 52%, transparent);
+          color-mix(in srgb, var(--switch-state-color) 18%, transparent);
         box-shadow:
-          0 0 6px
-            color-mix(in srgb, var(--switch-state-color) 62%, transparent),
-          0 0 18px
-            color-mix(in srgb, var(--switch-state-color) 46%, transparent),
-          0 0 38px
-            color-mix(in srgb, var(--switch-state-color) 28%, transparent);
+          0 0 12px
+            color-mix(in srgb, var(--switch-state-color) 22%, transparent),
+          0 0 34px
+            color-mix(in srgb, var(--switch-state-color) 14%, transparent),
+          0 0 70px
+            color-mix(in srgb, var(--switch-state-color) 8%, transparent);
         inset: 2px;
         opacity: var(--switch-on-opacity);
         z-index: 1;
@@ -240,10 +240,10 @@ export class GlowSwitchCard extends LitElement {
         background:
           radial-gradient(
             ellipse at center,
-            color-mix(in srgb, var(--switch-state-color) 20%, transparent),
-            transparent 70%
+            color-mix(in srgb, var(--switch-state-color) 12%, transparent),
+            transparent 78%
           );
-        filter: blur(13px);
+        filter: blur(18px);
         inset: 7px;
         opacity: var(--switch-on-opacity);
         z-index: 0;
@@ -387,7 +387,7 @@ export class GlowSwitchCard extends LitElement {
       '--switch-card-width',
       this.config.fill_container ? '100%' : this.config.width ?? '260px',
     );
-    this.style.setProperty('--switch-card-height', this.config.height ?? '64px');
+    this.style.setProperty('--switch-card-height', this.config.height ?? '56px');
     this.style.setProperty(
       '--switch-card-radius',
       this.config.border_radius ?? '999px',
@@ -402,6 +402,17 @@ export class GlowSwitchCard extends LitElement {
 
   public getCardSize(): number {
     return 1;
+  }
+
+  public getGridOptions() {
+    return {
+      rows: 1,
+      columns: 6,
+      min_rows: 1,
+      max_rows: 1,
+      min_columns: 3,
+      max_columns: 12,
+    };
   }
 
   private get entity(): SwitchEntity | undefined {
@@ -540,11 +551,11 @@ export class GlowSwitchCard extends LitElement {
             : stateColor};
           --switch-on-opacity: ${onOpacity};
           --switch-dot-opacity: ${this.isOn ? '1' : '0.26'};
-          --switch-border-strength: ${this.isOn ? '78%' : '24%'};
+          --switch-border-strength: ${this.isOn ? '26%' : '18%'};
           --switch-inner-ring-width: ${this.isOn ? '1px' : '0px'};
-          --switch-inner-ring-strength: ${this.isOn ? '28%' : '0%'};
-          --switch-outer-blur: ${this.isOn ? '30px' : '0'};
-          --switch-outer-strength: ${this.isOn ? '28%' : '0%'};
+          --switch-inner-ring-strength: ${this.isOn ? '8%' : '0%'};
+          --switch-outer-blur: ${this.isOn ? '50px' : '0'};
+          --switch-outer-strength: ${this.isOn ? '10%' : '0%'};
         "
       >
         <button
@@ -789,7 +800,7 @@ class GlowSwitchCardEditor extends LitElement {
             ${this.renderTextInput('Name', 'name', 'Coffee Maker')}
             ${this.renderIconPicker('Icon', 'icon')}
             ${this.renderTextInput('Width', 'width', '260px')}
-            ${this.renderTextInput('Height', 'height', '64px')}
+            ${this.renderTextInput('Height', 'height', '56px')}
             ${this.renderTextInput('Radius', 'border_radius', '999px')}
           </div>
           <div class="grid">

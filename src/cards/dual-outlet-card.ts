@@ -66,7 +66,7 @@ const DEFAULT_CONFIG: Omit<DualOutletCardConfig, 'entity_1'> = {
   icon_2: 'mdi:power-socket-us',
   width: '320px',
   fill_container: false,
-  button_height: '58px',
+  button_height: '54px',
   gap: '12px',
   layout: 'duplex',
   show_title: false,
@@ -114,7 +114,7 @@ export class DualOutletCard extends LitElement {
     return css`
       :host {
         --outlet-card-width: 540px;
-        --outlet-button-height: 58px;
+        --outlet-button-height: 54px;
         --outlet-gap: 12px;
         --outlet-on-color: #ff3b30;
         --outlet-off-color: #697382;
@@ -228,13 +228,13 @@ export class DualOutletCard extends LitElement {
 
       .duplex-shell::after {
         border: 1px solid
-          color-mix(in srgb, var(--outlet-any-color) 44%, transparent);
+          color-mix(in srgb, var(--outlet-any-color) 18%, transparent);
         border-radius: inherit;
         box-shadow:
           inset 0 0 12px
-            color-mix(in srgb, var(--outlet-any-color) 22%, transparent),
-          0 0 18px
-            color-mix(in srgb, var(--outlet-any-color) 32%, transparent);
+            color-mix(in srgb, var(--outlet-any-color) 10%, transparent),
+          0 0 34px
+            color-mix(in srgb, var(--outlet-any-color) 12%, transparent);
         content: '';
         inset: 2px;
         opacity: var(--outlet-any-on-opacity);
@@ -306,9 +306,9 @@ export class DualOutletCard extends LitElement {
         border-radius: inherit;
         box-shadow:
           inset 0 0 0 1px
-            color-mix(in srgb, var(--outlet-state-color) 52%, transparent),
+            color-mix(in srgb, var(--outlet-state-color) 18%, transparent),
           inset 0 0 18px
-            color-mix(in srgb, var(--outlet-state-color) 28%, transparent),
+            color-mix(in srgb, var(--outlet-state-color) 12%, transparent),
           inset 0 1px 0 rgb(255 255 255 / 7%);
       }
 
@@ -457,17 +457,17 @@ export class DualOutletCard extends LitElement {
 
       .outlet::after {
         border: 1px solid
-          color-mix(in srgb, var(--outlet-state-color) 88%, transparent);
+          color-mix(in srgb, var(--outlet-state-color) 24%, transparent);
         border-radius: inherit;
         box-shadow:
-          inset 0 0 11px
-            color-mix(in srgb, var(--outlet-state-color) 34%, transparent),
-          0 0 10px
-            color-mix(in srgb, var(--outlet-state-color) 62%, transparent),
-          0 0 24px
-            color-mix(in srgb, var(--outlet-state-color) 48%, transparent),
-          0 0 52px
-            color-mix(in srgb, var(--outlet-state-color) 28%, transparent);
+          inset 0 0 16px
+            color-mix(in srgb, var(--outlet-state-color) 12%, transparent),
+          0 0 18px
+            color-mix(in srgb, var(--outlet-state-color) 20%, transparent),
+          0 0 42px
+            color-mix(in srgb, var(--outlet-state-color) 14%, transparent),
+          0 0 82px
+            color-mix(in srgb, var(--outlet-state-color) 8%, transparent);
         content: '';
         inset: -1px;
         opacity: var(--outlet-on-opacity);
@@ -478,15 +478,15 @@ export class DualOutletCard extends LitElement {
 
       .outline-glow {
         border: 1px solid
-          color-mix(in srgb, var(--outlet-state-color) 54%, transparent);
+          color-mix(in srgb, var(--outlet-state-color) 18%, transparent);
         border-radius: inherit;
         box-shadow:
-          0 0 6px
-            color-mix(in srgb, var(--outlet-state-color) 64%, transparent),
-          0 0 18px
-            color-mix(in srgb, var(--outlet-state-color) 48%, transparent),
-          0 0 40px
-            color-mix(in srgb, var(--outlet-state-color) 30%, transparent);
+          0 0 12px
+            color-mix(in srgb, var(--outlet-state-color) 22%, transparent),
+          0 0 34px
+            color-mix(in srgb, var(--outlet-state-color) 14%, transparent),
+          0 0 70px
+            color-mix(in srgb, var(--outlet-state-color) 8%, transparent);
         inset: 2px;
         opacity: var(--outlet-on-opacity);
         pointer-events: none;
@@ -499,10 +499,10 @@ export class DualOutletCard extends LitElement {
         background:
           radial-gradient(
             ellipse at center,
-            color-mix(in srgb, var(--outlet-state-color) 22%, transparent),
-            transparent 70%
+            color-mix(in srgb, var(--outlet-state-color) 12%, transparent),
+            transparent 78%
           );
-        filter: blur(13px);
+        filter: blur(18px);
         inset: 7px;
         opacity: var(--outlet-on-opacity);
         pointer-events: none;
@@ -685,7 +685,7 @@ export class DualOutletCard extends LitElement {
     );
     this.style.setProperty(
       '--outlet-button-height',
-      this.config.button_height ?? '58px',
+      this.config.button_height ?? '54px',
     );
     this.style.setProperty('--outlet-gap', this.config.gap ?? '12px');
     this.style.setProperty('--outlet-on-color', this.config.on_color ?? '#ff3b30');
@@ -697,7 +697,28 @@ export class DualOutletCard extends LitElement {
   }
 
   public getCardSize(): number {
-    return this.outlets.length + (this.config.show_title ? 1 : 0);
+    const outletRows = this.config.layout === 'grid' ? 2 : 3;
+
+    return outletRows + (this.config.show_title ? 1 : 0);
+  }
+
+  public getGridOptions() {
+    const outletRows =
+      this.config.layout === 'grid'
+        ? 1
+        : this.outlets.length > 1
+          ? 2
+          : 1;
+    const rows = outletRows + (this.config.show_title ? 1 : 0);
+
+    return {
+      rows,
+      columns: 6,
+      min_rows: rows,
+      max_rows: Math.max(rows, 4),
+      min_columns: 3,
+      max_columns: 12,
+    };
   }
 
   private get anyOutletOn(): boolean {
@@ -881,11 +902,11 @@ export class DualOutletCard extends LitElement {
             ? 'color-mix(in srgb, ' + stateColor + ' 80%, #ff1d1d)'
             : stateColor};
           --outlet-on-opacity: ${onOpacity};
-          --outlet-border-strength: ${outletOn ? '78%' : '24%'};
+          --outlet-border-strength: ${outletOn ? '26%' : '18%'};
           --outlet-inner-ring-width: ${outletOn ? '1px' : '0px'};
-          --outlet-inner-ring-strength: ${outletOn ? '28%' : '0%'};
-          --outlet-outer-blur: ${outletOn ? '30px' : '0'};
-          --outlet-outer-strength: ${outletOn ? '28%' : '0%'};
+          --outlet-inner-ring-strength: ${outletOn ? '8%' : '0%'};
+          --outlet-outer-blur: ${outletOn ? '50px' : '0'};
+          --outlet-outer-strength: ${outletOn ? '10%' : '0%'};
           --outlet-status-strength: ${outletOn ? '92%' : '22%'};
           --outlet-status-blur: ${outletOn ? '18px' : '0'};
           --outlet-status-glow: ${outletOn ? '72%' : '0%'};
@@ -941,11 +962,11 @@ export class DualOutletCard extends LitElement {
             ? 'color-mix(in srgb, ' + stateColor + ' 80%, #ff1d1d)'
             : stateColor};
           --outlet-on-opacity: ${onOpacity};
-          --outlet-border-strength: ${outletOn ? '72%' : '18%'};
+          --outlet-border-strength: ${outletOn ? '26%' : '18%'};
           --outlet-inner-ring-width: ${outletOn ? '1px' : '0px'};
-          --outlet-inner-ring-strength: ${outletOn ? '26%' : '0%'};
-          --outlet-outer-blur: ${outletOn ? '24px' : '0'};
-          --outlet-outer-strength: ${outletOn ? '26%' : '0%'};
+          --outlet-inner-ring-strength: ${outletOn ? '8%' : '0%'};
+          --outlet-outer-blur: ${outletOn ? '50px' : '0'};
+          --outlet-outer-strength: ${outletOn ? '10%' : '0%'};
           --outlet-status-strength: ${outletOn ? '92%' : '22%'};
           --outlet-status-blur: ${outletOn ? '18px' : '0'};
           --outlet-status-glow: ${outletOn ? '72%' : '0%'};
@@ -989,9 +1010,9 @@ export class DualOutletCard extends LitElement {
         style="
           --outlet-any-color: ${shellColor};
           --outlet-any-on-opacity: ${anyOutletOn ? '1' : '0'};
-          --outlet-shell-border-strength: ${anyOutletOn ? '52%' : '20%'};
-          --outlet-shell-glow-blur: ${anyOutletOn ? '34px' : '0'};
-          --outlet-shell-glow-strength: ${anyOutletOn ? '28%' : '0%'};
+          --outlet-shell-border-strength: ${anyOutletOn ? '22%' : '16%'};
+          --outlet-shell-glow-blur: ${anyOutletOn ? '50px' : '0'};
+          --outlet-shell-glow-strength: ${anyOutletOn ? '10%' : '0%'};
         "
       >
         ${this.outlets.map(
@@ -1248,7 +1269,7 @@ class DualOutletCardEditor extends LitElement {
           <div class="grid">
             ${this.renderTextInput('Title', 'title', 'Outlets')}
             ${this.renderTextInput('Width', 'width', '320px')}
-            ${this.renderTextInput('Button Height', 'button_height', '58px')}
+            ${this.renderTextInput('Button Height', 'button_height', '54px')}
             ${this.renderTextInput('Gap', 'gap', '12px')}
             ${this.renderSelect('Layout', 'layout', LAYOUTS, 'duplex')}
           </div>

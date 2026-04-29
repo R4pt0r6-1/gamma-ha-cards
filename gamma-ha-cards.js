@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 const N = globalThis, rt = N.ShadowRoot && (N.ShadyCSS === void 0 || N.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, ot = Symbol(), xt = /* @__PURE__ */ new WeakMap();
-let jt = class {
+let Ht = class {
   constructor(t, e, i) {
     if (this._$cssResult$ = !0, i !== ot) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
     this.cssText = t, this.t = e;
@@ -22,14 +22,14 @@ let jt = class {
     return this.cssText;
   }
 };
-const qt = (n) => new jt(typeof n == "string" ? n : n + "", void 0, ot), f = (n, ...t) => {
+const Wt = (n) => new Ht(typeof n == "string" ? n : n + "", void 0, ot), f = (n, ...t) => {
   const e = n.length === 1 ? n[0] : t.reduce((i, r, o) => i + ((s) => {
     if (s._$cssResult$ === !0) return s.cssText;
     if (typeof s == "number") return s;
     throw Error("Value passed to 'css' function must be a 'css' function result: " + s + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
   })(r) + n[o + 1], n[0]);
-  return new jt(e, n, ot);
-}, Jt = (n, t) => {
+  return new Ht(e, n, ot);
+}, qt = (n, t) => {
   if (rt) n.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
   else for (const e of t) {
     const i = document.createElement("style"), r = N.litNonce;
@@ -38,17 +38,17 @@ const qt = (n) => new jt(typeof n == "string" ? n : n + "", void 0, ot), f = (n,
 }, vt = rt ? (n) => n : (n) => n instanceof CSSStyleSheet ? ((t) => {
   let e = "";
   for (const i of t.cssRules) e += i.cssText;
-  return qt(e);
+  return Wt(e);
 })(n) : n;
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const { is: Kt, defineProperty: Yt, getOwnPropertyDescriptor: Xt, getOwnPropertyNames: Zt, getOwnPropertySymbols: Gt, getPrototypeOf: Qt } = Object, v = globalThis, wt = v.trustedTypes, te = wt ? wt.emptyScript : "", j = v.reactiveElementPolyfillSupport, P = (n, t) => n, F = { toAttribute(n, t) {
+const { is: Jt, defineProperty: Kt, getOwnPropertyDescriptor: Yt, getOwnPropertyNames: Gt, getOwnPropertySymbols: Xt, getPrototypeOf: Zt } = Object, v = globalThis, wt = v.trustedTypes, Qt = wt ? wt.emptyScript : "", R = v.reactiveElementPolyfillSupport, P = (n, t) => n, F = { toAttribute(n, t) {
   switch (t) {
     case Boolean:
-      n = n ? te : null;
+      n = n ? Qt : null;
       break;
     case Object:
     case Array:
@@ -73,7 +73,7 @@ const { is: Kt, defineProperty: Yt, getOwnPropertyDescriptor: Xt, getOwnProperty
       }
   }
   return e;
-} }, Rt = (n, t) => !Kt(n, t), yt = { attribute: !0, type: String, converter: F, reflect: !1, useDefault: !1, hasChanged: Rt };
+} }, Rt = (n, t) => !Jt(n, t), yt = { attribute: !0, type: String, converter: F, reflect: !1, useDefault: !1, hasChanged: Rt };
 Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), v.litPropertyMetadata ?? (v.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
 let k = class extends HTMLElement {
   static addInitializer(t) {
@@ -85,11 +85,11 @@ let k = class extends HTMLElement {
   static createProperty(t, e = yt) {
     if (e.state && (e.attribute = !1), this._$Ei(), this.prototype.hasOwnProperty(t) && ((e = Object.create(e)).wrapped = !0), this.elementProperties.set(t, e), !e.noAccessor) {
       const i = Symbol(), r = this.getPropertyDescriptor(t, i, e);
-      r !== void 0 && Yt(this.prototype, t, r);
+      r !== void 0 && Kt(this.prototype, t, r);
     }
   }
   static getPropertyDescriptor(t, e, i) {
-    const { get: r, set: o } = Xt(this.prototype, t) ?? { get() {
+    const { get: r, set: o } = Yt(this.prototype, t) ?? { get() {
       return this[e];
     }, set(s) {
       this[e] = s;
@@ -104,13 +104,13 @@ let k = class extends HTMLElement {
   }
   static _$Ei() {
     if (this.hasOwnProperty(P("elementProperties"))) return;
-    const t = Qt(this);
+    const t = Zt(this);
     t.finalize(), t.l !== void 0 && (this.l = [...t.l]), this.elementProperties = new Map(t.elementProperties);
   }
   static finalize() {
     if (this.hasOwnProperty(P("finalized"))) return;
     if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(P("properties"))) {
-      const e = this.properties, i = [...Zt(e), ...Gt(e)];
+      const e = this.properties, i = [...Gt(e), ...Xt(e)];
       for (const r of i) this.createProperty(r, e[r]);
     }
     const t = this[Symbol.metadata];
@@ -159,7 +159,7 @@ let k = class extends HTMLElement {
   }
   createRenderRoot() {
     const t = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
-    return Jt(t, this.constructor.elementStyles), t;
+    return qt(t, this.constructor.elementStyles), t;
   }
   connectedCallback() {
     var t;
@@ -278,48 +278,48 @@ let k = class extends HTMLElement {
   firstUpdated(t) {
   }
 };
-k.elementStyles = [], k.shadowRootOptions = { mode: "open" }, k[P("elementProperties")] = /* @__PURE__ */ new Map(), k[P("finalized")] = /* @__PURE__ */ new Map(), j == null || j({ ReactiveElement: k }), (v.reactiveElementVersions ?? (v.reactiveElementVersions = [])).push("2.1.2");
+k.elementStyles = [], k.shadowRootOptions = { mode: "open" }, k[P("elementProperties")] = /* @__PURE__ */ new Map(), k[P("finalized")] = /* @__PURE__ */ new Map(), R == null || R({ ReactiveElement: k }), (v.reactiveElementVersions ?? (v.reactiveElementVersions = [])).push("2.1.2");
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const O = globalThis, $t = (n) => n, z = O.trustedTypes, _t = z ? z.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, Vt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Bt = "?" + x, ee = `<${Bt}>`, _ = document, E = () => _.createComment(""), I = (n) => n === null || typeof n != "object" && typeof n != "function", nt = Array.isArray, ie = (n) => nt(n) || typeof (n == null ? void 0 : n[Symbol.iterator]) == "function", R = `[ 	
-\f\r]`, T = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, kt = /-->/g, Ct = />/g, w = RegExp(`>|${R}(?:([^\\s"'>=/]+)(${R}*=${R}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), St = /'/g, Tt = /"/g, Ft = /^(?:script|style|textarea|title)$/i, re = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), a = re(1), C = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), At = /* @__PURE__ */ new WeakMap(), y = _.createTreeWalker(_, 129);
-function Wt(n, t) {
+const O = globalThis, $t = (n) => n, z = O.trustedTypes, _t = z ? z.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, jt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Vt = "?" + x, te = `<${Vt}>`, _ = document, E = () => _.createComment(""), I = (n) => n === null || typeof n != "object" && typeof n != "function", nt = Array.isArray, ee = (n) => nt(n) || typeof (n == null ? void 0 : n[Symbol.iterator]) == "function", j = `[ 	
+\f\r]`, T = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, kt = /-->/g, Ct = />/g, w = RegExp(`>|${j}(?:([^\\s"'>=/]+)(${j}*=${j}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), St = /'/g, Tt = /"/g, Bt = /^(?:script|style|textarea|title)$/i, ie = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), a = ie(1), C = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), At = /* @__PURE__ */ new WeakMap(), y = _.createTreeWalker(_, 129);
+function Ft(n, t) {
   if (!nt(n) || !n.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return _t !== void 0 ? _t.createHTML(t) : t;
 }
-const oe = (n, t) => {
+const re = (n, t) => {
   const e = n.length - 1, i = [];
   let r, o = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", s = T;
   for (let c = 0; c < e; c++) {
     const l = n[c];
     let p, u, d = -1, m = 0;
-    for (; m < l.length && (s.lastIndex = m, u = s.exec(l), u !== null); ) m = s.lastIndex, s === T ? u[1] === "!--" ? s = kt : u[1] !== void 0 ? s = Ct : u[2] !== void 0 ? (Ft.test(u[2]) && (r = RegExp("</" + u[2], "g")), s = w) : u[3] !== void 0 && (s = w) : s === w ? u[0] === ">" ? (s = r ?? T, d = -1) : u[1] === void 0 ? d = -2 : (d = s.lastIndex - u[2].length, p = u[1], s = u[3] === void 0 ? w : u[3] === '"' ? Tt : St) : s === Tt || s === St ? s = w : s === kt || s === Ct ? s = T : (s = w, r = void 0);
+    for (; m < l.length && (s.lastIndex = m, u = s.exec(l), u !== null); ) m = s.lastIndex, s === T ? u[1] === "!--" ? s = kt : u[1] !== void 0 ? s = Ct : u[2] !== void 0 ? (Bt.test(u[2]) && (r = RegExp("</" + u[2], "g")), s = w) : u[3] !== void 0 && (s = w) : s === w ? u[0] === ">" ? (s = r ?? T, d = -1) : u[1] === void 0 ? d = -2 : (d = s.lastIndex - u[2].length, p = u[1], s = u[3] === void 0 ? w : u[3] === '"' ? Tt : St) : s === Tt || s === St ? s = w : s === kt || s === Ct ? s = T : (s = w, r = void 0);
     const b = s === w && n[c + 1].startsWith("/>") ? " " : "";
-    o += s === T ? l + ee : d >= 0 ? (i.push(p), l.slice(0, d) + Vt + l.slice(d) + x + b) : l + x + (d === -2 ? c : b);
+    o += s === T ? l + te : d >= 0 ? (i.push(p), l.slice(0, d) + jt + l.slice(d) + x + b) : l + x + (d === -2 ? c : b);
   }
-  return [Wt(n, o + (n[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
+  return [Ft(n, o + (n[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
 };
 class U {
   constructor({ strings: t, _$litType$: e }, i) {
     let r;
     this.parts = [];
     let o = 0, s = 0;
-    const c = t.length - 1, l = this.parts, [p, u] = oe(t, e);
+    const c = t.length - 1, l = this.parts, [p, u] = re(t, e);
     if (this.el = U.createElement(p, i), y.currentNode = this.el.content, e === 2 || e === 3) {
       const d = this.el.content.firstChild;
       d.replaceWith(...d.childNodes);
     }
     for (; (r = y.nextNode()) !== null && l.length < c; ) {
       if (r.nodeType === 1) {
-        if (r.hasAttributes()) for (const d of r.getAttributeNames()) if (d.endsWith(Vt)) {
+        if (r.hasAttributes()) for (const d of r.getAttributeNames()) if (d.endsWith(jt)) {
           const m = u[s++], b = r.getAttribute(d).split(x), L = /([.?@])?(.*)/.exec(m);
-          l.push({ type: 1, index: o, name: L[2], strings: b, ctor: L[1] === "." ? se : L[1] === "?" ? ae : L[1] === "@" ? le : H }), r.removeAttribute(d);
+          l.push({ type: 1, index: o, name: L[2], strings: b, ctor: L[1] === "." ? ne : L[1] === "?" ? se : L[1] === "@" ? ae : H }), r.removeAttribute(d);
         } else d.startsWith(x) && (l.push({ type: 6, index: o }), r.removeAttribute(d));
-        if (Ft.test(r.tagName)) {
+        if (Bt.test(r.tagName)) {
           const d = r.textContent.split(x), m = d.length - 1;
           if (m > 0) {
             r.textContent = z ? z.emptyScript : "";
@@ -327,7 +327,7 @@ class U {
             r.append(d[m], E());
           }
         }
-      } else if (r.nodeType === 8) if (r.data === Bt) l.push({ type: 2, index: o });
+      } else if (r.nodeType === 8) if (r.data === Vt) l.push({ type: 2, index: o });
       else {
         let d = -1;
         for (; (d = r.data.indexOf(x, d + 1)) !== -1; ) l.push({ type: 7, index: o }), d += x.length - 1;
@@ -347,7 +347,7 @@ function S(n, t, e = n, i) {
   const o = I(t) ? void 0 : t._$litDirective$;
   return (r == null ? void 0 : r.constructor) !== o && ((c = r == null ? void 0 : r._$AO) == null || c.call(r, !1), o === void 0 ? r = void 0 : (r = new o(n), r._$AT(n, e, i)), i !== void 0 ? (e._$Co ?? (e._$Co = []))[i] = r : e._$Cl = r), r !== void 0 && (t = S(n, r._$AS(n, t.values), r, i)), t;
 }
-class ne {
+class oe {
   constructor(t, e) {
     this._$AV = [], this._$AN = void 0, this._$AD = t, this._$AM = e;
   }
@@ -364,7 +364,7 @@ class ne {
     for (; l !== void 0; ) {
       if (s === l.index) {
         let p;
-        l.type === 2 ? p = new D(o, o.nextSibling, this, t) : l.type === 1 ? p = new l.ctor(o, l.name, l.strings, this, t) : l.type === 6 && (p = new ce(o, this, t)), this._$AV.push(p), l = i[++c];
+        l.type === 2 ? p = new D(o, o.nextSibling, this, t) : l.type === 1 ? p = new l.ctor(o, l.name, l.strings, this, t) : l.type === 6 && (p = new le(o, this, t)), this._$AV.push(p), l = i[++c];
       }
       s !== (l == null ? void 0 : l.index) && (o = y.nextNode(), s++);
     }
@@ -395,7 +395,7 @@ class D {
     return this._$AB;
   }
   _$AI(t, e = this) {
-    t = S(this, t, e), I(t) ? t === h || t == null || t === "" ? (this._$AH !== h && this._$AR(), this._$AH = h) : t !== this._$AH && t !== C && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : ie(t) ? this.k(t) : this._(t);
+    t = S(this, t, e), I(t) ? t === h || t == null || t === "" ? (this._$AH !== h && this._$AR(), this._$AH = h) : t !== this._$AH && t !== C && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : ee(t) ? this.k(t) : this._(t);
   }
   O(t) {
     return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -408,10 +408,10 @@ class D {
   }
   $(t) {
     var o;
-    const { values: e, _$litType$: i } = t, r = typeof i == "number" ? this._$AC(t) : (i.el === void 0 && (i.el = U.createElement(Wt(i.h, i.h[0]), this.options)), i);
+    const { values: e, _$litType$: i } = t, r = typeof i == "number" ? this._$AC(t) : (i.el === void 0 && (i.el = U.createElement(Ft(i.h, i.h[0]), this.options)), i);
     if (((o = this._$AH) == null ? void 0 : o._$AD) === r) this._$AH.p(e);
     else {
-      const s = new ne(r, this), c = s.u(this.options);
+      const s = new oe(r, this), c = s.u(this.options);
       s.p(e), this.T(c), this._$AH = s;
     }
   }
@@ -463,7 +463,7 @@ class H {
     t === h ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
   }
 }
-class se extends H {
+class ne extends H {
   constructor() {
     super(...arguments), this.type = 3;
   }
@@ -471,7 +471,7 @@ class se extends H {
     this.element[this.name] = t === h ? void 0 : t;
   }
 }
-class ae extends H {
+class se extends H {
   constructor() {
     super(...arguments), this.type = 4;
   }
@@ -479,7 +479,7 @@ class ae extends H {
     this.element.toggleAttribute(this.name, !!t && t !== h);
   }
 }
-class le extends H {
+class ae extends H {
   constructor(t, e, i, r, o) {
     super(t, e, i, r, o), this.type = 5;
   }
@@ -493,7 +493,7 @@ class le extends H {
     typeof this._$AH == "function" ? this._$AH.call(((e = this.options) == null ? void 0 : e.host) ?? this.element, t) : this._$AH.handleEvent(t);
   }
 }
-class ce {
+class le {
   constructor(t, e, i) {
     this.element = t, this.type = 6, this._$AN = void 0, this._$AM = e, this.options = i;
   }
@@ -506,7 +506,7 @@ class ce {
 }
 const V = O.litHtmlPolyfillSupport;
 V == null || V(U, D), (O.litHtmlVersions ?? (O.litHtmlVersions = [])).push("3.3.2");
-const he = (n, t, e) => {
+const ce = (n, t, e) => {
   const i = (e == null ? void 0 : e.renderBefore) ?? t;
   let r = i._$litPart$;
   if (r === void 0) {
@@ -532,7 +532,7 @@ class g extends k {
   }
   update(t) {
     const e = this.render();
-    this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t), this._$Do = he(e, this.renderRoot, this.renderOptions);
+    this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t), this._$Do = ce(e, this.renderRoot, this.renderOptions);
   }
   connectedCallback() {
     var t;
@@ -546,8 +546,8 @@ class g extends k {
     return C;
   }
 }
-var Ht;
-g._$litElement$ = !0, g.finalized = !0, (Ht = $.litElementHydrateSupport) == null || Ht.call($, { LitElement: g });
+var zt;
+g._$litElement$ = !0, g.finalized = !0, (zt = $.litElementHydrateSupport) == null || zt.call($, { LitElement: g });
 const B = $.litElementPolyfillSupport;
 B == null || B({ LitElement: g });
 ($.litElementVersions ?? ($.litElementVersions = [])).push("4.2.2");
@@ -555,7 +555,7 @@ const Pt = {
   icon: "mdi:ceiling-light",
   width: "260px",
   fill_container: !1,
-  height: "64px",
+  height: "56px",
   border_radius: "999px",
   has_dimmer: !1,
   show_state: !0,
@@ -566,8 +566,8 @@ const Pt = {
   tap_action: "toggle",
   hold_action: "more-info",
   animated: !0
-}, Ot = ["toggle", "more-info", "none"], de = ["state", "brightness", "auto"];
-function pe(n, t) {
+}, Ot = ["toggle", "more-info", "none"], he = ["state", "brightness", "auto"];
+function de(n, t) {
   n.dispatchEvent(
     new CustomEvent("config-changed", {
       detail: { config: t },
@@ -584,7 +584,7 @@ const st = class st extends g {
     return f`
       :host {
         --glow-card-width: 260px;
-        --glow-card-height: 64px;
+        --glow-card-height: 56px;
         --glow-card-radius: 999px;
         --glow-on-color: #ff8a1c;
         --glow-off-color: #697382;
@@ -693,17 +693,17 @@ const st = class st extends g {
 
       .button::after {
         border: 1px solid
-          color-mix(in srgb, var(--glow-state-color) 86%, transparent);
+          color-mix(in srgb, var(--glow-state-color) 24%, transparent);
         border-radius: inherit;
         box-shadow:
-          inset 0 0 12px
-            color-mix(in srgb, var(--glow-state-color) 32%, transparent),
-          0 0 10px
-            color-mix(in srgb, var(--glow-state-color) 56%, transparent),
-          0 0 22px
-            color-mix(in srgb, var(--glow-state-color) 42%, transparent),
-          0 0 46px
-            color-mix(in srgb, var(--glow-state-color) 26%, transparent);
+          inset 0 0 16px
+            color-mix(in srgb, var(--glow-state-color) 12%, transparent),
+          0 0 18px
+            color-mix(in srgb, var(--glow-state-color) 20%, transparent),
+          0 0 42px
+            color-mix(in srgb, var(--glow-state-color) 14%, transparent),
+          0 0 82px
+            color-mix(in srgb, var(--glow-state-color) 8%, transparent);
         content: '';
         inset: -1px;
         opacity: var(--glow-on-opacity);
@@ -714,15 +714,15 @@ const st = class st extends g {
 
       .button .outline-glow {
         border: 1px solid
-          color-mix(in srgb, var(--glow-state-color) 52%, transparent);
+          color-mix(in srgb, var(--glow-state-color) 18%, transparent);
         border-radius: inherit;
         box-shadow:
-          0 0 6px
-            color-mix(in srgb, var(--glow-state-color) 62%, transparent),
-          0 0 18px
-            color-mix(in srgb, var(--glow-state-color) 46%, transparent),
-          0 0 38px
-            color-mix(in srgb, var(--glow-state-color) 28%, transparent);
+          0 0 12px
+            color-mix(in srgb, var(--glow-state-color) 22%, transparent),
+          0 0 34px
+            color-mix(in srgb, var(--glow-state-color) 14%, transparent),
+          0 0 70px
+            color-mix(in srgb, var(--glow-state-color) 8%, transparent);
         content: '';
         inset: 2px;
         opacity: var(--glow-on-opacity);
@@ -736,10 +736,10 @@ const st = class st extends g {
         background:
           radial-gradient(
             ellipse at center,
-            color-mix(in srgb, var(--glow-state-color) 22%, transparent),
-            transparent 72%
+            color-mix(in srgb, var(--glow-state-color) 12%, transparent),
+            transparent 78%
           );
-        filter: blur(13px);
+        filter: blur(18px);
         inset: 7px;
         opacity: var(--glow-on-opacity);
         pointer-events: none;
@@ -910,7 +910,7 @@ const st = class st extends g {
     }, this.style.setProperty(
       "--glow-card-width",
       this.config.fill_container ? "100%" : this.config.width ?? "260px"
-    ), this.style.setProperty("--glow-card-height", this.config.height ?? "64px"), this.style.setProperty(
+    ), this.style.setProperty("--glow-card-height", this.config.height ?? "56px"), this.style.setProperty(
       "--glow-card-radius",
       this.config.border_radius ?? "999px"
     ), this.style.setProperty("--glow-on-color", this.config.on_color ?? "#ff8a1c"), this.style.setProperty("--glow-off-color", this.config.off_color ?? "#697382"), this.style.setProperty(
@@ -920,6 +920,16 @@ const st = class st extends g {
   }
   getCardSize() {
     return 1;
+  }
+  getGridOptions() {
+    return {
+      rows: 1,
+      columns: 6,
+      min_rows: 1,
+      max_rows: 1,
+      min_columns: 3,
+      max_columns: 12
+    };
   }
   get entity() {
     var t;
@@ -1091,11 +1101,11 @@ const st = class st extends g {
           --glow-border-color: ${t};
           --glow-icon-color: ${t};
           --glow-on-opacity: ${e};
-          --glow-border-strength: ${this.isOn ? "78%" : "26%"};
+          --glow-border-strength: ${this.isOn ? "26%" : "18%"};
           --glow-inner-ring-width: ${this.isOn ? "1px" : "0px"};
-          --glow-inner-ring-strength: ${this.isOn ? "28%" : "0%"};
-          --glow-outer-blur: ${this.isOn ? "30px" : "0"};
-          --glow-outer-strength: ${this.isOn ? "26%" : "0%"};
+          --glow-inner-ring-strength: ${this.isOn ? "8%" : "0%"};
+          --glow-outer-blur: ${this.isOn ? "50px" : "0"};
+          --glow-outer-strength: ${this.isOn ? "10%" : "0%"};
           --glow-slider-percent: ${i};
           --glow-slider-opacity: ${r};
           --glow-slider-handle-opacity: ${o};
@@ -1204,7 +1214,7 @@ const at = class at extends g {
     Object.keys(e).forEach((i) => {
       const r = i;
       e[r] === "" && delete e[r];
-    }), this.config = e, pe(this, e);
+    }), this.config = e, de(this, e);
   }
   formChanged(t) {
     var i;
@@ -1314,7 +1324,7 @@ const at = class at extends g {
             ${this.renderTextInput("Name", "name", "Bar Lights")}
             ${this.renderIconPicker("Icon", "icon")}
             ${this.renderTextInput("Width", "width", "260px")}
-            ${this.renderTextInput("Height", "height", "64px")}
+            ${this.renderTextInput("Height", "height", "56px")}
             ${this.renderTextInput("Radius", "border_radius", "999px")}
           </div>
           <div class="grid">
@@ -1332,7 +1342,7 @@ const at = class at extends g {
             ${this.renderSelect(
       "State Display",
       "state_display",
-      de,
+      he,
       "state"
     )}
           </div>
@@ -1375,7 +1385,7 @@ const Et = {
   icon: "mdi:toggle-switch",
   width: "260px",
   fill_container: !1,
-  height: "64px",
+  height: "56px",
   border_radius: "999px",
   show_state: !0,
   on_color: "#45d158",
@@ -1385,7 +1395,7 @@ const Et = {
   hold_action: "more-info",
   animated: !0
 }, It = ["toggle", "more-info", "none"];
-function ue(n, t) {
+function pe(n, t) {
   n.dispatchEvent(
     new CustomEvent("config-changed", {
       detail: { config: t },
@@ -1402,7 +1412,7 @@ const lt = class lt extends g {
     return f`
       :host {
         --switch-card-width: 260px;
-        --switch-card-height: 64px;
+        --switch-card-height: 56px;
         --switch-card-radius: 999px;
         --switch-on-color: #45d158;
         --switch-off-color: #697382;
@@ -1501,17 +1511,17 @@ const lt = class lt extends g {
 
       .switch-button::after {
         border: 1px solid
-          color-mix(in srgb, var(--switch-state-color) 86%, transparent);
+          color-mix(in srgb, var(--switch-state-color) 24%, transparent);
         border-radius: inherit;
         box-shadow:
-          inset 0 0 11px
-            color-mix(in srgb, var(--switch-state-color) 34%, transparent),
-          0 0 10px
-            color-mix(in srgb, var(--switch-state-color) 60%, transparent),
-          0 0 22px
-            color-mix(in srgb, var(--switch-state-color) 44%, transparent),
-          0 0 46px
-            color-mix(in srgb, var(--switch-state-color) 26%, transparent);
+          inset 0 0 16px
+            color-mix(in srgb, var(--switch-state-color) 12%, transparent),
+          0 0 18px
+            color-mix(in srgb, var(--switch-state-color) 20%, transparent),
+          0 0 42px
+            color-mix(in srgb, var(--switch-state-color) 14%, transparent),
+          0 0 82px
+            color-mix(in srgb, var(--switch-state-color) 8%, transparent);
         content: '';
         inset: -1px;
         opacity: var(--switch-on-opacity);
@@ -1530,14 +1540,14 @@ const lt = class lt extends g {
 
       .outline-glow {
         border: 1px solid
-          color-mix(in srgb, var(--switch-state-color) 52%, transparent);
+          color-mix(in srgb, var(--switch-state-color) 18%, transparent);
         box-shadow:
-          0 0 6px
-            color-mix(in srgb, var(--switch-state-color) 62%, transparent),
-          0 0 18px
-            color-mix(in srgb, var(--switch-state-color) 46%, transparent),
-          0 0 38px
-            color-mix(in srgb, var(--switch-state-color) 28%, transparent);
+          0 0 12px
+            color-mix(in srgb, var(--switch-state-color) 22%, transparent),
+          0 0 34px
+            color-mix(in srgb, var(--switch-state-color) 14%, transparent),
+          0 0 70px
+            color-mix(in srgb, var(--switch-state-color) 8%, transparent);
         inset: 2px;
         opacity: var(--switch-on-opacity);
         z-index: 1;
@@ -1547,10 +1557,10 @@ const lt = class lt extends g {
         background:
           radial-gradient(
             ellipse at center,
-            color-mix(in srgb, var(--switch-state-color) 20%, transparent),
-            transparent 70%
+            color-mix(in srgb, var(--switch-state-color) 12%, transparent),
+            transparent 78%
           );
-        filter: blur(13px);
+        filter: blur(18px);
         inset: 7px;
         opacity: var(--switch-on-opacity);
         z-index: 0;
@@ -1685,7 +1695,7 @@ const lt = class lt extends g {
     }, this.style.setProperty(
       "--switch-card-width",
       this.config.fill_container ? "100%" : this.config.width ?? "260px"
-    ), this.style.setProperty("--switch-card-height", this.config.height ?? "64px"), this.style.setProperty(
+    ), this.style.setProperty("--switch-card-height", this.config.height ?? "56px"), this.style.setProperty(
       "--switch-card-radius",
       this.config.border_radius ?? "999px"
     ), this.style.setProperty("--switch-on-color", this.config.on_color ?? "#45d158"), this.style.setProperty("--switch-off-color", this.config.off_color ?? "#697382"), this.style.setProperty(
@@ -1695,6 +1705,16 @@ const lt = class lt extends g {
   }
   getCardSize() {
     return 1;
+  }
+  getGridOptions() {
+    return {
+      rows: 1,
+      columns: 6,
+      min_rows: 1,
+      max_rows: 1,
+      min_columns: 3,
+      max_columns: 12
+    };
   }
   get entity() {
     var t;
@@ -1782,11 +1802,11 @@ const lt = class lt extends g {
           --switch-hot-color: ${this.isOn ? "color-mix(in srgb, " + t + " 80%, #00ff66)" : t};
           --switch-on-opacity: ${e};
           --switch-dot-opacity: ${this.isOn ? "1" : "0.26"};
-          --switch-border-strength: ${this.isOn ? "78%" : "24%"};
+          --switch-border-strength: ${this.isOn ? "26%" : "18%"};
           --switch-inner-ring-width: ${this.isOn ? "1px" : "0px"};
-          --switch-inner-ring-strength: ${this.isOn ? "28%" : "0%"};
-          --switch-outer-blur: ${this.isOn ? "30px" : "0"};
-          --switch-outer-strength: ${this.isOn ? "28%" : "0%"};
+          --switch-inner-ring-strength: ${this.isOn ? "8%" : "0%"};
+          --switch-outer-blur: ${this.isOn ? "50px" : "0"};
+          --switch-outer-strength: ${this.isOn ? "10%" : "0%"};
         "
       >
         <button
@@ -1881,7 +1901,7 @@ const ct = class ct extends g {
     Object.keys(e).forEach((i) => {
       const r = i;
       e[r] === "" && delete e[r];
-    }), this.config = e, ue(this, e);
+    }), this.config = e, pe(this, e);
   }
   formChanged(t) {
     var i;
@@ -1978,7 +1998,7 @@ const ct = class ct extends g {
             ${this.renderTextInput("Name", "name", "Coffee Maker")}
             ${this.renderIconPicker("Icon", "icon")}
             ${this.renderTextInput("Width", "width", "260px")}
-            ${this.renderTextInput("Height", "height", "64px")}
+            ${this.renderTextInput("Height", "height", "56px")}
             ${this.renderTextInput("Radius", "border_radius", "999px")}
           </div>
           <div class="grid">
@@ -2028,13 +2048,13 @@ window.customCards.push({
   name: "Glow Switch Card",
   description: "A compact glowing switch card for Home Assistant."
 });
-const ge = {
+const ue = {
   locked_icon: "mdi:lock",
   unlocked_icon: "mdi:lock-open-variant",
   jammed_icon: "mdi:lock-alert",
   width: "260px",
   fill_container: !1,
-  height: "64px",
+  height: "56px",
   border_radius: "999px",
   show_state: !0,
   locked_color: "#45d158",
@@ -2047,7 +2067,7 @@ const ge = {
   hold_action: "more-info",
   animated: !0
 }, Ut = ["toggle", "lock", "unlock", "more-info", "none"];
-function fe(n, t) {
+function ge(n, t) {
   n.dispatchEvent(
     new CustomEvent("config-changed", {
       detail: { config: t },
@@ -2064,7 +2084,7 @@ const ht = class ht extends g {
     return f`
       :host {
         --lock-card-width: 260px;
-        --lock-card-height: 64px;
+        --lock-card-height: 56px;
         --lock-card-radius: 999px;
         --lock-locked-color: #45d158;
         --lock-unlocked-color: #ff3b30;
@@ -2166,17 +2186,17 @@ const ht = class ht extends g {
 
       .lock-button::after {
         border: 1px solid
-          color-mix(in srgb, var(--lock-state-color) 86%, transparent);
+          color-mix(in srgb, var(--lock-state-color) 24%, transparent);
         border-radius: inherit;
         box-shadow:
-          inset 0 0 11px
-            color-mix(in srgb, var(--lock-state-color) 34%, transparent),
-          0 0 10px
-            color-mix(in srgb, var(--lock-state-color) 60%, transparent),
-          0 0 22px
-            color-mix(in srgb, var(--lock-state-color) 44%, transparent),
-          0 0 46px
-            color-mix(in srgb, var(--lock-state-color) 26%, transparent);
+          inset 0 0 16px
+            color-mix(in srgb, var(--lock-state-color) 12%, transparent),
+          0 0 18px
+            color-mix(in srgb, var(--lock-state-color) 20%, transparent),
+          0 0 42px
+            color-mix(in srgb, var(--lock-state-color) 14%, transparent),
+          0 0 82px
+            color-mix(in srgb, var(--lock-state-color) 8%, transparent);
         content: '';
         inset: -1px;
         opacity: var(--lock-glow-opacity);
@@ -2195,14 +2215,14 @@ const ht = class ht extends g {
 
       .outline-glow {
         border: 1px solid
-          color-mix(in srgb, var(--lock-state-color) 52%, transparent);
+          color-mix(in srgb, var(--lock-state-color) 18%, transparent);
         box-shadow:
-          0 0 6px
-            color-mix(in srgb, var(--lock-state-color) 62%, transparent),
-          0 0 18px
-            color-mix(in srgb, var(--lock-state-color) 46%, transparent),
-          0 0 38px
-            color-mix(in srgb, var(--lock-state-color) 28%, transparent);
+          0 0 12px
+            color-mix(in srgb, var(--lock-state-color) 22%, transparent),
+          0 0 34px
+            color-mix(in srgb, var(--lock-state-color) 14%, transparent),
+          0 0 70px
+            color-mix(in srgb, var(--lock-state-color) 8%, transparent);
         inset: 2px;
         opacity: var(--lock-glow-opacity);
         z-index: 1;
@@ -2212,10 +2232,10 @@ const ht = class ht extends g {
         background:
           radial-gradient(
             ellipse at center,
-            color-mix(in srgb, var(--lock-state-color) 20%, transparent),
-            transparent 70%
+            color-mix(in srgb, var(--lock-state-color) 12%, transparent),
+            transparent 78%
           );
-        filter: blur(13px);
+        filter: blur(18px);
         inset: 7px;
         opacity: var(--lock-glow-opacity);
         z-index: 0;
@@ -2343,18 +2363,28 @@ const ht = class ht extends g {
     if (!(t != null && t.entity))
       throw new Error("Entity is required");
     this.config = {
-      ...ge,
+      ...ue,
       ...t
     }, this.style.setProperty(
       "--lock-card-width",
       this.config.fill_container ? "100%" : this.config.width ?? "260px"
-    ), this.style.setProperty("--lock-card-height", this.config.height ?? "64px"), this.style.setProperty(
+    ), this.style.setProperty("--lock-card-height", this.config.height ?? "56px"), this.style.setProperty(
       "--lock-card-radius",
       this.config.border_radius ?? "999px"
     ), this.style.setProperty("--lock-locked-color", this.config.locked_color ?? "#45d158"), this.style.setProperty("--lock-unlocked-color", this.config.unlocked_color ?? "#ff3b30"), this.style.setProperty("--lock-pending-color", this.config.pending_color ?? "#ff8a1c"), this.style.setProperty("--lock-jammed-color", this.config.jammed_color ?? "#ff3b30"), this.style.setProperty("--lock-off-color", this.config.off_color ?? "#697382"), this.style.setProperty("--lock-background", this.config.background ?? "#101722");
   }
   getCardSize() {
     return 1;
+  }
+  getGridOptions() {
+    return {
+      rows: 1,
+      columns: 6,
+      min_rows: 1,
+      max_rows: 1,
+      min_columns: 3,
+      max_columns: 12
+    };
   }
   get entity() {
     var t;
@@ -2470,11 +2500,11 @@ const ht = class ht extends g {
           --lock-hot-color: ${this.isLocked ? "color-mix(in srgb, " + t + " 80%, #00ff66)" : "color-mix(in srgb, " + t + " 80%, #ff4f00)"};
           --lock-glow-opacity: ${e};
           --lock-dot-opacity: ${this.isUnavailable ? "0.26" : "1"};
-          --lock-border-strength: ${this.isUnavailable ? "24%" : "78%"};
+          --lock-border-strength: ${this.isUnavailable ? "18%" : "26%"};
           --lock-inner-ring-width: ${this.isUnavailable ? "0px" : "1px"};
-          --lock-inner-ring-strength: ${this.isUnavailable ? "0%" : "28%"};
-          --lock-outer-blur: ${this.isUnavailable ? "0" : "30px"};
-          --lock-outer-strength: ${this.isUnavailable ? "0%" : "28%"};
+          --lock-inner-ring-strength: ${this.isUnavailable ? "0%" : "8%"};
+          --lock-outer-blur: ${this.isUnavailable ? "0" : "50px"};
+          --lock-outer-strength: ${this.isUnavailable ? "0%" : "10%"};
         "
       >
         <button
@@ -2570,7 +2600,7 @@ const dt = class dt extends g {
     Object.keys(e).forEach((i) => {
       const r = i;
       e[r] === "" && delete e[r];
-    }), this.config = e, fe(this, e);
+    }), this.config = e, ge(this, e);
   }
   formChanged(t) {
     var i;
@@ -2669,7 +2699,7 @@ const dt = class dt extends g {
             ${this.renderIconPicker("Locked Icon", "locked_icon")}
             ${this.renderIconPicker("Unlocked Icon", "unlocked_icon")}
             ${this.renderTextInput("Width", "width", "260px")}
-            ${this.renderTextInput("Height", "height", "64px")}
+            ${this.renderTextInput("Height", "height", "56px")}
             ${this.renderTextInput("Radius", "border_radius", "999px")}
           </div>
           <div class="grid">
@@ -2713,8 +2743,8 @@ dt.properties = {
   hass: { attribute: !1 },
   config: { state: !0 }
 };
-let X = dt;
-customElements.get("glow-lock-card-editor") || customElements.define("glow-lock-card-editor", X);
+let G = dt;
+customElements.get("glow-lock-card-editor") || customElements.define("glow-lock-card-editor", G);
 window.customCards = window.customCards || [];
 window.customCards.push({
   preview: !0,
@@ -2722,13 +2752,13 @@ window.customCards.push({
   name: "Glow Lock Card",
   description: "A compact smart lock card with instant locked and unlocked states."
 });
-const Dt = {
+const fe = {
   icon: "mdi:thermostat",
   width: "320px",
   fill_container: !1,
-  height: "384px",
+  height: "376px",
   border_radius: "18px",
-  show_state: !0,
+  show_state: !1,
   show_current: !0,
   show_controls: !0,
   temperature_step: 1,
@@ -2740,7 +2770,7 @@ const Dt = {
   tap_action: "more-info",
   hold_action: "more-info",
   animated: !0
-}, Lt = ["more-info", "none"];
+}, Dt = ["more-info", "none"];
 function me(n, t) {
   n.dispatchEvent(
     new CustomEvent("config-changed", {
@@ -2768,7 +2798,7 @@ const pt = class pt extends g {
     return f`
       :host {
         --thermostat-card-width: 320px;
-        --thermostat-card-height: 384px;
+        --thermostat-card-height: 376px;
         --thermostat-card-radius: 18px;
         --thermostat-heat-color: #ff8a1c;
         --thermostat-cool-color: #2f80ff;
@@ -2860,17 +2890,17 @@ const pt = class pt extends g {
 
       .thermostat::after {
         border: 1px solid
-          color-mix(in srgb, var(--thermostat-state-color) 42%, transparent);
+          color-mix(in srgb, var(--thermostat-state-color) 24%, transparent);
         border-radius: inherit;
         box-shadow:
-          inset 0 0 11px
-            color-mix(in srgb, var(--thermostat-state-color) 18%, transparent),
-          0 0 10px
-            color-mix(in srgb, var(--thermostat-state-color) 28%, transparent),
-          0 0 22px
-            color-mix(in srgb, var(--thermostat-state-color) 22%, transparent),
-          0 0 46px
-            color-mix(in srgb, var(--thermostat-state-color) 12%, transparent);
+          inset 0 0 16px
+            color-mix(in srgb, var(--thermostat-state-color) 12%, transparent),
+          0 0 18px
+            color-mix(in srgb, var(--thermostat-state-color) 20%, transparent),
+          0 0 42px
+            color-mix(in srgb, var(--thermostat-state-color) 14%, transparent),
+          0 0 82px
+            color-mix(in srgb, var(--thermostat-state-color) 8%, transparent);
         content: '';
         inset: -1px;
         opacity: var(--thermostat-glow-opacity);
@@ -2889,14 +2919,14 @@ const pt = class pt extends g {
 
       .outline-glow {
         border: 1px solid
-          color-mix(in srgb, var(--thermostat-state-color) 52%, transparent);
+          color-mix(in srgb, var(--thermostat-state-color) 18%, transparent);
         box-shadow:
-          0 0 6px
-            color-mix(in srgb, var(--thermostat-state-color) 62%, transparent),
-          0 0 18px
-            color-mix(in srgb, var(--thermostat-state-color) 46%, transparent),
-          0 0 38px
-            color-mix(in srgb, var(--thermostat-state-color) 28%, transparent);
+          0 0 12px
+            color-mix(in srgb, var(--thermostat-state-color) 22%, transparent),
+          0 0 34px
+            color-mix(in srgb, var(--thermostat-state-color) 14%, transparent),
+          0 0 70px
+            color-mix(in srgb, var(--thermostat-state-color) 8%, transparent);
         inset: 2px;
         opacity: var(--thermostat-glow-opacity);
         z-index: 1;
@@ -2906,10 +2936,10 @@ const pt = class pt extends g {
         background:
           radial-gradient(
             ellipse at center,
-            color-mix(in srgb, var(--thermostat-state-color) 20%, transparent),
-            transparent 70%
+            color-mix(in srgb, var(--thermostat-state-color) 12%, transparent),
+            transparent 78%
           );
-        filter: blur(13px);
+        filter: blur(18px);
         inset: 7px;
         opacity: var(--thermostat-glow-opacity);
         z-index: 0;
@@ -2924,40 +2954,12 @@ const pt = class pt extends g {
 
       .header {
         align-items: center;
-        display: grid;
-        gap: 12px;
-        grid-template-columns: 42px minmax(0, 1fr);
-        text-align: left;
-      }
-
-      .icon-shell {
-        align-items: center;
-        background:
-          radial-gradient(
-            circle,
-            color-mix(in srgb, var(--thermostat-state-color) 24%, transparent),
-            transparent 72%
-          ),
-          color-mix(in srgb, var(--thermostat-state-color) 14%, #ffffff 2%);
-        border: 1px solid
-          color-mix(in srgb, var(--thermostat-state-color) 26%, transparent);
-        border-radius: 999px;
-        color: var(--thermostat-state-color);
-        display: inline-flex;
-        height: 36px;
-        justify-content: center;
-        width: 36px;
-      }
-
-      .icon-shell ha-icon {
-        --mdc-icon-size: 22px;
-        color: currentColor;
-      }
-
-      .title-block {
         display: flex;
         flex-direction: column;
-        min-width: 0;
+        gap: 4px;
+        justify-content: center;
+        min-height: 34px;
+        text-align: center;
       }
 
       .name {
@@ -3150,13 +3152,13 @@ const pt = class pt extends g {
     if (!(t != null && t.entity))
       throw new Error("Entity is required");
     this.config = {
-      ...Dt,
+      ...fe,
       ...t,
       temperature_step: M(t.temperature_step, 1)
     }, this.style.setProperty(
       "--thermostat-card-width",
       this.config.fill_container ? "100%" : this.config.width ?? "320px"
-    ), this.style.setProperty("--thermostat-card-height", this.config.height ?? "384px"), this.style.setProperty(
+    ), this.style.setProperty("--thermostat-card-height", this.config.height ?? "376px"), this.style.setProperty(
       "--thermostat-card-radius",
       this.config.border_radius ?? "18px"
     ), this.style.setProperty("--thermostat-heat-color", this.config.heat_color ?? "#ff8a1c"), this.style.setProperty("--thermostat-cool-color", this.config.cool_color ?? "#2f80ff"), this.style.setProperty("--thermostat-idle-color", this.config.idle_color ?? "#45d158"), this.style.setProperty("--thermostat-off-color", this.config.off_color ?? "#697382"), this.style.setProperty(
@@ -3165,7 +3167,17 @@ const pt = class pt extends g {
     );
   }
   getCardSize() {
-    return 4;
+    return 8;
+  }
+  getGridOptions() {
+    return {
+      rows: 6,
+      columns: 6,
+      min_rows: 5,
+      max_rows: 8,
+      min_columns: 4,
+      max_columns: 12
+    };
   }
   get entity() {
     var t;
@@ -3229,10 +3241,6 @@ const pt = class pt extends g {
   }
   get currentLabel() {
     return this.currentTemperature === void 0 ? this.hvacAction : this.formatTemperature(this.currentTemperature);
-  }
-  get icon() {
-    var t;
-    return this.config.icon || ((t = this.entity) == null ? void 0 : t.attributes.icon) || Dt.icon;
   }
   get stateColor() {
     return this.isOff || this.isUnavailable ? this.config.off_color ?? "#697382" : this.isCooling ? this.config.cool_color ?? "#2f80ff" : this.isHeating ? this.config.heat_color ?? "#ff8a1c" : this.config.idle_color ?? "#45d158";
@@ -3351,11 +3359,11 @@ const pt = class pt extends g {
           --thermostat-warm-color: ${r ? "color-mix(in srgb, " + t + " 86%, #94d6ff)" : "color-mix(in srgb, " + t + " 86%, #ffd26a)"};
           --thermostat-hot-color: ${r ? "color-mix(in srgb, " + t + " 80%, #4fb3ff)" : "color-mix(in srgb, " + t + " 80%, #ff4f00)"};
           --thermostat-glow-opacity: ${i};
-          --thermostat-border-strength: ${e ? "78%" : "24%"};
+          --thermostat-border-strength: ${e ? "26%" : "18%"};
           --thermostat-inner-ring-width: ${e ? "1px" : "0px"};
-          --thermostat-inner-ring-strength: ${e ? "28%" : "0%"};
-          --thermostat-outer-blur: ${e ? "30px" : "0"};
-          --thermostat-outer-strength: ${e ? "28%" : "0%"};
+          --thermostat-inner-ring-strength: ${e ? "8%" : "0%"};
+          --thermostat-outer-blur: ${e ? "50px" : "0"};
+          --thermostat-outer-strength: ${e ? "10%" : "0%"};
           --thermostat-arc-degrees: ${this.arcDegrees}deg;
         "
       >
@@ -3373,13 +3381,8 @@ const pt = class pt extends g {
           <span class="ambient-glow"></span>
           <span class="outline-glow"></span>
           <span class="header">
-            <span class="icon-shell">
-              <ha-icon icon=${this.icon}></ha-icon>
-            </span>
-            <span class="title-block">
-              <span class="name">${this.displayName}</span>
-              ${this.config.show_state ? a`<span class="state">${this.displayState}</span>` : h}
-            </span>
+            <span class="name">${this.displayName}</span>
+            ${this.config.show_state ? a`<span class="state">${this.displayState}</span>` : h}
           </span>
           <span class="dial">
             <span class="dial-center">
@@ -3403,8 +3406,8 @@ pt.properties = {
   holdActive: { state: !0 },
   optimisticTemperature: { state: !0 }
 };
-let Z = pt;
-customElements.get("glow-thermostat-card") || customElements.define("glow-thermostat-card", Z);
+let X = pt;
+customElements.get("glow-thermostat-card") || customElements.define("glow-thermostat-card", X);
 const ut = class ut extends g {
   constructor() {
     super(...arguments), this.config = {};
@@ -3571,15 +3574,14 @@ const ut = class ut extends g {
           ${this.renderEntityForm()}
           <div class="grid">
             ${this.renderTextInput("Name", "name", "Thermostat")}
-            ${this.renderIconPicker("Icon", "icon")}
             ${this.renderTextInput("Width", "width", "320px")}
-            ${this.renderTextInput("Height", "height", "384px")}
+            ${this.renderTextInput("Height", "height", "376px")}
             ${this.renderTextInput("Radius", "border_radius", "18px")}
             ${this.renderNumberInput("Temperature Step", "temperature_step", "1")}
           </div>
           <div class="grid">
             ${this.renderSwitch("Fill Container", "fill_container", !1)}
-            ${this.renderSwitch("Show State", "show_state", !0)}
+            ${this.renderSwitch("Show State", "show_state", !1)}
             ${this.renderSwitch("Show Current", "show_current", !0)}
             ${this.renderSwitch("Show Controls", "show_controls", !0)}
           </div>
@@ -3602,11 +3604,11 @@ const ut = class ut extends g {
         <section class="section">
           <h3>Actions</h3>
           <div class="grid">
-            ${this.renderSelect("Tap Action", "tap_action", Lt, "more-info")}
+            ${this.renderSelect("Tap Action", "tap_action", Dt, "more-info")}
             ${this.renderSelect(
       "Hold Action",
       "hold_action",
-      Lt,
+      Dt,
       "more-info"
     )}
           </div>
@@ -3619,8 +3621,8 @@ ut.properties = {
   hass: { attribute: !1 },
   config: { state: !0 }
 };
-let G = ut;
-customElements.get("glow-thermostat-card-editor") || customElements.define("glow-thermostat-card-editor", G);
+let Z = ut;
+customElements.get("glow-thermostat-card-editor") || customElements.define("glow-thermostat-card-editor", Z);
 window.customCards = window.customCards || [];
 window.customCards.push({
   preview: !0,
@@ -3628,13 +3630,13 @@ window.customCards.push({
   name: "Glow Thermostat Card",
   description: "A dial-style thermostat card with instant setpoint controls."
 });
-const Mt = {
+const Lt = {
   title: "Outlets",
   icon_1: "mdi:power-socket-us",
   icon_2: "mdi:power-socket-us",
   width: "320px",
   fill_container: !1,
-  button_height: "58px",
+  button_height: "54px",
   gap: "12px",
   layout: "duplex",
   show_title: !1,
@@ -3645,7 +3647,7 @@ const Mt = {
   tap_action: "toggle",
   hold_action: "more-info",
   animated: !0
-}, Nt = ["toggle", "more-info", "none"], be = ["duplex", "grid", "stack"];
+}, Mt = ["toggle", "more-info", "none"], be = ["duplex", "grid", "stack"];
 function xe(n, t) {
   n.dispatchEvent(
     new CustomEvent("config-changed", {
@@ -3663,7 +3665,7 @@ const gt = class gt extends g {
     return f`
       :host {
         --outlet-card-width: 540px;
-        --outlet-button-height: 58px;
+        --outlet-button-height: 54px;
         --outlet-gap: 12px;
         --outlet-on-color: #ff3b30;
         --outlet-off-color: #697382;
@@ -3777,13 +3779,13 @@ const gt = class gt extends g {
 
       .duplex-shell::after {
         border: 1px solid
-          color-mix(in srgb, var(--outlet-any-color) 44%, transparent);
+          color-mix(in srgb, var(--outlet-any-color) 18%, transparent);
         border-radius: inherit;
         box-shadow:
           inset 0 0 12px
-            color-mix(in srgb, var(--outlet-any-color) 22%, transparent),
-          0 0 18px
-            color-mix(in srgb, var(--outlet-any-color) 32%, transparent);
+            color-mix(in srgb, var(--outlet-any-color) 10%, transparent),
+          0 0 34px
+            color-mix(in srgb, var(--outlet-any-color) 12%, transparent);
         content: '';
         inset: 2px;
         opacity: var(--outlet-any-on-opacity);
@@ -3855,9 +3857,9 @@ const gt = class gt extends g {
         border-radius: inherit;
         box-shadow:
           inset 0 0 0 1px
-            color-mix(in srgb, var(--outlet-state-color) 52%, transparent),
+            color-mix(in srgb, var(--outlet-state-color) 18%, transparent),
           inset 0 0 18px
-            color-mix(in srgb, var(--outlet-state-color) 28%, transparent),
+            color-mix(in srgb, var(--outlet-state-color) 12%, transparent),
           inset 0 1px 0 rgb(255 255 255 / 7%);
       }
 
@@ -4006,17 +4008,17 @@ const gt = class gt extends g {
 
       .outlet::after {
         border: 1px solid
-          color-mix(in srgb, var(--outlet-state-color) 88%, transparent);
+          color-mix(in srgb, var(--outlet-state-color) 24%, transparent);
         border-radius: inherit;
         box-shadow:
-          inset 0 0 11px
-            color-mix(in srgb, var(--outlet-state-color) 34%, transparent),
-          0 0 10px
-            color-mix(in srgb, var(--outlet-state-color) 62%, transparent),
-          0 0 24px
-            color-mix(in srgb, var(--outlet-state-color) 48%, transparent),
-          0 0 52px
-            color-mix(in srgb, var(--outlet-state-color) 28%, transparent);
+          inset 0 0 16px
+            color-mix(in srgb, var(--outlet-state-color) 12%, transparent),
+          0 0 18px
+            color-mix(in srgb, var(--outlet-state-color) 20%, transparent),
+          0 0 42px
+            color-mix(in srgb, var(--outlet-state-color) 14%, transparent),
+          0 0 82px
+            color-mix(in srgb, var(--outlet-state-color) 8%, transparent);
         content: '';
         inset: -1px;
         opacity: var(--outlet-on-opacity);
@@ -4027,15 +4029,15 @@ const gt = class gt extends g {
 
       .outline-glow {
         border: 1px solid
-          color-mix(in srgb, var(--outlet-state-color) 54%, transparent);
+          color-mix(in srgb, var(--outlet-state-color) 18%, transparent);
         border-radius: inherit;
         box-shadow:
-          0 0 6px
-            color-mix(in srgb, var(--outlet-state-color) 64%, transparent),
-          0 0 18px
-            color-mix(in srgb, var(--outlet-state-color) 48%, transparent),
-          0 0 40px
-            color-mix(in srgb, var(--outlet-state-color) 30%, transparent);
+          0 0 12px
+            color-mix(in srgb, var(--outlet-state-color) 22%, transparent),
+          0 0 34px
+            color-mix(in srgb, var(--outlet-state-color) 14%, transparent),
+          0 0 70px
+            color-mix(in srgb, var(--outlet-state-color) 8%, transparent);
         inset: 2px;
         opacity: var(--outlet-on-opacity);
         pointer-events: none;
@@ -4048,10 +4050,10 @@ const gt = class gt extends g {
         background:
           radial-gradient(
             ellipse at center,
-            color-mix(in srgb, var(--outlet-state-color) 22%, transparent),
-            transparent 70%
+            color-mix(in srgb, var(--outlet-state-color) 12%, transparent),
+            transparent 78%
           );
-        filter: blur(13px);
+        filter: blur(18px);
         inset: 7px;
         opacity: var(--outlet-on-opacity);
         pointer-events: none;
@@ -4215,21 +4217,32 @@ const gt = class gt extends g {
     if (!(t != null && t.entity_1))
       throw new Error("Entity 1 is required");
     this.config = {
-      ...Mt,
+      ...Lt,
       ...t
     }, this.style.setProperty(
       "--outlet-card-width",
       this.config.fill_container ? "100%" : this.config.width ?? "320px"
     ), this.style.setProperty(
       "--outlet-button-height",
-      this.config.button_height ?? "58px"
+      this.config.button_height ?? "54px"
     ), this.style.setProperty("--outlet-gap", this.config.gap ?? "12px"), this.style.setProperty("--outlet-on-color", this.config.on_color ?? "#ff3b30"), this.style.setProperty("--outlet-off-color", this.config.off_color ?? "#697382"), this.style.setProperty(
       "--outlet-background",
       this.config.background ?? "#101722"
     );
   }
   getCardSize() {
-    return this.outlets.length + (this.config.show_title ? 1 : 0);
+    return (this.config.layout === "grid" ? 2 : 3) + (this.config.show_title ? 1 : 0);
+  }
+  getGridOptions() {
+    const e = (this.config.layout === "grid" ? 1 : this.outlets.length > 1 ? 2 : 1) + (this.config.show_title ? 1 : 0);
+    return {
+      rows: e,
+      columns: 6,
+      min_rows: e,
+      max_rows: Math.max(e, 4),
+      min_columns: 3,
+      max_columns: 12
+    };
   }
   get anyOutletOn() {
     return this.outlets.some(
@@ -4274,7 +4287,7 @@ const gt = class gt extends g {
   }
   displayIcon(t) {
     const e = this.getEntity(t.entityId);
-    return t.icon || (e == null ? void 0 : e.attributes.icon) || Mt.icon_1;
+    return t.icon || (e == null ? void 0 : e.attributes.icon) || Lt.icon_1;
   }
   dispatchMoreInfo(t) {
     this.dispatchEvent(
@@ -4342,11 +4355,11 @@ const gt = class gt extends g {
           --outlet-warm-color: ${i ? "color-mix(in srgb, " + o + " 86%, #ff9a64)" : o};
           --outlet-hot-color: ${i ? "color-mix(in srgb, " + o + " 80%, #ff1d1d)" : o};
           --outlet-on-opacity: ${s};
-          --outlet-border-strength: ${i ? "78%" : "24%"};
+          --outlet-border-strength: ${i ? "26%" : "18%"};
           --outlet-inner-ring-width: ${i ? "1px" : "0px"};
-          --outlet-inner-ring-strength: ${i ? "28%" : "0%"};
-          --outlet-outer-blur: ${i ? "30px" : "0"};
-          --outlet-outer-strength: ${i ? "28%" : "0%"};
+          --outlet-inner-ring-strength: ${i ? "8%" : "0%"};
+          --outlet-outer-blur: ${i ? "50px" : "0"};
+          --outlet-outer-strength: ${i ? "10%" : "0%"};
           --outlet-status-strength: ${i ? "92%" : "22%"};
           --outlet-status-blur: ${i ? "18px" : "0"};
           --outlet-status-glow: ${i ? "72%" : "0%"};
@@ -4383,11 +4396,11 @@ const gt = class gt extends g {
           --outlet-warm-color: ${r ? "color-mix(in srgb, " + s + " 86%, #ff9a64)" : s};
           --outlet-hot-color: ${r ? "color-mix(in srgb, " + s + " 80%, #ff1d1d)" : s};
           --outlet-on-opacity: ${c};
-          --outlet-border-strength: ${r ? "72%" : "18%"};
+          --outlet-border-strength: ${r ? "26%" : "18%"};
           --outlet-inner-ring-width: ${r ? "1px" : "0px"};
-          --outlet-inner-ring-strength: ${r ? "26%" : "0%"};
-          --outlet-outer-blur: ${r ? "24px" : "0"};
-          --outlet-outer-strength: ${r ? "26%" : "0%"};
+          --outlet-inner-ring-strength: ${r ? "8%" : "0%"};
+          --outlet-outer-blur: ${r ? "50px" : "0"};
+          --outlet-outer-strength: ${r ? "10%" : "0%"};
           --outlet-status-strength: ${r ? "92%" : "22%"};
           --outlet-status-blur: ${r ? "18px" : "0"};
           --outlet-status-glow: ${r ? "72%" : "0%"};
@@ -4424,9 +4437,9 @@ const gt = class gt extends g {
         style="
           --outlet-any-color: ${e};
           --outlet-any-on-opacity: ${t ? "1" : "0"};
-          --outlet-shell-border-strength: ${t ? "52%" : "20%"};
-          --outlet-shell-glow-blur: ${t ? "34px" : "0"};
-          --outlet-shell-glow-strength: ${t ? "28%" : "0%"};
+          --outlet-shell-border-strength: ${t ? "22%" : "16%"};
+          --outlet-shell-glow-blur: ${t ? "50px" : "0"};
+          --outlet-shell-glow-strength: ${t ? "10%" : "0%"};
         "
       >
         ${this.outlets.map(
@@ -4629,7 +4642,7 @@ const ft = class ft extends g {
           <div class="grid">
             ${this.renderTextInput("Title", "title", "Outlets")}
             ${this.renderTextInput("Width", "width", "320px")}
-            ${this.renderTextInput("Button Height", "button_height", "58px")}
+            ${this.renderTextInput("Button Height", "button_height", "54px")}
             ${this.renderTextInput("Gap", "gap", "12px")}
             ${this.renderSelect("Layout", "layout", be, "duplex")}
           </div>
@@ -4653,11 +4666,11 @@ const ft = class ft extends g {
         <section class="section">
           <h3>Actions</h3>
           <div class="grid">
-            ${this.renderSelect("Tap Action", "tap_action", Nt, "toggle")}
+            ${this.renderSelect("Tap Action", "tap_action", Mt, "toggle")}
             ${this.renderSelect(
       "Hold Action",
       "hold_action",
-      Nt,
+      Mt,
       "more-info"
     )}
           </div>
@@ -4679,11 +4692,11 @@ window.customCards.push({
   name: "Dual Outlet Card",
   description: "A two-outlet toggle card with red on-state glow."
 });
-const zt = {
+const Nt = {
   icon: "mdi:fan",
   width: "260px",
   fill_container: !1,
-  height: "64px",
+  height: "56px",
   border_radius: "999px",
   show_state: !0,
   show_speed_buttons: !0,
@@ -4728,7 +4741,7 @@ const mt = class mt extends g {
     return f`
       :host {
         --fan-card-width: 260px;
-        --fan-card-height: 64px;
+        --fan-card-height: 56px;
         --fan-card-radius: 999px;
         --fan-on-color: #45d158;
         --fan-off-color: #697382;
@@ -5042,7 +5055,7 @@ const mt = class mt extends g {
     if (!(t != null && t.entity))
       throw new Error("Entity is required");
     this.config = {
-      ...zt,
+      ...Nt,
       ...t,
       speed_1_percentage: A(t.speed_1_percentage, 33),
       speed_2_percentage: A(t.speed_2_percentage, 66),
@@ -5050,13 +5063,23 @@ const mt = class mt extends g {
     }, this.style.setProperty(
       "--fan-card-width",
       this.config.fill_container ? "100%" : this.config.width ?? "260px"
-    ), this.style.setProperty("--fan-card-height", this.config.height ?? "64px"), this.style.setProperty(
+    ), this.style.setProperty("--fan-card-height", this.config.height ?? "56px"), this.style.setProperty(
       "--fan-card-radius",
       this.config.border_radius ?? "999px"
     ), this.style.setProperty("--fan-on-color", this.config.on_color ?? "#45d158"), this.style.setProperty("--fan-off-color", this.config.off_color ?? "#697382"), this.style.setProperty("--fan-background", this.config.background ?? "#101722");
   }
   getCardSize() {
     return 1;
+  }
+  getGridOptions() {
+    return {
+      rows: 1,
+      columns: 6,
+      min_rows: 1,
+      max_rows: 1,
+      min_columns: 3,
+      max_columns: 12
+    };
   }
   get entity() {
     var t;
@@ -5101,7 +5124,7 @@ const mt = class mt extends g {
   }
   get icon() {
     var t;
-    return this.config.icon || ((t = this.entity) == null ? void 0 : t.attributes.icon) || zt.icon;
+    return this.config.icon || ((t = this.entity) == null ? void 0 : t.attributes.icon) || Nt.icon;
   }
   percentageForLevel(t) {
     return t === 1 ? this.config.speed_1_percentage ?? 33 : t === 2 ? this.config.speed_2_percentage ?? 66 : this.config.speed_3_percentage ?? 100;
@@ -5432,7 +5455,7 @@ const bt = class bt extends g {
             ${this.renderTextInput("Name", "name", "Fan")}
             ${this.renderIconPicker("Icon", "icon")}
             ${this.renderTextInput("Width", "width", "260px")}
-            ${this.renderTextInput("Height", "height", "64px")}
+            ${this.renderTextInput("Height", "height", "56px")}
             ${this.renderTextInput("Radius", "border_radius", "999px")}
           </div>
           <div class="grid">

@@ -51,7 +51,7 @@ icon: mdi:ceiling-light
 | `icon`          | `string`  | `mdi:ceiling-light` | Icon shown on the left.           |
 | `width`         | `string`  | `260px`             | CSS width of the card.            |
 | `fill_container` | `boolean` | `false`            | Stretch the card to the full dashboard column width. |
-| `height`        | `string`  | `64px`              | CSS minimum height of the card.   |
+| `height`        | `string`  | `56px`              | CSS minimum height of the card.   |
 | `border_radius` | `string`  | `999px`             | CSS border radius.                |
 | `has_dimmer`    | `boolean` | `false`             | Turn the light button into a brightness slider. |
 | `show_state`    | `boolean` | `true`              | Show state text under the name.   |
@@ -81,7 +81,7 @@ icon: mdi:coffee-maker
 | `icon`           | `string`  | `mdi:toggle-switch` | Icon shown on the left.           |
 | `width`          | `string`  | `260px`             | CSS width of the card.            |
 | `fill_container` | `boolean` | `false`             | Stretch the card to the full dashboard column width. |
-| `height`         | `string`  | `64px`              | CSS minimum height of the card.   |
+| `height`         | `string`  | `56px`              | CSS minimum height of the card.   |
 | `border_radius`  | `string`  | `999px`             | CSS border radius.                |
 | `show_state`     | `boolean` | `true`              | Show state text under the name.   |
 | `on_color`       | `string`  | `#45d158`           | Glow color when on.               |
@@ -110,7 +110,7 @@ name: Front Door
 | `unlocked_icon`  | `string`  | `mdi:lock-open-variant`  | Icon when unlocked.               |
 | `width`          | `string`  | `260px`                  | CSS width of the card.            |
 | `fill_container` | `boolean` | `false`                  | Stretch the card to the full dashboard column width. |
-| `height`         | `string`  | `64px`                   | CSS minimum height of the card.   |
+| `height`         | `string`  | `56px`                   | CSS minimum height of the card.   |
 | `border_radius`  | `string`  | `999px`                  | CSS border radius.                |
 | `show_state`     | `boolean` | `true`                   | Show state text under the name.   |
 | `locked_color`   | `string`  | `#45d158`                | Glow color when locked.           |
@@ -137,12 +137,11 @@ temperature_step: 1
 | ------------------ | --------- | ----------------- | --------------------------------- |
 | `entity`           | `string`  | Required          | Climate entity to display and control. |
 | `name`             | `string`  | Entity friendly name | Display name.                  |
-| `icon`             | `string`  | `mdi:thermostat`  | Icon shown on the left.           |
 | `width`            | `string`  | `320px`           | CSS width of the card.            |
 | `fill_container`   | `boolean` | `false`           | Stretch the card to the full dashboard column width. |
-| `height`           | `string`  | `384px`           | CSS minimum height of the card.   |
+| `height`           | `string`  | `376px`           | CSS minimum height of the card.   |
 | `border_radius`    | `string`  | `18px`            | CSS border radius.                |
-| `show_state`       | `boolean` | `true`            | Show current state text.          |
+| `show_state`       | `boolean` | `false`           | Show current state text under the title. |
 | `show_current`     | `boolean` | `true`            | Show current temperature when available. |
 | `show_controls`    | `boolean` | `true`            | Show `-` and `+` setpoint buttons. |
 | `temperature_step` | `number`  | `1`               | Setpoint change per tap.          |
@@ -180,7 +179,7 @@ layout: duplex
 | `icon_2`        | `string`  | `mdi:power-socket-us`   | Second outlet icon.               |
 | `width`         | `string`  | `320px`                 | CSS width of the card.            |
 | `fill_container` | `boolean` | `false`                | Stretch the card to the full dashboard column width. |
-| `button_height` | `string`  | `58px`                  | CSS minimum height per outlet.    |
+| `button_height` | `string`  | `54px`                  | CSS minimum height per outlet.    |
 | `gap`           | `string`  | `12px`                  | Space between outlet buttons.     |
 | `layout`        | `string`  | `duplex`                | `duplex`, `grid`, or `stack`.     |
 | `show_title`    | `boolean` | `false`                 | Show the group title.             |
@@ -214,7 +213,7 @@ Tap the pill to cycle through Off, 1, 2, and 3. Tap a speed button to jump strai
 | `icon`               | `string`  | `mdi:fan` | Icon shown on the left.           |
 | `width`              | `string`  | `260px`   | CSS width of the card.            |
 | `fill_container`     | `boolean` | `false`   | Stretch the card to the full dashboard column width. |
-| `height`             | `string`  | `64px`    | CSS minimum height of the card.   |
+| `height`             | `string`  | `56px`    | CSS minimum height of the card.   |
 | `border_radius`      | `string`  | `999px`   | CSS border radius.                |
 | `show_state`         | `boolean` | `true`    | Show state text under the name.   |
 | `show_speed_buttons` | `boolean` | `true`    | Show Off, 1, 2, and 3 buttons.    |

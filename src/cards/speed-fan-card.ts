@@ -62,7 +62,7 @@ const DEFAULT_CONFIG: Omit<SpeedFanCardConfig, 'entity'> = {
   icon: 'mdi:fan',
   width: '260px',
   fill_container: false,
-  height: '64px',
+  height: '56px',
   border_radius: '999px',
   show_state: true,
   show_speed_buttons: true,
@@ -133,7 +133,7 @@ export class SpeedFanCard extends LitElement {
     return css`
       :host {
         --fan-card-width: 260px;
-        --fan-card-height: 64px;
+        --fan-card-height: 56px;
         --fan-card-radius: 999px;
         --fan-on-color: #45d158;
         --fan-off-color: #697382;
@@ -464,7 +464,7 @@ export class SpeedFanCard extends LitElement {
       '--fan-card-width',
       this.config.fill_container ? '100%' : this.config.width ?? '260px',
     );
-    this.style.setProperty('--fan-card-height', this.config.height ?? '64px');
+    this.style.setProperty('--fan-card-height', this.config.height ?? '56px');
     this.style.setProperty(
       '--fan-card-radius',
       this.config.border_radius ?? '999px',
@@ -476,6 +476,17 @@ export class SpeedFanCard extends LitElement {
 
   public getCardSize(): number {
     return 1;
+  }
+
+  public getGridOptions() {
+    return {
+      rows: 1,
+      columns: 6,
+      min_rows: 1,
+      max_rows: 1,
+      min_columns: 3,
+      max_columns: 12,
+    };
   }
 
   private get entity(): FanEntity | undefined {
@@ -1028,7 +1039,7 @@ class SpeedFanCardEditor extends LitElement {
             ${this.renderTextInput('Name', 'name', 'Fan')}
             ${this.renderIconPicker('Icon', 'icon')}
             ${this.renderTextInput('Width', 'width', '260px')}
-            ${this.renderTextInput('Height', 'height', '64px')}
+            ${this.renderTextInput('Height', 'height', '56px')}
             ${this.renderTextInput('Radius', 'border_radius', '999px')}
           </div>
           <div class="grid">

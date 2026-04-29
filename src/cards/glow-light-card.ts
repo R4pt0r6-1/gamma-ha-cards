@@ -54,7 +54,7 @@ const DEFAULT_CONFIG: Omit<GlowLightCardConfig, 'entity'> = {
   icon: 'mdi:ceiling-light',
   width: '260px',
   fill_container: false,
-  height: '64px',
+  height: '56px',
   border_radius: '999px',
   has_dimmer: false,
   show_state: true,
@@ -111,7 +111,7 @@ export class GlowLightCard extends LitElement {
     return css`
       :host {
         --glow-card-width: 260px;
-        --glow-card-height: 64px;
+        --glow-card-height: 56px;
         --glow-card-radius: 999px;
         --glow-on-color: #ff8a1c;
         --glow-off-color: #697382;
@@ -220,17 +220,17 @@ export class GlowLightCard extends LitElement {
 
       .button::after {
         border: 1px solid
-          color-mix(in srgb, var(--glow-state-color) 86%, transparent);
+          color-mix(in srgb, var(--glow-state-color) 24%, transparent);
         border-radius: inherit;
         box-shadow:
-          inset 0 0 12px
-            color-mix(in srgb, var(--glow-state-color) 32%, transparent),
-          0 0 10px
-            color-mix(in srgb, var(--glow-state-color) 56%, transparent),
-          0 0 22px
-            color-mix(in srgb, var(--glow-state-color) 42%, transparent),
-          0 0 46px
-            color-mix(in srgb, var(--glow-state-color) 26%, transparent);
+          inset 0 0 16px
+            color-mix(in srgb, var(--glow-state-color) 12%, transparent),
+          0 0 18px
+            color-mix(in srgb, var(--glow-state-color) 20%, transparent),
+          0 0 42px
+            color-mix(in srgb, var(--glow-state-color) 14%, transparent),
+          0 0 82px
+            color-mix(in srgb, var(--glow-state-color) 8%, transparent);
         content: '';
         inset: -1px;
         opacity: var(--glow-on-opacity);
@@ -241,15 +241,15 @@ export class GlowLightCard extends LitElement {
 
       .button .outline-glow {
         border: 1px solid
-          color-mix(in srgb, var(--glow-state-color) 52%, transparent);
+          color-mix(in srgb, var(--glow-state-color) 18%, transparent);
         border-radius: inherit;
         box-shadow:
-          0 0 6px
-            color-mix(in srgb, var(--glow-state-color) 62%, transparent),
-          0 0 18px
-            color-mix(in srgb, var(--glow-state-color) 46%, transparent),
-          0 0 38px
-            color-mix(in srgb, var(--glow-state-color) 28%, transparent);
+          0 0 12px
+            color-mix(in srgb, var(--glow-state-color) 22%, transparent),
+          0 0 34px
+            color-mix(in srgb, var(--glow-state-color) 14%, transparent),
+          0 0 70px
+            color-mix(in srgb, var(--glow-state-color) 8%, transparent);
         content: '';
         inset: 2px;
         opacity: var(--glow-on-opacity);
@@ -263,10 +263,10 @@ export class GlowLightCard extends LitElement {
         background:
           radial-gradient(
             ellipse at center,
-            color-mix(in srgb, var(--glow-state-color) 22%, transparent),
-            transparent 72%
+            color-mix(in srgb, var(--glow-state-color) 12%, transparent),
+            transparent 78%
           );
-        filter: blur(13px);
+        filter: blur(18px);
         inset: 7px;
         opacity: var(--glow-on-opacity);
         pointer-events: none;
@@ -446,7 +446,7 @@ export class GlowLightCard extends LitElement {
       '--glow-card-width',
       this.config.fill_container ? '100%' : this.config.width ?? '260px',
     );
-    this.style.setProperty('--glow-card-height', this.config.height ?? '64px');
+    this.style.setProperty('--glow-card-height', this.config.height ?? '56px');
     this.style.setProperty(
       '--glow-card-radius',
       this.config.border_radius ?? '999px',
@@ -461,6 +461,17 @@ export class GlowLightCard extends LitElement {
 
   public getCardSize(): number {
     return 1;
+  }
+
+  public getGridOptions() {
+    return {
+      rows: 1,
+      columns: 6,
+      min_rows: 1,
+      max_rows: 1,
+      min_columns: 3,
+      max_columns: 12,
+    };
   }
 
   private get entity(): LightEntity | undefined {
@@ -795,11 +806,11 @@ export class GlowLightCard extends LitElement {
           --glow-border-color: ${stateColor};
           --glow-icon-color: ${stateColor};
           --glow-on-opacity: ${onOpacity};
-          --glow-border-strength: ${this.isOn ? '78%' : '26%'};
+          --glow-border-strength: ${this.isOn ? '26%' : '18%'};
           --glow-inner-ring-width: ${this.isOn ? '1px' : '0px'};
-          --glow-inner-ring-strength: ${this.isOn ? '28%' : '0%'};
-          --glow-outer-blur: ${this.isOn ? '30px' : '0'};
-          --glow-outer-strength: ${this.isOn ? '26%' : '0%'};
+          --glow-inner-ring-strength: ${this.isOn ? '8%' : '0%'};
+          --glow-outer-blur: ${this.isOn ? '50px' : '0'};
+          --glow-outer-strength: ${this.isOn ? '10%' : '0%'};
           --glow-slider-percent: ${sliderPercent};
           --glow-slider-opacity: ${sliderOpacity};
           --glow-slider-handle-opacity: ${sliderHandleOpacity};
@@ -1073,7 +1084,7 @@ class GlowLightCardEditor extends LitElement {
             ${this.renderTextInput('Name', 'name', 'Bar Lights')}
             ${this.renderIconPicker('Icon', 'icon')}
             ${this.renderTextInput('Width', 'width', '260px')}
-            ${this.renderTextInput('Height', 'height', '64px')}
+            ${this.renderTextInput('Height', 'height', '56px')}
             ${this.renderTextInput('Radius', 'border_radius', '999px')}
           </div>
           <div class="grid">

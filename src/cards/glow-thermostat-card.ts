@@ -63,9 +63,9 @@ const DEFAULT_CONFIG: Omit<GlowThermostatCardConfig, 'entity'> = {
   icon: 'mdi:thermostat',
   width: '320px',
   fill_container: false,
-  height: '384px',
+  height: '376px',
   border_radius: '18px',
-  show_state: true,
+  show_state: false,
   show_current: true,
   show_controls: true,
   temperature_step: 1,
@@ -130,7 +130,7 @@ export class GlowThermostatCard extends LitElement {
     return css`
       :host {
         --thermostat-card-width: 320px;
-        --thermostat-card-height: 384px;
+        --thermostat-card-height: 376px;
         --thermostat-card-radius: 18px;
         --thermostat-heat-color: #ff8a1c;
         --thermostat-cool-color: #2f80ff;
@@ -222,17 +222,17 @@ export class GlowThermostatCard extends LitElement {
 
       .thermostat::after {
         border: 1px solid
-          color-mix(in srgb, var(--thermostat-state-color) 42%, transparent);
+          color-mix(in srgb, var(--thermostat-state-color) 24%, transparent);
         border-radius: inherit;
         box-shadow:
-          inset 0 0 11px
-            color-mix(in srgb, var(--thermostat-state-color) 18%, transparent),
-          0 0 10px
-            color-mix(in srgb, var(--thermostat-state-color) 28%, transparent),
-          0 0 22px
-            color-mix(in srgb, var(--thermostat-state-color) 22%, transparent),
-          0 0 46px
-            color-mix(in srgb, var(--thermostat-state-color) 12%, transparent);
+          inset 0 0 16px
+            color-mix(in srgb, var(--thermostat-state-color) 12%, transparent),
+          0 0 18px
+            color-mix(in srgb, var(--thermostat-state-color) 20%, transparent),
+          0 0 42px
+            color-mix(in srgb, var(--thermostat-state-color) 14%, transparent),
+          0 0 82px
+            color-mix(in srgb, var(--thermostat-state-color) 8%, transparent);
         content: '';
         inset: -1px;
         opacity: var(--thermostat-glow-opacity);
@@ -251,14 +251,14 @@ export class GlowThermostatCard extends LitElement {
 
       .outline-glow {
         border: 1px solid
-          color-mix(in srgb, var(--thermostat-state-color) 52%, transparent);
+          color-mix(in srgb, var(--thermostat-state-color) 18%, transparent);
         box-shadow:
-          0 0 6px
-            color-mix(in srgb, var(--thermostat-state-color) 62%, transparent),
-          0 0 18px
-            color-mix(in srgb, var(--thermostat-state-color) 46%, transparent),
-          0 0 38px
-            color-mix(in srgb, var(--thermostat-state-color) 28%, transparent);
+          0 0 12px
+            color-mix(in srgb, var(--thermostat-state-color) 22%, transparent),
+          0 0 34px
+            color-mix(in srgb, var(--thermostat-state-color) 14%, transparent),
+          0 0 70px
+            color-mix(in srgb, var(--thermostat-state-color) 8%, transparent);
         inset: 2px;
         opacity: var(--thermostat-glow-opacity);
         z-index: 1;
@@ -268,10 +268,10 @@ export class GlowThermostatCard extends LitElement {
         background:
           radial-gradient(
             ellipse at center,
-            color-mix(in srgb, var(--thermostat-state-color) 20%, transparent),
-            transparent 70%
+            color-mix(in srgb, var(--thermostat-state-color) 12%, transparent),
+            transparent 78%
           );
-        filter: blur(13px);
+        filter: blur(18px);
         inset: 7px;
         opacity: var(--thermostat-glow-opacity);
         z-index: 0;
@@ -286,40 +286,12 @@ export class GlowThermostatCard extends LitElement {
 
       .header {
         align-items: center;
-        display: grid;
-        gap: 12px;
-        grid-template-columns: 42px minmax(0, 1fr);
-        text-align: left;
-      }
-
-      .icon-shell {
-        align-items: center;
-        background:
-          radial-gradient(
-            circle,
-            color-mix(in srgb, var(--thermostat-state-color) 24%, transparent),
-            transparent 72%
-          ),
-          color-mix(in srgb, var(--thermostat-state-color) 14%, #ffffff 2%);
-        border: 1px solid
-          color-mix(in srgb, var(--thermostat-state-color) 26%, transparent);
-        border-radius: 999px;
-        color: var(--thermostat-state-color);
-        display: inline-flex;
-        height: 36px;
-        justify-content: center;
-        width: 36px;
-      }
-
-      .icon-shell ha-icon {
-        --mdc-icon-size: 22px;
-        color: currentColor;
-      }
-
-      .title-block {
         display: flex;
         flex-direction: column;
-        min-width: 0;
+        gap: 4px;
+        justify-content: center;
+        min-height: 34px;
+        text-align: center;
       }
 
       .name {
@@ -527,7 +499,7 @@ export class GlowThermostatCard extends LitElement {
       '--thermostat-card-width',
       this.config.fill_container ? '100%' : this.config.width ?? '320px',
     );
-    this.style.setProperty('--thermostat-card-height', this.config.height ?? '384px');
+    this.style.setProperty('--thermostat-card-height', this.config.height ?? '376px');
     this.style.setProperty(
       '--thermostat-card-radius',
       this.config.border_radius ?? '18px',
@@ -543,7 +515,18 @@ export class GlowThermostatCard extends LitElement {
   }
 
   public getCardSize(): number {
-    return 4;
+    return 8;
+  }
+
+  public getGridOptions() {
+    return {
+      rows: 6,
+      columns: 6,
+      min_rows: 5,
+      max_rows: 8,
+      min_columns: 4,
+      max_columns: 12,
+    };
   }
 
   private get entity(): ClimateEntity | undefined {
@@ -660,15 +643,6 @@ export class GlowThermostatCard extends LitElement {
     }
 
     return this.formatTemperature(this.currentTemperature);
-  }
-
-  private get icon(): string {
-    return (
-      this.config.icon ||
-      this.entity?.attributes.icon ||
-      DEFAULT_CONFIG.icon ||
-      'mdi:thermostat'
-    );
   }
 
   private get stateColor(): string {
@@ -863,11 +837,11 @@ export class GlowThermostatCard extends LitElement {
             ? 'color-mix(in srgb, ' + stateColor + ' 80%, #4fb3ff)'
             : 'color-mix(in srgb, ' + stateColor + ' 80%, #ff4f00)'};
           --thermostat-glow-opacity: ${glowOpacity};
-          --thermostat-border-strength: ${active ? '78%' : '24%'};
+          --thermostat-border-strength: ${active ? '26%' : '18%'};
           --thermostat-inner-ring-width: ${active ? '1px' : '0px'};
-          --thermostat-inner-ring-strength: ${active ? '28%' : '0%'};
-          --thermostat-outer-blur: ${active ? '30px' : '0'};
-          --thermostat-outer-strength: ${active ? '28%' : '0%'};
+          --thermostat-inner-ring-strength: ${active ? '8%' : '0%'};
+          --thermostat-outer-blur: ${active ? '50px' : '0'};
+          --thermostat-outer-strength: ${active ? '10%' : '0%'};
           --thermostat-arc-degrees: ${this.arcDegrees}deg;
         "
       >
@@ -887,15 +861,10 @@ export class GlowThermostatCard extends LitElement {
           <span class="ambient-glow"></span>
           <span class="outline-glow"></span>
           <span class="header">
-            <span class="icon-shell">
-              <ha-icon icon=${this.icon}></ha-icon>
-            </span>
-            <span class="title-block">
-              <span class="name">${this.displayName}</span>
-              ${this.config.show_state
-                ? html`<span class="state">${this.displayState}</span>`
-                : nothing}
-            </span>
+            <span class="name">${this.displayName}</span>
+            ${this.config.show_state
+              ? html`<span class="state">${this.displayState}</span>`
+              : nothing}
           </span>
           <span class="dial">
             <span class="dial-center">
@@ -1143,15 +1112,14 @@ class GlowThermostatCardEditor extends LitElement {
           ${this.renderEntityForm()}
           <div class="grid">
             ${this.renderTextInput('Name', 'name', 'Thermostat')}
-            ${this.renderIconPicker('Icon', 'icon')}
             ${this.renderTextInput('Width', 'width', '320px')}
-            ${this.renderTextInput('Height', 'height', '384px')}
+            ${this.renderTextInput('Height', 'height', '376px')}
             ${this.renderTextInput('Radius', 'border_radius', '18px')}
             ${this.renderNumberInput('Temperature Step', 'temperature_step', '1')}
           </div>
           <div class="grid">
             ${this.renderSwitch('Fill Container', 'fill_container', false)}
-            ${this.renderSwitch('Show State', 'show_state', true)}
+            ${this.renderSwitch('Show State', 'show_state', false)}
             ${this.renderSwitch('Show Current', 'show_current', true)}
             ${this.renderSwitch('Show Controls', 'show_controls', true)}
           </div>

@@ -59,7 +59,7 @@ const DEFAULT_CONFIG: Omit<GlowLockCardConfig, 'entity'> = {
   jammed_icon: 'mdi:lock-alert',
   width: '260px',
   fill_container: false,
-  height: '64px',
+  height: '56px',
   border_radius: '999px',
   show_state: true,
   locked_color: '#45d158',
@@ -109,7 +109,7 @@ export class GlowLockCard extends LitElement {
     return css`
       :host {
         --lock-card-width: 260px;
-        --lock-card-height: 64px;
+        --lock-card-height: 56px;
         --lock-card-radius: 999px;
         --lock-locked-color: #45d158;
         --lock-unlocked-color: #ff3b30;
@@ -211,17 +211,17 @@ export class GlowLockCard extends LitElement {
 
       .lock-button::after {
         border: 1px solid
-          color-mix(in srgb, var(--lock-state-color) 86%, transparent);
+          color-mix(in srgb, var(--lock-state-color) 24%, transparent);
         border-radius: inherit;
         box-shadow:
-          inset 0 0 11px
-            color-mix(in srgb, var(--lock-state-color) 34%, transparent),
-          0 0 10px
-            color-mix(in srgb, var(--lock-state-color) 60%, transparent),
-          0 0 22px
-            color-mix(in srgb, var(--lock-state-color) 44%, transparent),
-          0 0 46px
-            color-mix(in srgb, var(--lock-state-color) 26%, transparent);
+          inset 0 0 16px
+            color-mix(in srgb, var(--lock-state-color) 12%, transparent),
+          0 0 18px
+            color-mix(in srgb, var(--lock-state-color) 20%, transparent),
+          0 0 42px
+            color-mix(in srgb, var(--lock-state-color) 14%, transparent),
+          0 0 82px
+            color-mix(in srgb, var(--lock-state-color) 8%, transparent);
         content: '';
         inset: -1px;
         opacity: var(--lock-glow-opacity);
@@ -240,14 +240,14 @@ export class GlowLockCard extends LitElement {
 
       .outline-glow {
         border: 1px solid
-          color-mix(in srgb, var(--lock-state-color) 52%, transparent);
+          color-mix(in srgb, var(--lock-state-color) 18%, transparent);
         box-shadow:
-          0 0 6px
-            color-mix(in srgb, var(--lock-state-color) 62%, transparent),
-          0 0 18px
-            color-mix(in srgb, var(--lock-state-color) 46%, transparent),
-          0 0 38px
-            color-mix(in srgb, var(--lock-state-color) 28%, transparent);
+          0 0 12px
+            color-mix(in srgb, var(--lock-state-color) 22%, transparent),
+          0 0 34px
+            color-mix(in srgb, var(--lock-state-color) 14%, transparent),
+          0 0 70px
+            color-mix(in srgb, var(--lock-state-color) 8%, transparent);
         inset: 2px;
         opacity: var(--lock-glow-opacity);
         z-index: 1;
@@ -257,10 +257,10 @@ export class GlowLockCard extends LitElement {
         background:
           radial-gradient(
             ellipse at center,
-            color-mix(in srgb, var(--lock-state-color) 20%, transparent),
-            transparent 70%
+            color-mix(in srgb, var(--lock-state-color) 12%, transparent),
+            transparent 78%
           );
-        filter: blur(13px);
+        filter: blur(18px);
         inset: 7px;
         opacity: var(--lock-glow-opacity);
         z-index: 0;
@@ -402,7 +402,7 @@ export class GlowLockCard extends LitElement {
       '--lock-card-width',
       this.config.fill_container ? '100%' : this.config.width ?? '260px',
     );
-    this.style.setProperty('--lock-card-height', this.config.height ?? '64px');
+    this.style.setProperty('--lock-card-height', this.config.height ?? '56px');
     this.style.setProperty(
       '--lock-card-radius',
       this.config.border_radius ?? '999px',
@@ -417,6 +417,17 @@ export class GlowLockCard extends LitElement {
 
   public getCardSize(): number {
     return 1;
+  }
+
+  public getGridOptions() {
+    return {
+      rows: 1,
+      columns: 6,
+      min_rows: 1,
+      max_rows: 1,
+      min_columns: 3,
+      max_columns: 12,
+    };
   }
 
   private get entity(): LockEntity | undefined {
@@ -622,11 +633,11 @@ export class GlowLockCard extends LitElement {
             : 'color-mix(in srgb, ' + stateColor + ' 80%, #ff4f00)'};
           --lock-glow-opacity: ${glowOpacity};
           --lock-dot-opacity: ${this.isUnavailable ? '0.26' : '1'};
-          --lock-border-strength: ${this.isUnavailable ? '24%' : '78%'};
+          --lock-border-strength: ${this.isUnavailable ? '18%' : '26%'};
           --lock-inner-ring-width: ${this.isUnavailable ? '0px' : '1px'};
-          --lock-inner-ring-strength: ${this.isUnavailable ? '0%' : '28%'};
-          --lock-outer-blur: ${this.isUnavailable ? '0' : '30px'};
-          --lock-outer-strength: ${this.isUnavailable ? '0%' : '28%'};
+          --lock-inner-ring-strength: ${this.isUnavailable ? '0%' : '8%'};
+          --lock-outer-blur: ${this.isUnavailable ? '0' : '50px'};
+          --lock-outer-strength: ${this.isUnavailable ? '0%' : '10%'};
         "
       >
         <button
@@ -873,7 +884,7 @@ class GlowLockCardEditor extends LitElement {
             ${this.renderIconPicker('Locked Icon', 'locked_icon')}
             ${this.renderIconPicker('Unlocked Icon', 'unlocked_icon')}
             ${this.renderTextInput('Width', 'width', '260px')}
-            ${this.renderTextInput('Height', 'height', '64px')}
+            ${this.renderTextInput('Height', 'height', '56px')}
             ${this.renderTextInput('Radius', 'border_radius', '999px')}
           </div>
           <div class="grid">
