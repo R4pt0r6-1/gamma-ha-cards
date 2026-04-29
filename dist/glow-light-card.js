@@ -45,7 +45,7 @@ const $t = (r) => new ht(typeof r == "string" ? r : r + "", void 0, q), ct = (r,
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const { is: bt, defineProperty: _t, getOwnPropertyDescriptor: vt, getOwnPropertyNames: yt, getOwnPropertySymbols: wt, getPrototypeOf: xt } = Object, m = globalThis, Q = m.trustedTypes, At = Q ? Q.emptyScript : "", I = m.reactiveElementPolyfillSupport, C = (r, t) => r, L = { toAttribute(r, t) {
+const { is: bt, defineProperty: wt, getOwnPropertyDescriptor: _t, getOwnPropertyNames: vt, getOwnPropertySymbols: yt, getPrototypeOf: xt } = Object, m = globalThis, Q = m.trustedTypes, At = Q ? Q.emptyScript : "", I = m.reactiveElementPolyfillSupport, C = (r, t) => r, L = { toAttribute(r, t) {
   switch (t) {
     case Boolean:
       r = r ? At : null;
@@ -75,7 +75,7 @@ const { is: bt, defineProperty: _t, getOwnPropertyDescriptor: vt, getOwnProperty
   return e;
 } }, dt = (r, t) => !bt(r, t), X = { attribute: !0, type: String, converter: L, reflect: !1, useDefault: !1, hasChanged: dt };
 Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), m.litPropertyMetadata ?? (m.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
-let w = class extends HTMLElement {
+let y = class extends HTMLElement {
   static addInitializer(t) {
     this._$Ei(), (this.l ?? (this.l = [])).push(t);
   }
@@ -85,11 +85,11 @@ let w = class extends HTMLElement {
   static createProperty(t, e = X) {
     if (e.state && (e.attribute = !1), this._$Ei(), this.prototype.hasOwnProperty(t) && ((e = Object.create(e)).wrapped = !0), this.elementProperties.set(t, e), !e.noAccessor) {
       const i = Symbol(), s = this.getPropertyDescriptor(t, i, e);
-      s !== void 0 && _t(this.prototype, t, s);
+      s !== void 0 && wt(this.prototype, t, s);
     }
   }
   static getPropertyDescriptor(t, e, i) {
-    const { get: s, set: o } = vt(this.prototype, t) ?? { get() {
+    const { get: s, set: o } = _t(this.prototype, t) ?? { get() {
       return this[e];
     }, set(n) {
       this[e] = n;
@@ -110,7 +110,7 @@ let w = class extends HTMLElement {
   static finalize() {
     if (this.hasOwnProperty(C("finalized"))) return;
     if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(C("properties"))) {
-      const e = this.properties, i = [...yt(e), ...wt(e)];
+      const e = this.properties, i = [...vt(e), ...yt(e)];
       for (const s of i) this.createProperty(s, e[s]);
     }
     const t = this[Symbol.metadata];
@@ -278,15 +278,15 @@ let w = class extends HTMLElement {
   firstUpdated(t) {
   }
 };
-w.elementStyles = [], w.shadowRootOptions = { mode: "open" }, w[C("elementProperties")] = /* @__PURE__ */ new Map(), w[C("finalized")] = /* @__PURE__ */ new Map(), I == null || I({ ReactiveElement: w }), (m.reactiveElementVersions ?? (m.reactiveElementVersions = [])).push("2.1.2");
+y.elementStyles = [], y.shadowRootOptions = { mode: "open" }, y[C("elementProperties")] = /* @__PURE__ */ new Map(), y[C("finalized")] = /* @__PURE__ */ new Map(), I == null || I({ ReactiveElement: y }), (m.reactiveElementVersions ?? (m.reactiveElementVersions = [])).push("2.1.2");
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const P = globalThis, G = (r) => r, N = P.trustedTypes, tt = N ? N.createPolicy("lit-html", { createHTML: (r) => r }) : void 0, pt = "$lit$", f = `lit$${Math.random().toFixed(9).slice(2)}$`, ut = "?" + f, Et = `<${ut}>`, y = document, O = () => y.createComment(""), T = (r) => r === null || typeof r != "object" && typeof r != "function", F = Array.isArray, St = (r) => F(r) || typeof (r == null ? void 0 : r[Symbol.iterator]) == "function", z = `[ 	
+const P = globalThis, G = (r) => r, N = P.trustedTypes, tt = N ? N.createPolicy("lit-html", { createHTML: (r) => r }) : void 0, pt = "$lit$", f = `lit$${Math.random().toFixed(9).slice(2)}$`, ut = "?" + f, Et = `<${ut}>`, v = document, O = () => v.createComment(""), T = (r) => r === null || typeof r != "object" && typeof r != "function", F = Array.isArray, St = (r) => F(r) || typeof (r == null ? void 0 : r[Symbol.iterator]) == "function", z = `[ 	
 \f\r]`, S = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, et = /-->/g, it = />/g, b = RegExp(`>|${z}(?:([^\\s"'>=/]+)(${z}*=${z}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), st = /'/g, rt = /"/g, gt = /^(?:script|style|textarea|title)$/i, Ct = (r) => (t, ...e) => ({ _$litType$: r, strings: t, values: e }), $ = Ct(1), A = Symbol.for("lit-noChange"), d = Symbol.for("lit-nothing"), ot = /* @__PURE__ */ new WeakMap(), _ = y.createTreeWalker(y, 129);
+\f\r"'\`<>=]|("|')|))|$)`, "g"), st = /'/g, rt = /"/g, gt = /^(?:script|style|textarea|title)$/i, Ct = (r) => (t, ...e) => ({ _$litType$: r, strings: t, values: e }), $ = Ct(1), A = Symbol.for("lit-noChange"), d = Symbol.for("lit-nothing"), ot = /* @__PURE__ */ new WeakMap(), w = v.createTreeWalker(v, 129);
 function ft(r, t) {
   if (!F(r) || !r.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return tt !== void 0 ? tt.createHTML(t) : t;
@@ -309,11 +309,11 @@ class U {
     this.parts = [];
     let o = 0, n = 0;
     const l = t.length - 1, a = this.parts, [c, p] = Pt(t, e);
-    if (this.el = U.createElement(c, i), _.currentNode = this.el.content, e === 2 || e === 3) {
+    if (this.el = U.createElement(c, i), w.currentNode = this.el.content, e === 2 || e === 3) {
       const h = this.el.content.firstChild;
       h.replaceWith(...h.childNodes);
     }
-    for (; (s = _.nextNode()) !== null && a.length < l; ) {
+    for (; (s = w.nextNode()) !== null && a.length < l; ) {
       if (s.nodeType === 1) {
         if (s.hasAttributes()) for (const h of s.getAttributeNames()) if (h.endsWith(pt)) {
           const u = p[n++], g = s.getAttribute(h).split(f), M = /([.?@])?(.*)/.exec(u);
@@ -323,7 +323,7 @@ class U {
           const h = s.textContent.split(f), u = h.length - 1;
           if (u > 0) {
             s.textContent = N ? N.emptyScript : "";
-            for (let g = 0; g < u; g++) s.append(h[g], O()), _.nextNode(), a.push({ type: 2, index: ++o });
+            for (let g = 0; g < u; g++) s.append(h[g], O()), w.nextNode(), a.push({ type: 2, index: ++o });
             s.append(h[u], O());
           }
         }
@@ -336,7 +336,7 @@ class U {
     }
   }
   static createElement(t, e) {
-    const i = y.createElement("template");
+    const i = v.createElement("template");
     return i.innerHTML = t, i;
   }
 }
@@ -358,17 +358,17 @@ class Ot {
     return this._$AM._$AU;
   }
   u(t) {
-    const { el: { content: e }, parts: i } = this._$AD, s = ((t == null ? void 0 : t.creationScope) ?? y).importNode(e, !0);
-    _.currentNode = s;
-    let o = _.nextNode(), n = 0, l = 0, a = i[0];
+    const { el: { content: e }, parts: i } = this._$AD, s = ((t == null ? void 0 : t.creationScope) ?? v).importNode(e, !0);
+    w.currentNode = s;
+    let o = w.nextNode(), n = 0, l = 0, a = i[0];
     for (; a !== void 0; ) {
       if (n === a.index) {
         let c;
         a.type === 2 ? c = new k(o, o.nextSibling, this, t) : a.type === 1 ? c = new a.ctor(o, a.name, a.strings, this, t) : a.type === 6 && (c = new Mt(o, this, t)), this._$AV.push(c), a = i[++l];
       }
-      n !== (a == null ? void 0 : a.index) && (o = _.nextNode(), n++);
+      n !== (a == null ? void 0 : a.index) && (o = w.nextNode(), n++);
     }
-    return _.currentNode = y, s;
+    return w.currentNode = v, s;
   }
   p(t) {
     let e = 0;
@@ -404,7 +404,7 @@ class k {
     this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
   }
   _(t) {
-    this._$AH !== d && T(this._$AH) ? this._$AA.nextSibling.data = t : this.T(y.createTextNode(t)), this._$AH = t;
+    this._$AH !== d && T(this._$AH) ? this._$AA.nextSibling.data = t : this.T(v.createTextNode(t)), this._$AH = t;
   }
   $(t) {
     var o;
@@ -520,8 +520,8 @@ const Ht = (r, t, e) => {
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const v = globalThis;
-class x extends w {
+const _ = globalThis;
+class x extends y {
   constructor() {
     super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
   }
@@ -547,10 +547,10 @@ class x extends w {
   }
 }
 var lt;
-x._$litElement$ = !0, x.finalized = !0, (lt = v.litElementHydrateSupport) == null || lt.call(v, { LitElement: x });
-const j = v.litElementPolyfillSupport;
+x._$litElement$ = !0, x.finalized = !0, (lt = _.litElementHydrateSupport) == null || lt.call(_, { LitElement: x });
+const j = _.litElementPolyfillSupport;
 j == null || j({ LitElement: x });
-(v.litElementVersions ?? (v.litElementVersions = [])).push("4.2.2");
+(_.litElementVersions ?? (_.litElementVersions = [])).push("4.2.2");
 const nt = {
   icon: "mdi:ceiling-light",
   width: "260px",
@@ -606,8 +606,14 @@ const K = class K extends x {
         background:
           radial-gradient(
             circle at 15% 50%,
-            color-mix(in srgb, var(--glow-state-color) 12%, transparent),
+            color-mix(in srgb, var(--glow-hot-color) 14%, transparent),
             transparent 44%
+          ),
+          linear-gradient(
+            115deg,
+            color-mix(in srgb, var(--glow-warm-color) 12%, transparent) 0%,
+            color-mix(in srgb, var(--glow-state-color) 8%, transparent) 42%,
+            color-mix(in srgb, var(--glow-hot-color) 13%, transparent) 100%
           ),
           linear-gradient(
             135deg,
@@ -654,22 +660,22 @@ const K = class K extends x {
           radial-gradient(
             ellipse at center,
             transparent 42%,
-            color-mix(in srgb, var(--glow-state-color) 10%, transparent) 72%,
-            color-mix(in srgb, var(--glow-state-color) 24%, transparent) 100%
+            color-mix(in srgb, var(--glow-warm-color) 10%, transparent) 72%,
+            color-mix(in srgb, var(--glow-hot-color) 25%, transparent) 100%
           ),
           linear-gradient(
             90deg,
-            color-mix(in srgb, var(--glow-state-color) 7%, transparent),
+            color-mix(in srgb, var(--glow-warm-color) 9%, transparent),
             transparent 34%,
             transparent 68%,
-            color-mix(in srgb, var(--glow-state-color) 8%, transparent)
+            color-mix(in srgb, var(--glow-hot-color) 11%, transparent)
           ),
           linear-gradient(
             180deg,
-            color-mix(in srgb, var(--glow-state-color) 10%, transparent),
+            color-mix(in srgb, var(--glow-hot-color) 11%, transparent),
             transparent 32%,
             transparent 70%,
-            color-mix(in srgb, var(--glow-state-color) 8%, transparent)
+            color-mix(in srgb, var(--glow-warm-color) 9%, transparent)
           );
         content: '';
         inset: 0;
@@ -786,7 +792,10 @@ const K = class K extends x {
         align-self: center;
         display: flex;
         flex-direction: column;
+        justify-self: center;
         min-width: 0;
+        text-align: center;
+        width: 100%;
       }
 
       .name {
@@ -934,6 +943,8 @@ const K = class K extends x {
       <ha-card
         style="
           --glow-state-color: ${t};
+          --glow-warm-color: ${this.isOn ? "color-mix(in srgb, " + t + " 86%, #ffd26a)" : t};
+          --glow-hot-color: ${this.isOn ? "color-mix(in srgb, " + t + " 82%, #ff4f00)" : t};
           --glow-border-color: ${t};
           --glow-icon-color: ${t};
           --glow-on-opacity: ${e};

@@ -119,8 +119,14 @@ export class GlowLightCard extends LitElement {
         background:
           radial-gradient(
             circle at 15% 50%,
-            color-mix(in srgb, var(--glow-state-color) 12%, transparent),
+            color-mix(in srgb, var(--glow-hot-color) 14%, transparent),
             transparent 44%
+          ),
+          linear-gradient(
+            115deg,
+            color-mix(in srgb, var(--glow-warm-color) 12%, transparent) 0%,
+            color-mix(in srgb, var(--glow-state-color) 8%, transparent) 42%,
+            color-mix(in srgb, var(--glow-hot-color) 13%, transparent) 100%
           ),
           linear-gradient(
             135deg,
@@ -167,22 +173,22 @@ export class GlowLightCard extends LitElement {
           radial-gradient(
             ellipse at center,
             transparent 42%,
-            color-mix(in srgb, var(--glow-state-color) 10%, transparent) 72%,
-            color-mix(in srgb, var(--glow-state-color) 24%, transparent) 100%
+            color-mix(in srgb, var(--glow-warm-color) 10%, transparent) 72%,
+            color-mix(in srgb, var(--glow-hot-color) 25%, transparent) 100%
           ),
           linear-gradient(
             90deg,
-            color-mix(in srgb, var(--glow-state-color) 7%, transparent),
+            color-mix(in srgb, var(--glow-warm-color) 9%, transparent),
             transparent 34%,
             transparent 68%,
-            color-mix(in srgb, var(--glow-state-color) 8%, transparent)
+            color-mix(in srgb, var(--glow-hot-color) 11%, transparent)
           ),
           linear-gradient(
             180deg,
-            color-mix(in srgb, var(--glow-state-color) 10%, transparent),
+            color-mix(in srgb, var(--glow-hot-color) 11%, transparent),
             transparent 32%,
             transparent 70%,
-            color-mix(in srgb, var(--glow-state-color) 8%, transparent)
+            color-mix(in srgb, var(--glow-warm-color) 9%, transparent)
           );
         content: '';
         inset: 0;
@@ -299,7 +305,10 @@ export class GlowLightCard extends LitElement {
         align-self: center;
         display: flex;
         flex-direction: column;
+        justify-self: center;
         min-width: 0;
+        text-align: center;
+        width: 100%;
       }
 
       .name {
@@ -507,6 +516,12 @@ export class GlowLightCard extends LitElement {
       <ha-card
         style="
           --glow-state-color: ${stateColor};
+          --glow-warm-color: ${this.isOn
+            ? 'color-mix(in srgb, ' + stateColor + ' 86%, #ffd26a)'
+            : stateColor};
+          --glow-hot-color: ${this.isOn
+            ? 'color-mix(in srgb, ' + stateColor + ' 82%, #ff4f00)'
+            : stateColor};
           --glow-border-color: ${stateColor};
           --glow-icon-color: ${stateColor};
           --glow-on-opacity: ${onOpacity};
