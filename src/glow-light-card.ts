@@ -470,7 +470,9 @@ export class GlowLightCard extends LitElement {
   }
 }
 
-customElements.define('glow-light-card', GlowLightCard);
+if (!customElements.get('glow-light-card')) {
+  customElements.define('glow-light-card', GlowLightCard);
+}
 
 class GlowLightCardEditor extends LitElement {
   static properties = {
@@ -665,7 +667,9 @@ class GlowLightCardEditor extends LitElement {
   }
 }
 
-customElements.define('glow-light-card-editor', GlowLightCardEditor);
+if (!customElements.get('glow-light-card-editor')) {
+  customElements.define('glow-light-card-editor', GlowLightCardEditor);
+}
 
 declare global {
   interface HTMLElementTagNameMap {

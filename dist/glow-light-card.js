@@ -898,7 +898,7 @@ K.properties = {
   holdActive: { state: !0 }
 };
 let B = K;
-customElements.define("glow-light-card", B);
+customElements.get("glow-light-card") || customElements.define("glow-light-card", B);
 const Z = class Z extends A {
   constructor() {
     super(...arguments), this.config = {};
@@ -1061,7 +1061,7 @@ Z.properties = {
   config: { state: !0 }
 };
 let V = Z;
-customElements.define("glow-light-card-editor", V);
+customElements.get("glow-light-card-editor") || customElements.define("glow-light-card-editor", V);
 window.customCards = window.customCards || [];
 window.customCards.push({
   preview: !0,
