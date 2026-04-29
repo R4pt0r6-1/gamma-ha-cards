@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Glow Light Card Demo</title>
-    <script type="module" src="/dist/glow-light-card.js"></script>
+    <title>Gamma HA Cards Demo</title>
+    <script type="module" src="/dist/gamma-ha-cards.js"></script>
     <style>
       :root {
         --primary-text-color: #f4f7fb;
@@ -33,8 +33,13 @@
 
       main {
         display: grid;
-        gap: 14px;
-        width: min(560px, calc(100vw - 32px));
+        gap: 26px;
+        width: min(620px, calc(100vw - 32px));
+      }
+
+      .demo-section {
+        display: grid;
+        gap: 12px;
       }
 
       .group-title {
@@ -43,7 +48,7 @@
         display: flex;
         font-size: 14px;
         gap: 8px;
-        margin: 0 0 2px;
+        margin: 0;
       }
 
       .grid {
@@ -61,10 +66,25 @@
   </head>
   <body>
     <main>
-      <h1 class="group-title">Lights</h1>
-      <section class="grid">
-        <glow-light-card id="lanai"></glow-light-card>
-        <glow-light-card id="bar"></glow-light-card>
+      <section class="demo-section">
+        <h1 class="group-title">Lights</h1>
+        <div class="grid">
+          <glow-light-card id="lanai"></glow-light-card>
+          <glow-light-card id="bar"></glow-light-card>
+        </div>
+      </section>
+
+      <section class="demo-section">
+        <h2 class="group-title">Outlets</h2>
+        <dual-outlet-card id="desk-outlets"></dual-outlet-card>
+      </section>
+
+      <section class="demo-section">
+        <h2 class="group-title">Fans</h2>
+        <div class="grid">
+          <speed-fan-card id="kitchen-fan"></speed-fan-card>
+          <speed-fan-card id="office-fan"></speed-fan-card>
+        </div>
       </section>
     </main>
 
@@ -95,6 +115,12 @@
                 ? '↪'
                 : icon.includes('ceiling')
                   ? '▣'
+                  : icon.includes('socket')
+                    ? '▤'
+                    : icon.includes('fan')
+                      ? '✣'
+                    : icon.includes('power')
+                      ? '⏻'
                   : '●';
             }
           },
@@ -118,17 +144,72 @@
             brightness: 255,
           },
         },
+        'switch.desk_outlet_top': {
+          entity_id: 'switch.desk_outlet_top',
+          state: 'on',
+          attributes: {
+            friendly_name: 'Top Outlet',
+            icon: 'mdi:power-socket-us',
+          },
+        },
+        'switch.desk_outlet_bottom': {
+          entity_id: 'switch.desk_outlet_bottom',
+          state: 'off',
+          attributes: {
+            friendly_name: 'Bottom Outlet',
+            icon: 'mdi:power-socket-us',
+          },
+        },
+        'fan.kitchen_fan': {
+          entity_id: 'fan.kitchen_fan',
+          state: 'off',
+          attributes: {
+            friendly_name: 'Kitchen Fan',
+            percentage: 0,
+            icon: 'mdi:fan',
+          },
+        },
+        'fan.office_fan': {
+          entity_id: 'fan.office_fan',
+          state: 'on',
+          attributes: {
+            friendly_name: 'Office Fan',
+            percentage: 100,
+            icon: 'mdi:fan',
+          },
+        },
       };
 
       const hass = {
         states,
         callService(domain, service, data) {
-          if (service !== 'toggle') return;
           const entity = states[data.entity_id];
-          entity.state = entity.state === 'on' ? 'off' : 'on';
-          document.querySelectorAll('glow-light-card').forEach((card) => {
-            card.hass = { ...hass, states: { ...states } };
-          });
+          if (!entity) return;
+
+          if (domain === 'fan' && service === 'set_percentage') {
+            entity.state = Number(data.percentage) > 0 ? 'on' : 'off';
+            entity.attributes.percentage = Number(data.percentage);
+          } else if (service === 'turn_off') {
+            entity.state = 'off';
+            if (entity.attributes.percentage !== undefined) {
+              entity.attributes.percentage = 0;
+            }
+          } else if (service === 'turn_on') {
+            entity.state = 'on';
+          } else if (service === 'toggle') {
+            entity.state = entity.state === 'on' ? 'off' : 'on';
+            if (entity.attributes.brightness !== undefined) {
+              entity.attributes.brightness = entity.state === 'on' ? 255 : 0;
+            }
+          } else {
+            return;
+          }
+
+          document
+            .querySelectorAll('glow-light-card, dual-outlet-card, speed-fan-card')
+            .forEach((card) => {
+              card.hass = { ...hass, states: { ...states } };
+            });
         },
       };
 
@@ -146,6 +227,35 @@
         width: '100%',
       });
       bar.hass = hass;
+
+      const deskOutlets = document.querySelector('#desk-outlets');
+      deskOutlets.setConfig({
+        title: 'Desk Outlets',
+        entity_1: 'switch.desk_outlet_top',
+        entity_2: 'switch.desk_outlet_bottom',
+        icon_1: 'mdi:power-socket-us',
+        icon_2: 'mdi:power-socket-us',
+        width: '320px',
+        layout: 'duplex',
+        on_color: '#ff3b30',
+      });
+      deskOutlets.hass = hass;
+
+      const kitchenFan = document.querySelector('#kitchen-fan');
+      kitchenFan.setConfig({
+        entity: 'fan.kitchen_fan',
+        name: 'Fan',
+        width: '100%',
+      });
+      kitchenFan.hass = hass;
+
+      const officeFan = document.querySelector('#office-fan');
+      officeFan.setConfig({
+        entity: 'fan.office_fan',
+        name: 'Fan',
+        width: '100%',
+      });
+      officeFan.hass = hass;
     </script>
   </body>
 </html>

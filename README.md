@@ -1,17 +1,12 @@
-# Glow Light Card
+# Gamma HA Cards
 
-A fast, resizable Home Assistant Lovelace card for lights.
+A fast Home Assistant Lovelace card collection for compact, animated dashboard controls.
 
-It is designed for compact dashboard rows like kitchen, bar, porch, and accent lights. When the light is on, the card uses a warm glowing gradient and border. When off, it falls back to a quiet dark pill.
+## Cards
 
-## Features
-
-- Works with any `light.*` entity, and can also toggle other domains that support `toggle`
-- Custom icon, name, width, height, radius, colors, and actions
-- Optional brightness percentage display
-- Fast CSS-only glow animation
-- Visual editor support
-- HACS-ready
+- `custom:glow-light-card` - a resizable glowing toggle card for lights and other toggleable entities.
+- `custom:dual-outlet-card` - one duplex socket card for two switch entities, with independent tap toggles and a red on-state outline glow.
+- `custom:speed-fan-card` - a compact fan card with Off, 1, 2, and 3 speed controls.
 
 ## Installation
 
@@ -20,13 +15,13 @@ It is designed for compact dashboard rows like kitchen, bar, porch, and accent l
 Add this repository as a custom HACS dashboard repository:
 
 ```text
-https://github.com/AnielGammaTech/glow-light-card
+https://github.com/AnielGammaTech/gamma-ha-cards
 ```
 
 Resource path:
 
 ```text
-/hacsfiles/glow-light-card/glow-light-card.js
+/hacsfiles/gamma-ha-cards/gamma-ha-cards.js
 ```
 
 Resource type:
@@ -35,7 +30,7 @@ Resource type:
 JavaScript module
 ```
 
-## Basic Usage
+## Glow Light Card
 
 ```yaml
 type: custom:glow-light-card
@@ -44,41 +39,95 @@ name: Bar Lights
 icon: mdi:ceiling-light
 ```
 
-## Example
+### Glow Light Options
+
+| Name            | Type      | Default             | Description                       |
+| --------------- | --------- | ------------------- | --------------------------------- |
+| `entity`        | `string`  | Required            | Entity to display and toggle.     |
+| `name`          | `string`  | Entity friendly name | Display name.                     |
+| `icon`          | `string`  | `mdi:ceiling-light` | Icon shown on the left.           |
+| `width`         | `string`  | `260px`             | CSS width of the card.            |
+| `height`        | `string`  | `64px`              | CSS minimum height of the card.   |
+| `border_radius` | `string`  | `999px`             | CSS border radius.                |
+| `show_state`    | `boolean` | `true`              | Show state text under the name.   |
+| `state_display` | `string`  | `state`             | `state`, `brightness`, or `auto`. |
+| `on_color`      | `string`  | `#ff8a1c`           | Glow color when on.               |
+| `off_color`     | `string`  | `#697382`           | Icon/border color when off.       |
+| `background`    | `string`  | `#101722`           | Base card background.             |
+| `tap_action`    | `string`  | `toggle`            | `toggle`, `more-info`, or `none`. |
+| `hold_action`   | `string`  | `more-info`         | `toggle`, `more-info`, or `none`. |
+| `animated`      | `boolean` | `true`              | Enable glow animation when on.    |
+
+## Dual Outlet Card
 
 ```yaml
-type: custom:glow-light-card
-entity: light.bar_lights
-name: Bar Lights
-icon: mdi:ceiling-light
-width: 260px
-height: 64px
-on_color: '#ff8a1c'
-off_color: '#697382'
-background: '#101722'
-state_display: state
-tap_action: toggle
-hold_action: more-info
+type: custom:dual-outlet-card
+title: Desk Outlets
+entity_1: switch.desk_outlet_top
+entity_2: switch.desk_outlet_bottom
+name_1: Top Outlet
+name_2: Bottom Outlet
+layout: duplex
 ```
 
-## Options
+### Dual Outlet Options
 
-| Name            | Type      | Default             | Description                                 |
-| --------------- | --------- | ------------------- | ------------------------------------------- |
-| `entity`        | `string`  | Required            | Entity to display and toggle.               |
-| `name`          | `string`  | Entity friendly name | Display name.                               |
-| `icon`          | `string`  | `mdi:ceiling-light` | Icon shown on the left.                     |
-| `width`         | `string`  | `260px`             | CSS width of the card.                      |
-| `height`        | `string`  | `64px`              | CSS minimum height of the card.             |
-| `border_radius` | `string`  | `999px`             | CSS border radius.                          |
-| `show_state`    | `boolean` | `true`              | Show state text under the name.             |
-| `state_display` | `string`  | `state`             | `state`, `brightness`, or `auto`.           |
-| `on_color`      | `string`  | `#ff8a1c`           | Glow color when on.                         |
-| `off_color`     | `string`  | `#697382`           | Icon/border color when off.                 |
-| `background`    | `string`  | `#101722`           | Base card background.                       |
-| `tap_action`    | `string`  | `toggle`            | `toggle`, `more-info`, or `none`.           |
-| `hold_action`   | `string`  | `more-info`         | `toggle`, `more-info`, or `none`.           |
-| `animated`      | `boolean` | `true`              | Enable the subtle glow animation when on.   |
+| Name            | Type      | Default                 | Description                       |
+| --------------- | --------- | ----------------------- | --------------------------------- |
+| `entity_1`      | `string`  | Required                | First outlet entity.              |
+| `entity_2`      | `string`  | Optional                | Second outlet entity.             |
+| `title`         | `string`  | `Outlets`               | Group title.                      |
+| `name_1`        | `string`  | Entity friendly name    | First outlet display name.        |
+| `name_2`        | `string`  | Entity friendly name    | Second outlet display name.       |
+| `icon_1`        | `string`  | `mdi:power-socket-us`   | First outlet icon.                |
+| `icon_2`        | `string`  | `mdi:power-socket-us`   | Second outlet icon.               |
+| `width`         | `string`  | `320px`                 | CSS width of the card.            |
+| `button_height` | `string`  | `58px`                  | CSS minimum height per outlet.    |
+| `gap`           | `string`  | `12px`                  | Space between outlet buttons.     |
+| `layout`        | `string`  | `duplex`                | `duplex`, `grid`, or `stack`.     |
+| `show_title`    | `boolean` | `true`                  | Show the group title.             |
+| `show_state`    | `boolean` | `true`                  | Show outlet state text.           |
+| `on_color`      | `string`  | `#ff3b30`               | Glow color when an outlet is on.  |
+| `off_color`     | `string`  | `#697382`               | Icon/border color when off.       |
+| `background`    | `string`  | `#101722`               | Base button background.           |
+| `tap_action`    | `string`  | `toggle`                | `toggle`, `more-info`, or `none`. |
+| `hold_action`   | `string`  | `more-info`             | `toggle`, `more-info`, or `none`. |
+| `animated`      | `boolean` | `true`                  | Enable glow animation when on.    |
+
+## Speed Fan Card
+
+```yaml
+type: custom:speed-fan-card
+entity: fan.kitchen_fan
+name: Fan
+speed_1_percentage: 33
+speed_2_percentage: 66
+speed_3_percentage: 100
+```
+
+Tap the pill to cycle through Off, 1, 2, and 3. Tap a speed button to jump straight to that speed.
+
+### Speed Fan Options
+
+| Name                 | Type      | Default   | Description                       |
+| -------------------- | --------- | --------- | --------------------------------- |
+| `entity`             | `string`  | Required  | Fan entity to display and control. |
+| `name`               | `string`  | Entity friendly name | Display name.             |
+| `icon`               | `string`  | `mdi:fan` | Icon shown on the left.           |
+| `width`              | `string`  | `260px`   | CSS width of the card.            |
+| `height`             | `string`  | `64px`    | CSS minimum height of the card.   |
+| `border_radius`      | `string`  | `999px`   | CSS border radius.                |
+| `show_state`         | `boolean` | `true`    | Show state text under the name.   |
+| `show_speed_buttons` | `boolean` | `true`    | Show Off, 1, 2, and 3 buttons.    |
+| `speed_1_percentage` | `number`  | `33`      | Fan percentage for speed 1.       |
+| `speed_2_percentage` | `number`  | `66`      | Fan percentage for speed 2.       |
+| `speed_3_percentage` | `number`  | `100`     | Fan percentage for speed 3.       |
+| `on_color`           | `string`  | `#45d158` | Glow color when on.               |
+| `off_color`          | `string`  | `#697382` | Icon/border color when off.       |
+| `background`         | `string`  | `#101722` | Base button background.           |
+| `tap_action`         | `string`  | `cycle`   | `cycle`, `more-info`, or `none`.  |
+| `hold_action`        | `string`  | `more-info` | `more-info` or `none`.          |
+| `animated`           | `boolean` | `true`    | Enable glow and fan animation.    |
 
 ## Local Development
 

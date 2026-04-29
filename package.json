@@ -1,9 +1,9 @@
 {
-  "name": "glow-light-card",
+  "name": "gamma-ha-cards",
   "version": "0.1.0",
   "type": "module",
-  "description": "A fast glowing light card for Home Assistant Lovelace dashboards",
-  "main": "dist/glow-light-card.js",
+  "description": "A collection of fast Home Assistant Lovelace dashboard cards",
+  "main": "dist/gamma-ha-cards.js",
   "scripts": {
     "build": "vite build",
     "demo": "vite --host 0.0.0.0",
@@ -16,7 +16,8 @@
     "lovelace",
     "hacs",
     "custom-card",
-    "light"
+    "light",
+    "dashboard-cards"
   ],
   "author": {
     "name": "AnielGammaTech",
@@ -24,7 +25,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/AnielGammaTech/glow-light-card.git"
+    "url": "https://github.com/AnielGammaTech/gamma-ha-cards.git"
   },
   "license": "MIT",
   "dependencies": {

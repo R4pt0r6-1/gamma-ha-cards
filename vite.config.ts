@@ -5,9 +5,9 @@ export default defineConfig({
   build: {
     emptyOutDir: true,
     lib: {
-      entry: 'src/glow-light-card.ts',
+      entry: 'src/index.ts',
       formats: ['es'],
-      fileName: () => 'glow-light-card.js',
+      fileName: () => 'gamma-ha-cards.js',
     },
     outDir: 'dist',
     sourcemap: true,
