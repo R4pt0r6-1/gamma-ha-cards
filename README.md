@@ -50,6 +50,7 @@ icon: mdi:ceiling-light
 | `fill_container` | `boolean` | `false`            | Stretch the card to the full dashboard column width. |
 | `height`        | `string`  | `64px`              | CSS minimum height of the card.   |
 | `border_radius` | `string`  | `999px`             | CSS border radius.                |
+| `has_dimmer`    | `boolean` | `false`             | Turn the light button into a brightness slider. |
 | `show_state`    | `boolean` | `true`              | Show state text under the name.   |
 | `state_display` | `string`  | `state`             | `state`, `brightness`, or `auto`. |
 | `on_color`      | `string`  | `#ff8a1c`           | Glow color when on.               |

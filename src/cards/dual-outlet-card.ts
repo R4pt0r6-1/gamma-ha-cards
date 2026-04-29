@@ -1041,11 +1041,15 @@ class DualOutletCardEditor extends LitElement {
         min-height: 34px;
       }
 
-      ha-entity-picker,
+      ha-selector,
       ha-icon-picker,
       ha-textfield,
       ha-select {
         width: 100%;
+      }
+
+      .full {
+        grid-column: 1 / -1;
       }
 
       h3 {
@@ -1095,14 +1099,15 @@ class DualOutletCardEditor extends LitElement {
     key: keyof DualOutletCardConfig,
   ): TemplateResult {
     return html`
-      <ha-entity-picker
+      <ha-selector
+        class="full"
         .hass=${this.hass}
         .label=${label}
+        .selector=${{ entity: { domain: ['switch', 'light', 'input_boolean'] } }}
         .value=${this.config[key] ?? ''}
         .configValue=${key}
-        .includeDomains=${['switch', 'light', 'input_boolean']}
         @value-changed=${this.valueChanged}
-      ></ha-entity-picker>
+      ></ha-selector>
     `;
   }
 

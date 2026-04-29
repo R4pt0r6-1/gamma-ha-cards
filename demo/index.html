@@ -141,7 +141,7 @@
           state: 'on',
           attributes: {
             friendly_name: 'Bar Lights',
-            brightness: 255,
+            brightness: 186,
           },
         },
         'switch.desk_outlet_top': {
@@ -194,8 +194,14 @@
             if (entity.attributes.percentage !== undefined) {
               entity.attributes.percentage = 0;
             }
+            if (entity.attributes.brightness !== undefined) {
+              entity.attributes.brightness = 0;
+            }
           } else if (service === 'turn_on') {
             entity.state = 'on';
+            if (entity.attributes.brightness !== undefined && data.brightness_pct !== undefined) {
+              entity.attributes.brightness = Math.round((Number(data.brightness_pct) / 100) * 255);
+            }
           } else if (service === 'toggle') {
             entity.state = entity.state === 'on' ? 'off' : 'on';
             if (entity.attributes.brightness !== undefined) {
@@ -225,6 +231,7 @@
         entity: 'light.bar_lights',
         icon: 'mdi:ceiling-light',
         width: '100%',
+        has_dimmer: true,
       });
       bar.hass = hass;
 

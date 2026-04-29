@@ -34,6 +34,7 @@ interface GlowLightCardConfig {
   fill_container?: boolean;
   height?: string;
   border_radius?: string;
+  has_dimmer?: boolean;
   show_state?: boolean;
   state_display?: StateDisplayMode;
   on_color?: string;
@@ -55,6 +56,7 @@ const DEFAULT_CONFIG: Omit<GlowLightCardConfig, 'entity'> = {
   fill_container: false,
   height: '64px',
   border_radius: '999px',
+  has_dimmer: false,
   show_state: true,
   state_display: 'state',
   on_color: '#ff8a1c',
@@ -86,12 +88,16 @@ export class GlowLightCard extends LitElement {
     hass: { attribute: false },
     config: { state: true },
     holdActive: { state: true },
+    dimmingPercent: { state: true },
   };
 
   public hass?: HomeAssistant;
   private config!: GlowLightCardConfig;
   private holdTimer?: number;
   private holdActive = false;
+  private dimmingPercent?: number;
+  private isDimming = false;
+  private suppressClick = false;
 
   static get styles(): CSSResultGroup {
     return css`
@@ -168,6 +174,10 @@ export class GlowLightCard extends LitElement {
         position: relative;
         text-align: left;
         width: 100%;
+      }
+
+      .button.dimmer {
+        touch-action: pan-y;
       }
 
       .button::before {
@@ -255,6 +265,52 @@ export class GlowLightCard extends LitElement {
         position: absolute;
         transition: opacity 160ms ease;
         z-index: 0;
+      }
+
+      .button .slider-fill {
+        background:
+          radial-gradient(
+            circle at 18% 50%,
+            color-mix(in srgb, var(--glow-hot-color) 22%, transparent),
+            transparent 48%
+          ),
+          linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--glow-warm-color) 44%, transparent),
+            color-mix(in srgb, var(--glow-state-color) 32%, transparent)
+          );
+        border-radius: inherit;
+        box-shadow:
+          inset 0 0 18px
+            color-mix(in srgb, var(--glow-state-color) 24%, transparent),
+          0 0 18px
+            color-mix(in srgb, var(--glow-state-color) 22%, transparent);
+        inset: 0 auto 0 0;
+        opacity: var(--glow-slider-opacity);
+        pointer-events: none;
+        position: absolute;
+        transition:
+          opacity 160ms ease,
+          width 120ms ease;
+        width: var(--glow-slider-percent);
+        z-index: 0;
+      }
+
+      .button .slider-fill::after {
+        background: color-mix(in srgb, var(--glow-state-color) 86%, #ffffff 10%);
+        border-radius: 999px;
+        box-shadow:
+          0 0 10px
+            color-mix(in srgb, var(--glow-state-color) 62%, transparent),
+          0 0 24px
+            color-mix(in srgb, var(--glow-state-color) 36%, transparent);
+        content: '';
+        height: calc(100% - 18px);
+        opacity: var(--glow-slider-handle-opacity);
+        position: absolute;
+        right: 2px;
+        top: 9px;
+        width: 2px;
       }
 
       .button.on.animated::after {
@@ -414,6 +470,10 @@ export class GlowLightCard extends LitElement {
     return this.config.entity.split('.')[0] ?? 'light';
   }
 
+  private get hasDimmer(): boolean {
+    return Boolean(this.config.has_dimmer) && this.domain === 'light';
+  }
+
   private get brightnessPercent(): number | undefined {
     const brightness = this.entity?.attributes.brightness;
 
@@ -422,6 +482,18 @@ export class GlowLightCard extends LitElement {
     }
 
     return Math.round((brightness / 255) * 100);
+  }
+
+  private get activeBrightnessPercent(): number {
+    if (this.dimmingPercent !== undefined) {
+      return this.dimmingPercent;
+    }
+
+    if (!this.isOn) {
+      return 0;
+    }
+
+    return this.brightnessPercent ?? 100;
   }
 
   private get displayName(): string {
@@ -440,11 +512,11 @@ export class GlowLightCard extends LitElement {
     const mode = this.config.state_display ?? 'state';
     const brightness = this.brightnessPercent;
 
-    if (
-      this.isOn &&
-      brightness !== undefined &&
-      (mode === 'brightness' || mode === 'auto')
-    ) {
+    if (this.isOn && this.hasDimmer) {
+      return `${this.activeBrightnessPercent}%`;
+    }
+
+    if (this.isOn && brightness !== undefined && (mode === 'brightness' || mode === 'auto')) {
       return `${brightness}%`;
     }
 
@@ -485,20 +557,92 @@ export class GlowLightCard extends LitElement {
     });
   }
 
-  private handlePointerDown(): void {
+  private brightnessFromPointer(event: PointerEvent): number {
+    const target = event.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const rawPercent = ((event.clientX - rect.left) / rect.width) * 100;
+
+    return Math.max(0, Math.min(100, Math.round(rawPercent)));
+  }
+
+  private commitBrightness(percent: number): void {
+    if (!this.hasDimmer || this.isUnavailable) {
+      return;
+    }
+
+    if (percent <= 5) {
+      this.hass?.callService('light', 'turn_off', {
+        entity_id: this.config.entity,
+      });
+      return;
+    }
+
+    this.hass?.callService('light', 'turn_on', {
+      entity_id: this.config.entity,
+      brightness_pct: Math.max(1, percent),
+    });
+  }
+
+  private handlePointerDown(event: PointerEvent): void {
     window.clearTimeout(this.holdTimer);
     this.holdActive = false;
+
+    if (this.hasDimmer && !this.isUnavailable) {
+      this.isDimming = true;
+      this.suppressClick = true;
+      this.dimmingPercent = this.brightnessFromPointer(event);
+      (event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId);
+      event.preventDefault();
+      return;
+    }
+
     this.holdTimer = window.setTimeout(() => {
       this.holdActive = true;
       this.performAction(this.config.hold_action);
     }, 500);
   }
 
-  private handlePointerUp(): void {
-    window.clearTimeout(this.holdTimer);
+  private handlePointerMove(event: PointerEvent): void {
+    if (!this.hasDimmer || !this.isDimming) {
+      return;
+    }
+
+    this.dimmingPercent = this.brightnessFromPointer(event);
+    event.preventDefault();
   }
 
-  private handleClick(): void {
+  private handlePointerUp(event: PointerEvent): void {
+    window.clearTimeout(this.holdTimer);
+
+    if (this.hasDimmer && this.isDimming) {
+      const percent = this.brightnessFromPointer(event);
+      this.dimmingPercent = percent;
+      this.commitBrightness(percent);
+      this.isDimming = false;
+      window.setTimeout(() => {
+        this.dimmingPercent = undefined;
+        this.suppressClick = false;
+      }, 180);
+      event.preventDefault();
+    }
+  }
+
+  private handlePointerCancel(): void {
+    window.clearTimeout(this.holdTimer);
+    this.isDimming = false;
+    this.dimmingPercent = undefined;
+    window.setTimeout(() => {
+      this.suppressClick = false;
+    }, 0);
+  }
+
+  private handleClick(event: Event): void {
+    if (this.hasDimmer && this.suppressClick) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
     if (this.holdActive) {
       this.holdActive = false;
       return;
@@ -516,6 +660,12 @@ export class GlowLightCard extends LitElement {
       ? this.config.on_color
       : this.config.off_color;
     const onOpacity = this.isOn ? '1' : '0';
+    const sliderPercent = this.hasDimmer
+      ? `${this.activeBrightnessPercent}%`
+      : '0%';
+    const sliderOpacity = this.hasDimmer && this.activeBrightnessPercent > 0 ? '1' : '0';
+    const sliderHandleOpacity =
+      this.hasDimmer && this.activeBrightnessPercent > 5 ? '1' : '0';
 
     return html`
       <ha-card
@@ -535,19 +685,25 @@ export class GlowLightCard extends LitElement {
           --glow-inner-ring-strength: ${this.isOn ? '28%' : '0%'};
           --glow-outer-blur: ${this.isOn ? '30px' : '0'};
           --glow-outer-strength: ${this.isOn ? '26%' : '0%'};
+          --glow-slider-percent: ${sliderPercent};
+          --glow-slider-opacity: ${sliderOpacity};
+          --glow-slider-handle-opacity: ${sliderHandleOpacity};
         "
       >
         <button
-          class="button ${this.isOn ? 'on' : 'off'} ${this.isUnavailable
+          type="button"
+          class="button ${this.hasDimmer ? 'dimmer' : ''} ${this.isOn ? 'on' : 'off'} ${this.isUnavailable
             ? 'unavailable'
             : ''} ${this.config.animated ? 'animated' : ''}"
           aria-label=${this.displayName}
           @click=${this.handleClick}
           @pointerdown=${this.handlePointerDown}
+          @pointermove=${this.handlePointerMove}
           @pointerup=${this.handlePointerUp}
-          @pointercancel=${this.handlePointerUp}
+          @pointercancel=${this.handlePointerCancel}
         >
           <span class="ambient-glow"></span>
+          <span class="slider-fill"></span>
           <span class="outline-glow"></span>
           <span class="icon-shell">
             <ha-icon icon=${this.icon}></ha-icon>
@@ -608,11 +764,15 @@ class GlowLightCardEditor extends LitElement {
         min-height: 34px;
       }
 
-      ha-entity-picker,
+      ha-selector,
       ha-icon-picker,
       ha-textfield,
       ha-select {
         width: 100%;
+      }
+
+      .full {
+        grid-column: 1 / -1;
       }
 
       h3 {
@@ -662,13 +822,15 @@ class GlowLightCardEditor extends LitElement {
     key: keyof GlowLightCardConfig,
   ): TemplateResult {
     return html`
-      <ha-entity-picker
+      <ha-selector
+        class="full"
         .hass=${this.hass}
         .label=${label}
+        .selector=${{ entity: { domain: 'light' } }}
         .value=${this.config[key] ?? ''}
         .configValue=${key}
         @value-changed=${this.valueChanged}
-      ></ha-entity-picker>
+      ></ha-selector>
     `;
   }
 
@@ -760,6 +922,7 @@ class GlowLightCardEditor extends LitElement {
           </div>
           <div class="grid">
             ${this.renderSwitch('Fill Container', 'fill_container', false)}
+            ${this.renderSwitch('Has Dimmer', 'has_dimmer', false)}
           </div>
         </section>
 
