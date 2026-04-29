@@ -89,13 +89,18 @@ export class GlowLightCard extends LitElement {
     config: { state: true },
     holdActive: { state: true },
     dimmingPercent: { state: true },
+    optimisticOn: { state: true },
+    optimisticBrightnessPercent: { state: true },
   };
 
   public hass?: HomeAssistant;
   private config!: GlowLightCardConfig;
   private holdTimer?: number;
+  private optimisticTimer?: number;
   private holdActive = false;
   private dimmingPercent?: number;
+  private optimisticOn?: boolean;
+  private optimisticBrightnessPercent?: number;
   private isDimming = false;
   private pendingDimmerPointer = false;
   private pointerStartX = 0;
@@ -462,6 +467,14 @@ export class GlowLightCard extends LitElement {
   }
 
   private get isOn(): boolean {
+    if (this.optimisticBrightnessPercent !== undefined) {
+      return this.optimisticBrightnessPercent > 0;
+    }
+
+    if (this.optimisticOn !== undefined) {
+      return this.optimisticOn;
+    }
+
     return this.entity?.state === 'on';
   }
 
@@ -490,6 +503,10 @@ export class GlowLightCard extends LitElement {
   private get activeBrightnessPercent(): number {
     if (this.dimmingPercent !== undefined) {
       return this.dimmingPercent;
+    }
+
+    if (this.optimisticBrightnessPercent !== undefined) {
+      return this.optimisticBrightnessPercent;
     }
 
     if (!this.isOn) {
@@ -545,6 +562,31 @@ export class GlowLightCard extends LitElement {
     );
   }
 
+  private setOptimisticOn(on: boolean, brightnessPercent?: number): void {
+    window.clearTimeout(this.optimisticTimer);
+    this.optimisticOn = on;
+    this.optimisticBrightnessPercent = brightnessPercent;
+    this.optimisticTimer = window.setTimeout(() => {
+      this.clearOptimisticState();
+    }, 1800);
+  }
+
+  private setOptimisticBrightness(percent: number): void {
+    this.setOptimisticOn(percent > 0, Math.max(0, Math.min(100, percent)));
+  }
+
+  private clearOptimisticState(): void {
+    window.clearTimeout(this.optimisticTimer);
+    this.optimisticOn = undefined;
+    this.optimisticBrightnessPercent = undefined;
+  }
+
+  private trackServiceResult(result: Promise<unknown> | void): void {
+    if (result && typeof result.catch === 'function') {
+      result.catch(() => this.clearOptimisticState());
+    }
+  }
+
   private performAction(action: ActionMode | undefined): void {
     if (this.isUnavailable || !action || action === 'none') {
       return;
@@ -555,9 +597,18 @@ export class GlowLightCard extends LitElement {
       return;
     }
 
-    this.hass?.callService(this.domain, 'toggle', {
-      entity_id: this.config.entity,
-    });
+    if (this.hasDimmer) {
+      this.setOptimisticBrightness(
+        this.isOn ? 0 : this.brightnessPercent ?? 100,
+      );
+    } else {
+      this.setOptimisticOn(!this.isOn);
+    }
+    this.trackServiceResult(
+      this.hass?.callService(this.domain, 'toggle', {
+        entity_id: this.config.entity,
+      }),
+    );
   }
 
   private brightnessFromPointer(event: PointerEvent): number {
@@ -574,16 +625,22 @@ export class GlowLightCard extends LitElement {
     }
 
     if (percent <= 5) {
-      this.hass?.callService('light', 'turn_off', {
-        entity_id: this.config.entity,
-      });
+      this.setOptimisticBrightness(0);
+      this.trackServiceResult(
+        this.hass?.callService('light', 'turn_off', {
+          entity_id: this.config.entity,
+        }),
+      );
       return;
     }
 
-    this.hass?.callService('light', 'turn_on', {
-      entity_id: this.config.entity,
-      brightness_pct: Math.max(1, percent),
-    });
+    this.setOptimisticBrightness(percent);
+    this.trackServiceResult(
+      this.hass?.callService('light', 'turn_on', {
+        entity_id: this.config.entity,
+        brightness_pct: Math.max(1, percent),
+      }),
+    );
   }
 
   private handlePointerDown(event: PointerEvent): void {

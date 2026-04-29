@@ -118,12 +118,16 @@ export class SpeedFanCard extends LitElement {
     hass: { attribute: false },
     config: { state: true },
     holdActive: { state: true },
+    optimisticLevel: { state: true },
   };
 
   public hass?: HomeAssistant;
   private config!: SpeedFanCardConfig;
   private holdTimer?: number;
+  private optimisticTimer?: number;
   private holdActive = false;
+  private optimisticLevel?: FanLevel;
+  private handledSpeedPointer = false;
 
   static get styles(): CSSResultGroup {
     return css`
@@ -486,6 +490,10 @@ export class SpeedFanCard extends LitElement {
   }
 
   private get isOn(): boolean {
+    if (this.optimisticLevel !== undefined) {
+      return this.optimisticLevel > 0;
+    }
+
     return this.entity?.state === 'on';
   }
 
@@ -494,6 +502,12 @@ export class SpeedFanCard extends LitElement {
   }
 
   private get percentage(): number {
+    if (this.optimisticLevel !== undefined) {
+      return this.optimisticLevel === 0
+        ? 0
+        : this.percentageForLevel(this.optimisticLevel);
+    }
+
     if (!this.isOn) {
       return 0;
     }
@@ -577,29 +591,56 @@ export class SpeedFanCard extends LitElement {
     );
   }
 
+  private setOptimisticLevel(level: FanLevel): void {
+    window.clearTimeout(this.optimisticTimer);
+    this.optimisticLevel = level;
+    this.optimisticTimer = window.setTimeout(() => {
+      this.optimisticLevel = undefined;
+    }, 1800);
+  }
+
+  private clearOptimisticLevel(): void {
+    window.clearTimeout(this.optimisticTimer);
+    this.optimisticLevel = undefined;
+  }
+
+  private trackServiceResult(result: Promise<unknown> | void): void {
+    if (result && typeof result.catch === 'function') {
+      result.catch(() => this.clearOptimisticLevel());
+    }
+  }
+
   private setLevel(level: FanLevel): void {
     if (this.isUnavailable) {
       return;
     }
 
+    this.setOptimisticLevel(level);
+
     if (level === 0) {
-      this.hass?.callService(this.domain, 'turn_off', {
-        entity_id: this.config.entity,
-      });
+      this.trackServiceResult(
+        this.hass?.callService(this.domain, 'turn_off', {
+          entity_id: this.config.entity,
+        }),
+      );
       return;
     }
 
     if (this.domain === 'fan') {
-      this.hass?.callService('fan', 'set_percentage', {
-        entity_id: this.config.entity,
-        percentage: this.percentageForLevel(level),
-      });
+      this.trackServiceResult(
+        this.hass?.callService('fan', 'set_percentage', {
+          entity_id: this.config.entity,
+          percentage: this.percentageForLevel(level),
+        }),
+      );
       return;
     }
 
-    this.hass?.callService(this.domain, 'turn_on', {
-      entity_id: this.config.entity,
-    });
+    this.trackServiceResult(
+      this.hass?.callService(this.domain, 'turn_on', {
+        entity_id: this.config.entity,
+      }),
+    );
   }
 
   private cycleSpeed(): void {
@@ -645,8 +686,23 @@ export class SpeedFanCard extends LitElement {
     this.performTapAction();
   }
 
+  private handleSpeedPointerDown(event: Event, level: FanLevel): void {
+    event.stopPropagation();
+    this.handledSpeedPointer = true;
+    window.setTimeout(() => {
+      this.handledSpeedPointer = false;
+    }, 500);
+    this.setLevel(level);
+  }
+
   private handleSpeedClick(event: Event, level: FanLevel): void {
     event.stopPropagation();
+
+    if (this.handledSpeedPointer) {
+      this.handledSpeedPointer = false;
+      return;
+    }
+
     this.setLevel(level);
   }
 
@@ -665,6 +721,8 @@ export class SpeedFanCard extends LitElement {
             <button
               class="speed ${this.level === button.level ? 'active' : ''}"
               aria-label=${button.label}
+              @pointerdown=${(event: Event) =>
+                this.handleSpeedPointerDown(event, button.level)}
               @click=${(event: Event) =>
                 this.handleSpeedClick(event, button.level)}
             >

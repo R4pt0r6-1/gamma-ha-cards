@@ -100,11 +100,14 @@ export class DualOutletCard extends LitElement {
     hass: { attribute: false },
     config: { state: true },
     holdActive: { state: true },
+    optimisticStates: { state: true },
   };
 
   public hass?: HomeAssistant;
   private config!: DualOutletCardConfig;
   private holdTimer?: number;
+  private optimisticTimers: Record<string, number | undefined> = {};
+  private optimisticStates: Record<string, boolean> = {};
   private holdActive = false;
 
   static get styles(): CSSResultGroup {
@@ -698,7 +701,9 @@ export class DualOutletCard extends LitElement {
   }
 
   private get anyOutletOn(): boolean {
-    return this.outlets.some((slot) => this.isOn(this.getEntity(slot.entityId)));
+    return this.outlets.some((slot) =>
+      this.isOn(this.getEntity(slot.entityId), slot.entityId),
+    );
   }
 
   private get outlets(): OutletSlot[] {
@@ -727,7 +732,11 @@ export class DualOutletCard extends LitElement {
     return this.hass?.states[entityId];
   }
 
-  private isOn(entity?: OutletEntity): boolean {
+  private isOn(entity?: OutletEntity, entityId?: string): boolean {
+    if (entityId && this.optimisticStates[entityId] !== undefined) {
+      return this.optimisticStates[entityId];
+    }
+
     return entity?.state === 'on';
   }
 
@@ -750,12 +759,12 @@ export class DualOutletCard extends LitElement {
     );
   }
 
-  private displayState(entity?: OutletEntity): string {
+  private displayState(entity?: OutletEntity, entityId?: string): string {
     if (this.isUnavailable(entity)) {
       return 'Unavailable';
     }
 
-    return this.isOn(entity) ? 'On' : 'Off';
+    return this.isOn(entity, entityId) ? 'On' : 'Off';
   }
 
   private displayIcon(slot: OutletSlot): string {
@@ -779,6 +788,33 @@ export class DualOutletCard extends LitElement {
     );
   }
 
+  private setOptimisticState(entityId: string, on: boolean): void {
+    window.clearTimeout(this.optimisticTimers[entityId]);
+    this.optimisticStates = {
+      ...this.optimisticStates,
+      [entityId]: on,
+    };
+    this.optimisticTimers[entityId] = window.setTimeout(() => {
+      this.clearOptimisticState(entityId);
+    }, 1800);
+  }
+
+  private clearOptimisticState(entityId: string): void {
+    window.clearTimeout(this.optimisticTimers[entityId]);
+    const next = { ...this.optimisticStates };
+    delete next[entityId];
+    this.optimisticStates = next;
+  }
+
+  private trackServiceResult(
+    entityId: string,
+    result: Promise<unknown> | void,
+  ): void {
+    if (result && typeof result.catch === 'function') {
+      result.catch(() => this.clearOptimisticState(entityId));
+    }
+  }
+
   private performAction(entityId: string, action: ActionMode | undefined): void {
     const entity = this.getEntity(entityId);
 
@@ -791,9 +827,13 @@ export class DualOutletCard extends LitElement {
       return;
     }
 
-    this.hass?.callService(this.domain(entityId), 'toggle', {
-      entity_id: entityId,
-    });
+    this.setOptimisticState(entityId, !this.isOn(entity, entityId));
+    this.trackServiceResult(
+      entityId,
+      this.hass?.callService(this.domain(entityId), 'toggle', {
+        entity_id: entityId,
+      }),
+    );
   }
 
   private handlePointerDown(entityId: string): void {
@@ -820,7 +860,7 @@ export class DualOutletCard extends LitElement {
 
   private renderOutlet(slot: OutletSlot): TemplateResult {
     const entity = this.getEntity(slot.entityId);
-    const outletOn = this.isOn(entity);
+    const outletOn = this.isOn(entity, slot.entityId);
     const unavailable = this.isUnavailable(entity);
     const stateColor = outletOn
       ? this.config.on_color ?? '#ff3b30'
@@ -865,7 +905,9 @@ export class DualOutletCard extends LitElement {
         <span class="content">
           <span class="name">${this.displayName(slot)}</span>
           ${this.config.show_state
-            ? html`<span class="state">${this.displayState(entity)}</span>`
+            ? html`<span class="state"
+                >${this.displayState(entity, slot.entityId)}</span
+              >`
             : nothing}
         </span>
         <span class="status-light"></span>
@@ -878,7 +920,7 @@ export class DualOutletCard extends LitElement {
     position: 'top' | 'bottom' | 'single',
   ): TemplateResult {
     const entity = this.getEntity(slot.entityId);
-    const outletOn = this.isOn(entity);
+    const outletOn = this.isOn(entity, slot.entityId);
     const unavailable = this.isUnavailable(entity);
     const stateColor = outletOn
       ? this.config.on_color ?? '#ff3b30'
@@ -925,7 +967,9 @@ export class DualOutletCard extends LitElement {
         <span class="content">
           <span class="name">${this.displayName(slot)}</span>
           ${this.config.show_state
-            ? html`<span class="state">${this.displayState(entity)}</span>`
+            ? html`<span class="state"
+                >${this.displayState(entity, slot.entityId)}</span
+              >`
             : nothing}
         </span>
         <span class="status-light"></span>

@@ -10,6 +10,7 @@ This repo is a Home Assistant Lovelace card collection. Future agents should rea
 - Active states should be obvious through an outline glow around the whole control, not only a tiny icon color change.
 - Off states should be quiet: dark background, muted icon, no heavy glow.
 - Text should be centered in the pill/card body unless the existing card pattern clearly needs otherwise.
+- Do not render separate card headers like `Switch`, `Light`, or `Fan` above compact pill controls. The dashboard layout can supply section headings when the user wants them.
 - Avoid explanatory UI copy inside the card itself. The dashboard should look clean, not like documentation.
 
 ## Visual Style
@@ -47,6 +48,8 @@ This repo is a Home Assistant Lovelace card collection. Future agents should rea
   - Turn-off actions call `<domain>.turn_off`.
   - Light dimmers call `light.turn_on` with `brightness_pct`.
   - Fan speed controls call `fan.set_percentage`.
+- Interactive controls should update optimistically before the Home Assistant service round-trip finishes, then fall back to HA state after a short timeout or on service failure.
+- Dimmer controls should keep an optimistic brightness percent after pointer release so the slider fill and glow do not snap back while Home Assistant updates.
 - Dispatch `hass-more-info` for more-info actions:
 
 ```ts

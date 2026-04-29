@@ -81,12 +81,15 @@ export class GlowSwitchCard extends LitElement {
     hass: { attribute: false },
     config: { state: true },
     holdActive: { state: true },
+    optimisticOn: { state: true },
   };
 
   public hass?: HomeAssistant;
   private config!: GlowSwitchCardConfig;
   private holdTimer?: number;
+  private optimisticTimer?: number;
   private holdActive = false;
+  private optimisticOn?: boolean;
 
   static get styles(): CSSResultGroup {
     return css`
@@ -406,6 +409,10 @@ export class GlowSwitchCard extends LitElement {
   }
 
   private get isOn(): boolean {
+    if (this.optimisticOn !== undefined) {
+      return this.optimisticOn;
+    }
+
     return this.entity?.state === 'on';
   }
 
@@ -452,6 +459,25 @@ export class GlowSwitchCard extends LitElement {
     );
   }
 
+  private setOptimisticOn(on: boolean): void {
+    window.clearTimeout(this.optimisticTimer);
+    this.optimisticOn = on;
+    this.optimisticTimer = window.setTimeout(() => {
+      this.optimisticOn = undefined;
+    }, 1800);
+  }
+
+  private clearOptimisticOn(): void {
+    window.clearTimeout(this.optimisticTimer);
+    this.optimisticOn = undefined;
+  }
+
+  private trackServiceResult(result: Promise<unknown> | void): void {
+    if (result && typeof result.catch === 'function') {
+      result.catch(() => this.clearOptimisticOn());
+    }
+  }
+
   private performAction(action: ActionMode | undefined): void {
     if (this.isUnavailable || !action || action === 'none') {
       return;
@@ -462,9 +488,12 @@ export class GlowSwitchCard extends LitElement {
       return;
     }
 
-    this.hass?.callService(this.domain, 'toggle', {
-      entity_id: this.config.entity,
-    });
+    this.setOptimisticOn(!this.isOn);
+    this.trackServiceResult(
+      this.hass?.callService(this.domain, 'toggle', {
+        entity_id: this.config.entity,
+      }),
+    );
   }
 
   private handlePointerDown(): void {
