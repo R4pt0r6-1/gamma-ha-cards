@@ -22,7 +22,7 @@ let wt = class {
     return this.cssText;
   }
 };
-const kt = (n) => new wt(typeof n == "string" ? n : n + "", void 0, Y), S = (n, ...t) => {
+const Ct = (n) => new wt(typeof n == "string" ? n : n + "", void 0, Y), E = (n, ...t) => {
   const e = n.length === 1 ? n[0] : t.reduce((i, r, o) => i + ((s) => {
     if (s._$cssResult$ === !0) return s.cssText;
     if (typeof s == "number") return s;
@@ -38,14 +38,14 @@ const kt = (n) => new wt(typeof n == "string" ? n : n + "", void 0, Y), S = (n, 
 }, st = J ? (n) => n : (n) => n instanceof CSSStyleSheet ? ((t) => {
   let e = "";
   for (const i of t.cssRules) e += i.cssText;
-  return kt(e);
+  return Ct(e);
 })(n) : n;
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const { is: Pt, defineProperty: Tt, getOwnPropertyDescriptor: It, getOwnPropertyNames: Ut, getOwnPropertySymbols: Nt, getPrototypeOf: Mt } = Object, x = globalThis, at = x.trustedTypes, zt = at ? at.emptyScript : "", R = x.reactiveElementPolyfillSupport, k = (n, t) => n, B = { toAttribute(n, t) {
+const { is: Pt, defineProperty: Tt, getOwnPropertyDescriptor: It, getOwnPropertyNames: Ut, getOwnPropertySymbols: Nt, getPrototypeOf: Mt } = Object, x = globalThis, at = x.trustedTypes, zt = at ? at.emptyScript : "", R = x.reactiveElementPolyfillSupport, C = (n, t) => n, B = { toAttribute(n, t) {
   switch (t) {
     case Boolean:
       n = n ? zt : null;
@@ -103,13 +103,13 @@ let _ = class extends HTMLElement {
     return this.elementProperties.get(t) ?? lt;
   }
   static _$Ei() {
-    if (this.hasOwnProperty(k("elementProperties"))) return;
+    if (this.hasOwnProperty(C("elementProperties"))) return;
     const t = Mt(this);
     t.finalize(), t.l !== void 0 && (this.l = [...t.l]), this.elementProperties = new Map(t.elementProperties);
   }
   static finalize() {
-    if (this.hasOwnProperty(k("finalized"))) return;
-    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(k("properties"))) {
+    if (this.hasOwnProperty(C("finalized"))) return;
+    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(C("properties"))) {
       const e = this.properties, i = [...Ut(e), ...Nt(e)];
       for (const r of i) this.createProperty(r, e[r]);
     }
@@ -278,30 +278,30 @@ let _ = class extends HTMLElement {
   firstUpdated(t) {
   }
 };
-_.elementStyles = [], _.shadowRootOptions = { mode: "open" }, _[k("elementProperties")] = /* @__PURE__ */ new Map(), _[k("finalized")] = /* @__PURE__ */ new Map(), R == null || R({ ReactiveElement: _ }), (x.reactiveElementVersions ?? (x.reactiveElementVersions = [])).push("2.1.2");
+_.elementStyles = [], _.shadowRootOptions = { mode: "open" }, _[C("elementProperties")] = /* @__PURE__ */ new Map(), _[C("finalized")] = /* @__PURE__ */ new Map(), R == null || R({ ReactiveElement: _ }), (x.reactiveElementVersions ?? (x.reactiveElementVersions = [])).push("2.1.2");
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const O = globalThis, ct = (n) => n, H = O.trustedTypes, ht = H ? H.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, At = "$lit$", b = `lit$${Math.random().toFixed(9).slice(2)}$`, Et = "?" + b, Ht = `<${Et}>`, w = document, P = () => w.createComment(""), T = (n) => n === null || typeof n != "object" && typeof n != "function", Q = Array.isArray, Dt = (n) => Q(n) || typeof (n == null ? void 0 : n[Symbol.iterator]) == "function", L = `[ 	
-\f\r]`, C = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, dt = /-->/g, pt = />/g, v = RegExp(`>|${L}(?:([^\\s"'>=/]+)(${L}*=${L}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), ut = /'/g, gt = /"/g, St = /^(?:script|style|textarea|title)$/i, Rt = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), l = Rt(1), A = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), ft = /* @__PURE__ */ new WeakMap(), $ = w.createTreeWalker(w, 129);
-function Ct(n, t) {
+const O = globalThis, ct = (n) => n, H = O.trustedTypes, ht = H ? H.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, At = "$lit$", b = `lit$${Math.random().toFixed(9).slice(2)}$`, St = "?" + b, Ht = `<${St}>`, w = document, P = () => w.createComment(""), T = (n) => n === null || typeof n != "object" && typeof n != "function", Q = Array.isArray, Dt = (n) => Q(n) || typeof (n == null ? void 0 : n[Symbol.iterator]) == "function", L = `[ 	
+\f\r]`, k = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, dt = /-->/g, pt = />/g, v = RegExp(`>|${L}(?:([^\\s"'>=/]+)(${L}*=${L}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), ut = /'/g, gt = /"/g, Et = /^(?:script|style|textarea|title)$/i, Rt = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), l = Rt(1), A = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), ft = /* @__PURE__ */ new WeakMap(), $ = w.createTreeWalker(w, 129);
+function kt(n, t) {
   if (!Q(n) || !n.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return ht !== void 0 ? ht.createHTML(t) : t;
 }
 const Lt = (n, t) => {
   const e = n.length - 1, i = [];
-  let r, o = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", s = C;
+  let r, o = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", s = k;
   for (let c = 0; c < e; c++) {
     const a = n[c];
     let p, u, d = -1, f = 0;
-    for (; f < a.length && (s.lastIndex = f, u = s.exec(a), u !== null); ) f = s.lastIndex, s === C ? u[1] === "!--" ? s = dt : u[1] !== void 0 ? s = pt : u[2] !== void 0 ? (St.test(u[2]) && (r = RegExp("</" + u[2], "g")), s = v) : u[3] !== void 0 && (s = v) : s === v ? u[0] === ">" ? (s = r ?? C, d = -1) : u[1] === void 0 ? d = -2 : (d = s.lastIndex - u[2].length, p = u[1], s = u[3] === void 0 ? v : u[3] === '"' ? gt : ut) : s === gt || s === ut ? s = v : s === dt || s === pt ? s = C : (s = v, r = void 0);
+    for (; f < a.length && (s.lastIndex = f, u = s.exec(a), u !== null); ) f = s.lastIndex, s === k ? u[1] === "!--" ? s = dt : u[1] !== void 0 ? s = pt : u[2] !== void 0 ? (Et.test(u[2]) && (r = RegExp("</" + u[2], "g")), s = v) : u[3] !== void 0 && (s = v) : s === v ? u[0] === ">" ? (s = r ?? k, d = -1) : u[1] === void 0 ? d = -2 : (d = s.lastIndex - u[2].length, p = u[1], s = u[3] === void 0 ? v : u[3] === '"' ? gt : ut) : s === gt || s === ut ? s = v : s === dt || s === pt ? s = k : (s = v, r = void 0);
     const m = s === v && n[c + 1].startsWith("/>") ? " " : "";
-    o += s === C ? a + Ht : d >= 0 ? (i.push(p), a.slice(0, d) + At + a.slice(d) + b + m) : a + b + (d === -2 ? c : m);
+    o += s === k ? a + Ht : d >= 0 ? (i.push(p), a.slice(0, d) + At + a.slice(d) + b + m) : a + b + (d === -2 ? c : m);
   }
-  return [Ct(n, o + (n[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
+  return [kt(n, o + (n[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
 };
 class I {
   constructor({ strings: t, _$litType$: e }, i) {
@@ -317,9 +317,9 @@ class I {
       if (r.nodeType === 1) {
         if (r.hasAttributes()) for (const d of r.getAttributeNames()) if (d.endsWith(At)) {
           const f = u[s++], m = r.getAttribute(d).split(b), N = /([.?@])?(.*)/.exec(f);
-          a.push({ type: 1, index: o, name: N[2], strings: m, ctor: N[1] === "." ? Vt : N[1] === "?" ? Bt : N[1] === "@" ? Wt : D }), r.removeAttribute(d);
+          a.push({ type: 1, index: o, name: N[2], strings: m, ctor: N[1] === "." ? jt : N[1] === "?" ? Bt : N[1] === "@" ? Wt : D }), r.removeAttribute(d);
         } else d.startsWith(b) && (a.push({ type: 6, index: o }), r.removeAttribute(d));
-        if (St.test(r.tagName)) {
+        if (Et.test(r.tagName)) {
           const d = r.textContent.split(b), f = d.length - 1;
           if (f > 0) {
             r.textContent = H ? H.emptyScript : "";
@@ -327,7 +327,7 @@ class I {
             r.append(d[f], P());
           }
         }
-      } else if (r.nodeType === 8) if (r.data === Et) a.push({ type: 2, index: o });
+      } else if (r.nodeType === 8) if (r.data === St) a.push({ type: 2, index: o });
       else {
         let d = -1;
         for (; (d = r.data.indexOf(b, d + 1)) !== -1; ) a.push({ type: 7, index: o }), d += b.length - 1;
@@ -340,14 +340,14 @@ class I {
     return i.innerHTML = t, i;
   }
 }
-function E(n, t, e = n, i) {
+function S(n, t, e = n, i) {
   var s, c;
   if (t === A) return t;
   let r = i !== void 0 ? (s = e._$Co) == null ? void 0 : s[i] : e._$Cl;
   const o = T(t) ? void 0 : t._$litDirective$;
-  return (r == null ? void 0 : r.constructor) !== o && ((c = r == null ? void 0 : r._$AO) == null || c.call(r, !1), o === void 0 ? r = void 0 : (r = new o(n), r._$AT(n, e, i)), i !== void 0 ? (e._$Co ?? (e._$Co = []))[i] = r : e._$Cl = r), r !== void 0 && (t = E(n, r._$AS(n, t.values), r, i)), t;
+  return (r == null ? void 0 : r.constructor) !== o && ((c = r == null ? void 0 : r._$AO) == null || c.call(r, !1), o === void 0 ? r = void 0 : (r = new o(n), r._$AT(n, e, i)), i !== void 0 ? (e._$Co ?? (e._$Co = []))[i] = r : e._$Cl = r), r !== void 0 && (t = S(n, r._$AS(n, t.values), r, i)), t;
 }
-class jt {
+class Vt {
   constructor(t, e) {
     this._$AV = [], this._$AN = void 0, this._$AD = t, this._$AM = e;
   }
@@ -395,7 +395,7 @@ class U {
     return this._$AB;
   }
   _$AI(t, e = this) {
-    t = E(this, t, e), T(t) ? t === h || t == null || t === "" ? (this._$AH !== h && this._$AR(), this._$AH = h) : t !== this._$AH && t !== A && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : Dt(t) ? this.k(t) : this._(t);
+    t = S(this, t, e), T(t) ? t === h || t == null || t === "" ? (this._$AH !== h && this._$AR(), this._$AH = h) : t !== this._$AH && t !== A && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : Dt(t) ? this.k(t) : this._(t);
   }
   O(t) {
     return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -408,10 +408,10 @@ class U {
   }
   $(t) {
     var o;
-    const { values: e, _$litType$: i } = t, r = typeof i == "number" ? this._$AC(t) : (i.el === void 0 && (i.el = I.createElement(Ct(i.h, i.h[0]), this.options)), i);
+    const { values: e, _$litType$: i } = t, r = typeof i == "number" ? this._$AC(t) : (i.el === void 0 && (i.el = I.createElement(kt(i.h, i.h[0]), this.options)), i);
     if (((o = this._$AH) == null ? void 0 : o._$AD) === r) this._$AH.p(e);
     else {
-      const s = new jt(r, this), c = s.u(this.options);
+      const s = new Vt(r, this), c = s.u(this.options);
       s.p(e), this.T(c), this._$AH = s;
     }
   }
@@ -451,11 +451,11 @@ class D {
   _$AI(t, e = this, i, r) {
     const o = this.strings;
     let s = !1;
-    if (o === void 0) t = E(this, t, e, 0), s = !T(t) || t !== this._$AH && t !== A, s && (this._$AH = t);
+    if (o === void 0) t = S(this, t, e, 0), s = !T(t) || t !== this._$AH && t !== A, s && (this._$AH = t);
     else {
       const c = t;
       let a, p;
-      for (t = o[0], a = 0; a < o.length - 1; a++) p = E(this, c[i + a], e, a), p === A && (p = this._$AH[a]), s || (s = !T(p) || p !== this._$AH[a]), p === h ? t = h : t !== h && (t += (p ?? "") + o[a + 1]), this._$AH[a] = p;
+      for (t = o[0], a = 0; a < o.length - 1; a++) p = S(this, c[i + a], e, a), p === A && (p = this._$AH[a]), s || (s = !T(p) || p !== this._$AH[a]), p === h ? t = h : t !== h && (t += (p ?? "") + o[a + 1]), this._$AH[a] = p;
     }
     s && !r && this.j(t);
   }
@@ -463,7 +463,7 @@ class D {
     t === h ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
   }
 }
-class Vt extends D {
+class jt extends D {
   constructor() {
     super(...arguments), this.type = 3;
   }
@@ -484,7 +484,7 @@ class Wt extends D {
     super(t, e, i, r, o), this.type = 5;
   }
   _$AI(t, e = this) {
-    if ((t = E(this, t, e, 0) ?? h) === A) return;
+    if ((t = S(this, t, e, 0) ?? h) === A) return;
     const i = this._$AH, r = t === h && i !== h || t.capture !== i.capture || t.once !== i.once || t.passive !== i.passive, o = t !== h && (i === h || r);
     r && this.element.removeEventListener(this.name, this, i), o && this.element.addEventListener(this.name, this, t), this._$AH = t;
   }
@@ -501,11 +501,11 @@ class Ft {
     return this._$AM._$AU;
   }
   _$AI(t) {
-    E(this, t);
+    S(this, t);
   }
 }
-const j = O.litHtmlPolyfillSupport;
-j == null || j(I, U), (O.litHtmlVersions ?? (O.litHtmlVersions = [])).push("3.3.2");
+const V = O.litHtmlPolyfillSupport;
+V == null || V(I, U), (O.litHtmlVersions ?? (O.litHtmlVersions = [])).push("3.3.2");
 const qt = (n, t, e) => {
   const i = (e == null ? void 0 : e.renderBefore) ?? t;
   let r = i._$litPart$;
@@ -548,12 +548,13 @@ class g extends _ {
 }
 var yt;
 g._$litElement$ = !0, g.finalized = !0, (yt = y.litElementHydrateSupport) == null || yt.call(y, { LitElement: g });
-const V = y.litElementPolyfillSupport;
-V == null || V({ LitElement: g });
+const j = y.litElementPolyfillSupport;
+j == null || j({ LitElement: g });
 (y.litElementVersions ?? (y.litElementVersions = [])).push("4.2.2");
 const mt = {
   icon: "mdi:ceiling-light",
   width: "260px",
+  fill_container: !1,
   height: "64px",
   border_radius: "999px",
   show_state: !0,
@@ -579,7 +580,7 @@ const X = class X extends g {
     super(...arguments), this.holdActive = !1;
   }
   static get styles() {
-    return S`
+    return E`
       :host {
         --glow-card-width: 260px;
         --glow-card-height: 64px;
@@ -854,7 +855,10 @@ const X = class X extends g {
     this.config = {
       ...mt,
       ...t
-    }, this.style.setProperty("--glow-card-width", this.config.width ?? "260px"), this.style.setProperty("--glow-card-height", this.config.height ?? "64px"), this.style.setProperty(
+    }, this.style.setProperty(
+      "--glow-card-width",
+      this.config.fill_container ? "100%" : this.config.width ?? "260px"
+    ), this.style.setProperty("--glow-card-height", this.config.height ?? "64px"), this.style.setProperty(
       "--glow-card-radius",
       this.config.border_radius ?? "999px"
     ), this.style.setProperty("--glow-on-color", this.config.on_color ?? "#ff8a1c"), this.style.setProperty("--glow-off-color", this.config.off_color ?? "#697382"), this.style.setProperty(
@@ -989,7 +993,7 @@ const tt = class tt extends g {
     super(...arguments), this.config = {};
   }
   static get styles() {
-    return S`
+    return E`
       .editor {
         display: grid;
         gap: 14px;
@@ -1020,6 +1024,7 @@ const tt = class tt extends g {
       }
 
       ha-entity-picker,
+      ha-icon-picker,
       ha-textfield,
       ha-select {
         width: 100%;
@@ -1073,6 +1078,17 @@ const tt = class tt extends g {
       ></ha-textfield>
     `;
   }
+  renderIconPicker(t, e) {
+    return l`
+      <ha-icon-picker
+        .hass=${this.hass}
+        .label=${t}
+        .value=${this.config[e] ?? ""}
+        .configValue=${e}
+        @value-changed=${this.valueChanged}
+      ></ha-icon-picker>
+    `;
+  }
   renderSwitch(t, e, i) {
     return l`
       <label class="switch-row">
@@ -1112,10 +1128,13 @@ const tt = class tt extends g {
           <div class="grid">
             ${this.renderEntityPicker("Entity", "entity")}
             ${this.renderTextInput("Name", "name", "Bar Lights")}
-            ${this.renderTextInput("Icon", "icon", "mdi:ceiling-light")}
+            ${this.renderIconPicker("Icon", "icon")}
             ${this.renderTextInput("Width", "width", "260px")}
             ${this.renderTextInput("Height", "height", "64px")}
             ${this.renderTextInput("Radius", "border_radius", "999px")}
+          </div>
+          <div class="grid">
+            ${this.renderSwitch("Fill Container", "fill_container", !1)}
           </div>
         </section>
 
@@ -1172,6 +1191,7 @@ const xt = {
   icon_1: "mdi:power-socket-us",
   icon_2: "mdi:power-socket-us",
   width: "320px",
+  fill_container: !1,
   button_height: "58px",
   gap: "12px",
   layout: "duplex",
@@ -1198,7 +1218,7 @@ const et = class et extends g {
     super(...arguments), this.holdActive = !1;
   }
   static get styles() {
-    return S`
+    return E`
       :host {
         --outlet-card-width: 540px;
         --outlet-button-height: 58px;
@@ -1755,7 +1775,10 @@ const et = class et extends g {
     this.config = {
       ...xt,
       ...t
-    }, this.style.setProperty("--outlet-card-width", this.config.width ?? "320px"), this.style.setProperty(
+    }, this.style.setProperty(
+      "--outlet-card-width",
+      this.config.fill_container ? "100%" : this.config.width ?? "320px"
+    ), this.style.setProperty(
       "--outlet-button-height",
       this.config.button_height ?? "58px"
     ), this.style.setProperty("--outlet-gap", this.config.gap ?? "12px"), this.style.setProperty("--outlet-on-color", this.config.on_color ?? "#ff3b30"), this.style.setProperty("--outlet-off-color", this.config.off_color ?? "#697382"), this.style.setProperty(
@@ -1985,7 +2008,7 @@ const it = class it extends g {
     super(...arguments), this.config = {};
   }
   static get styles() {
-    return S`
+    return E`
       .editor {
         display: grid;
         gap: 14px;
@@ -2016,6 +2039,7 @@ const it = class it extends g {
       }
 
       ha-entity-picker,
+      ha-icon-picker,
       ha-textfield,
       ha-select {
         width: 100%;
@@ -2070,6 +2094,17 @@ const it = class it extends g {
       ></ha-textfield>
     `;
   }
+  renderIconPicker(t, e) {
+    return l`
+      <ha-icon-picker
+        .hass=${this.hass}
+        .label=${t}
+        .value=${this.config[e] ?? ""}
+        .configValue=${e}
+        @value-changed=${this.valueChanged}
+      ></ha-icon-picker>
+    `;
+  }
   renderSwitch(t, e, i) {
     return l`
       <label class="switch-row">
@@ -2109,10 +2144,10 @@ const it = class it extends g {
           <div class="grid">
             ${this.renderEntityPicker("Outlet 1 Entity", "entity_1")}
             ${this.renderTextInput("Outlet 1 Name", "name_1", "Top Outlet")}
-            ${this.renderTextInput("Outlet 1 Icon", "icon_1", "mdi:power-socket-us")}
+            ${this.renderIconPicker("Outlet 1 Icon", "icon_1")}
             ${this.renderEntityPicker("Outlet 2 Entity", "entity_2")}
             ${this.renderTextInput("Outlet 2 Name", "name_2", "Bottom Outlet")}
-            ${this.renderTextInput("Outlet 2 Icon", "icon_2", "mdi:power-socket-us")}
+            ${this.renderIconPicker("Outlet 2 Icon", "icon_2")}
           </div>
         </section>
 
@@ -2128,6 +2163,7 @@ const it = class it extends g {
           <div class="grid">
             ${this.renderSwitch("Show Title", "show_title", !0)}
             ${this.renderSwitch("Show State", "show_state", !0)}
+            ${this.renderSwitch("Fill Container", "fill_container", !1)}
             ${this.renderSwitch("Animated Glow", "animated", !0)}
           </div>
         </section>
@@ -2173,6 +2209,7 @@ window.customCards.push({
 const $t = {
   icon: "mdi:fan",
   width: "260px",
+  fill_container: !1,
   height: "64px",
   border_radius: "999px",
   show_state: !0,
@@ -2215,7 +2252,7 @@ const rt = class rt extends g {
     super(...arguments), this.holdActive = !1;
   }
   static get styles() {
-    return S`
+    return E`
       :host {
         --fan-card-width: 260px;
         --fan-card-height: 64px;
@@ -2544,7 +2581,10 @@ const rt = class rt extends g {
       speed_1_percentage: M(t.speed_1_percentage, 33),
       speed_2_percentage: M(t.speed_2_percentage, 66),
       speed_3_percentage: M(t.speed_3_percentage, 100)
-    }, this.style.setProperty("--fan-card-width", this.config.width ?? "260px"), this.style.setProperty("--fan-card-height", this.config.height ?? "64px"), this.style.setProperty(
+    }, this.style.setProperty(
+      "--fan-card-width",
+      this.config.fill_container ? "100%" : this.config.width ?? "260px"
+    ), this.style.setProperty("--fan-card-height", this.config.height ?? "64px"), this.style.setProperty(
       "--fan-card-radius",
       this.config.border_radius ?? "999px"
     ), this.style.setProperty("--fan-on-color", this.config.on_color ?? "#45d158"), this.style.setProperty("--fan-off-color", this.config.off_color ?? "#697382"), this.style.setProperty("--fan-background", this.config.background ?? "#101722");
@@ -2731,7 +2771,7 @@ const nt = class nt extends g {
     super(...arguments), this.config = {};
   }
   static get styles() {
-    return S`
+    return E`
       .editor {
         display: grid;
         gap: 14px;
@@ -2762,6 +2802,7 @@ const nt = class nt extends g {
       }
 
       ha-entity-picker,
+      ha-icon-picker,
       ha-textfield,
       ha-select {
         width: 100%;
@@ -2816,6 +2857,17 @@ const nt = class nt extends g {
       ></ha-textfield>
     `;
   }
+  renderIconPicker(t, e) {
+    return l`
+      <ha-icon-picker
+        .hass=${this.hass}
+        .label=${t}
+        .value=${this.config[e] ?? ""}
+        .configValue=${e}
+        @value-changed=${this.valueChanged}
+      ></ha-icon-picker>
+    `;
+  }
   renderNumberInput(t, e, i = "") {
     return l`
       <ha-textfield
@@ -2867,10 +2919,13 @@ const nt = class nt extends g {
           <div class="grid">
             ${this.renderEntityPicker("Entity", "entity")}
             ${this.renderTextInput("Name", "name", "Fan")}
-            ${this.renderTextInput("Icon", "icon", "mdi:fan")}
+            ${this.renderIconPicker("Icon", "icon")}
             ${this.renderTextInput("Width", "width", "260px")}
             ${this.renderTextInput("Height", "height", "64px")}
             ${this.renderTextInput("Radius", "border_radius", "999px")}
+          </div>
+          <div class="grid">
+            ${this.renderSwitch("Fill Container", "fill_container", !1)}
           </div>
         </section>
 

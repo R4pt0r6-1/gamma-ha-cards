@@ -31,6 +31,7 @@ interface SpeedFanCardConfig {
   name?: string;
   icon?: string;
   width?: string;
+  fill_container?: boolean;
   height?: string;
   border_radius?: string;
   show_state?: boolean;
@@ -60,6 +61,7 @@ type FanLevel = 0 | 1 | 2 | 3;
 const DEFAULT_CONFIG: Omit<SpeedFanCardConfig, 'entity'> = {
   icon: 'mdi:fan',
   width: '260px',
+  fill_container: false,
   height: '64px',
   border_radius: '999px',
   show_state: true,
@@ -461,7 +463,10 @@ export class SpeedFanCard extends LitElement {
       speed_3_percentage: toNumber(config.speed_3_percentage, 100),
     };
 
-    this.style.setProperty('--fan-card-width', this.config.width ?? '260px');
+    this.style.setProperty(
+      '--fan-card-width',
+      this.config.fill_container ? '100%' : this.config.width ?? '260px',
+    );
     this.style.setProperty('--fan-card-height', this.config.height ?? '64px');
     this.style.setProperty(
       '--fan-card-radius',
@@ -775,6 +780,7 @@ class SpeedFanCardEditor extends LitElement {
       }
 
       ha-entity-picker,
+      ha-icon-picker,
       ha-textfield,
       ha-select {
         width: 100%;
@@ -854,6 +860,21 @@ class SpeedFanCardEditor extends LitElement {
     `;
   }
 
+  private renderIconPicker(
+    label: string,
+    key: keyof SpeedFanCardConfig,
+  ): TemplateResult {
+    return html`
+      <ha-icon-picker
+        .hass=${this.hass}
+        .label=${label}
+        .value=${this.config[key] ?? ''}
+        .configValue=${key}
+        @value-changed=${this.valueChanged}
+      ></ha-icon-picker>
+    `;
+  }
+
   private renderNumberInput(
     label: string,
     key: keyof SpeedFanCardConfig,
@@ -921,10 +942,13 @@ class SpeedFanCardEditor extends LitElement {
           <div class="grid">
             ${this.renderEntityPicker('Entity', 'entity')}
             ${this.renderTextInput('Name', 'name', 'Fan')}
-            ${this.renderTextInput('Icon', 'icon', 'mdi:fan')}
+            ${this.renderIconPicker('Icon', 'icon')}
             ${this.renderTextInput('Width', 'width', '260px')}
             ${this.renderTextInput('Height', 'height', '64px')}
             ${this.renderTextInput('Radius', 'border_radius', '999px')}
+          </div>
+          <div class="grid">
+            ${this.renderSwitch('Fill Container', 'fill_container', false)}
           </div>
         </section>
 

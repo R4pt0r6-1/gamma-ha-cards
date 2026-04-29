@@ -31,6 +31,7 @@ interface GlowLightCardConfig {
   name?: string;
   icon?: string;
   width?: string;
+  fill_container?: boolean;
   height?: string;
   border_radius?: string;
   show_state?: boolean;
@@ -51,6 +52,7 @@ type ConfigElement = HTMLInputElement & {
 const DEFAULT_CONFIG: Omit<GlowLightCardConfig, 'entity'> = {
   icon: 'mdi:ceiling-light',
   width: '260px',
+  fill_container: false,
   height: '64px',
   border_radius: '999px',
   show_state: true,
@@ -375,7 +377,10 @@ export class GlowLightCard extends LitElement {
       ...config,
     };
 
-    this.style.setProperty('--glow-card-width', this.config.width ?? '260px');
+    this.style.setProperty(
+      '--glow-card-width',
+      this.config.fill_container ? '100%' : this.config.width ?? '260px',
+    );
     this.style.setProperty('--glow-card-height', this.config.height ?? '64px');
     this.style.setProperty(
       '--glow-card-radius',
@@ -604,6 +609,7 @@ class GlowLightCardEditor extends LitElement {
       }
 
       ha-entity-picker,
+      ha-icon-picker,
       ha-textfield,
       ha-select {
         width: 100%;
@@ -682,6 +688,21 @@ class GlowLightCardEditor extends LitElement {
     `;
   }
 
+  private renderIconPicker(
+    label: string,
+    key: keyof GlowLightCardConfig,
+  ): TemplateResult {
+    return html`
+      <ha-icon-picker
+        .hass=${this.hass}
+        .label=${label}
+        .value=${this.config[key] ?? ''}
+        .configValue=${key}
+        @value-changed=${this.valueChanged}
+      ></ha-icon-picker>
+    `;
+  }
+
   private renderSwitch(
     label: string,
     key: keyof GlowLightCardConfig,
@@ -732,10 +753,13 @@ class GlowLightCardEditor extends LitElement {
           <div class="grid">
             ${this.renderEntityPicker('Entity', 'entity')}
             ${this.renderTextInput('Name', 'name', 'Bar Lights')}
-            ${this.renderTextInput('Icon', 'icon', 'mdi:ceiling-light')}
+            ${this.renderIconPicker('Icon', 'icon')}
             ${this.renderTextInput('Width', 'width', '260px')}
             ${this.renderTextInput('Height', 'height', '64px')}
             ${this.renderTextInput('Radius', 'border_radius', '999px')}
+          </div>
+          <div class="grid">
+            ${this.renderSwitch('Fill Container', 'fill_container', false)}
           </div>
         </section>
 

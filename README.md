@@ -47,6 +47,7 @@ icon: mdi:ceiling-light
 | `name`          | `string`  | Entity friendly name | Display name.                     |
 | `icon`          | `string`  | `mdi:ceiling-light` | Icon shown on the left.           |
 | `width`         | `string`  | `260px`             | CSS width of the card.            |
+| `fill_container` | `boolean` | `false`            | Stretch the card to the full dashboard column width. |
 | `height`        | `string`  | `64px`              | CSS minimum height of the card.   |
 | `border_radius` | `string`  | `999px`             | CSS border radius.                |
 | `show_state`    | `boolean` | `true`              | Show state text under the name.   |
@@ -82,6 +83,7 @@ layout: duplex
 | `icon_1`        | `string`  | `mdi:power-socket-us`   | First outlet icon.                |
 | `icon_2`        | `string`  | `mdi:power-socket-us`   | Second outlet icon.               |
 | `width`         | `string`  | `320px`                 | CSS width of the card.            |
+| `fill_container` | `boolean` | `false`                | Stretch the card to the full dashboard column width. |
 | `button_height` | `string`  | `58px`                  | CSS minimum height per outlet.    |
 | `gap`           | `string`  | `12px`                  | Space between outlet buttons.     |
 | `layout`        | `string`  | `duplex`                | `duplex`, `grid`, or `stack`.     |
@@ -115,6 +117,7 @@ Tap the pill to cycle through Off, 1, 2, and 3. Tap a speed button to jump strai
 | `name`               | `string`  | Entity friendly name | Display name.             |
 | `icon`               | `string`  | `mdi:fan` | Icon shown on the left.           |
 | `width`              | `string`  | `260px`   | CSS width of the card.            |
+| `fill_container`     | `boolean` | `false`   | Stretch the card to the full dashboard column width. |
 | `height`             | `string`  | `64px`    | CSS minimum height of the card.   |
 | `border_radius`      | `string`  | `999px`   | CSS border radius.                |
 | `show_state`         | `boolean` | `true`    | Show state text under the name.   |

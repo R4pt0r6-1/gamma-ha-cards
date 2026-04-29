@@ -34,6 +34,7 @@ interface DualOutletCardConfig {
   icon_1?: string;
   icon_2?: string;
   width?: string;
+  fill_container?: boolean;
   button_height?: string;
   gap?: string;
   layout?: LayoutMode;
@@ -64,6 +65,7 @@ const DEFAULT_CONFIG: Omit<DualOutletCardConfig, 'entity_1'> = {
   icon_1: 'mdi:power-socket-us',
   icon_2: 'mdi:power-socket-us',
   width: '320px',
+  fill_container: false,
   button_height: '58px',
   gap: '12px',
   layout: 'duplex',
@@ -674,7 +676,10 @@ export class DualOutletCard extends LitElement {
       ...config,
     };
 
-    this.style.setProperty('--outlet-card-width', this.config.width ?? '320px');
+    this.style.setProperty(
+      '--outlet-card-width',
+      this.config.fill_container ? '100%' : this.config.width ?? '320px',
+    );
     this.style.setProperty(
       '--outlet-button-height',
       this.config.button_height ?? '58px',
@@ -1037,6 +1042,7 @@ class DualOutletCardEditor extends LitElement {
       }
 
       ha-entity-picker,
+      ha-icon-picker,
       ha-textfield,
       ha-select {
         width: 100%;
@@ -1116,6 +1122,21 @@ class DualOutletCardEditor extends LitElement {
     `;
   }
 
+  private renderIconPicker(
+    label: string,
+    key: keyof DualOutletCardConfig,
+  ): TemplateResult {
+    return html`
+      <ha-icon-picker
+        .hass=${this.hass}
+        .label=${label}
+        .value=${this.config[key] ?? ''}
+        .configValue=${key}
+        @value-changed=${this.valueChanged}
+      ></ha-icon-picker>
+    `;
+  }
+
   private renderSwitch(
     label: string,
     key: keyof DualOutletCardConfig,
@@ -1166,10 +1187,10 @@ class DualOutletCardEditor extends LitElement {
           <div class="grid">
             ${this.renderEntityPicker('Outlet 1 Entity', 'entity_1')}
             ${this.renderTextInput('Outlet 1 Name', 'name_1', 'Top Outlet')}
-            ${this.renderTextInput('Outlet 1 Icon', 'icon_1', 'mdi:power-socket-us')}
+            ${this.renderIconPicker('Outlet 1 Icon', 'icon_1')}
             ${this.renderEntityPicker('Outlet 2 Entity', 'entity_2')}
             ${this.renderTextInput('Outlet 2 Name', 'name_2', 'Bottom Outlet')}
-            ${this.renderTextInput('Outlet 2 Icon', 'icon_2', 'mdi:power-socket-us')}
+            ${this.renderIconPicker('Outlet 2 Icon', 'icon_2')}
           </div>
         </section>
 
@@ -1185,6 +1206,7 @@ class DualOutletCardEditor extends LitElement {
           <div class="grid">
             ${this.renderSwitch('Show Title', 'show_title', true)}
             ${this.renderSwitch('Show State', 'show_state', true)}
+            ${this.renderSwitch('Fill Container', 'fill_container', false)}
             ${this.renderSwitch('Animated Glow', 'animated', true)}
           </div>
         </section>
