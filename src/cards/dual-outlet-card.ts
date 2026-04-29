@@ -1036,7 +1036,8 @@ class DualOutletCardEditor extends LitElement {
         min-height: 34px;
       }
 
-      paper-input,
+      ha-entity-picker,
+      ha-textfield,
       ha-select {
         width: 100%;
       }
@@ -1069,6 +1070,7 @@ class DualOutletCardEditor extends LitElement {
 
   private valueChanged(event: Event): void {
     const target = event.target as ConfigElement;
+    const customEvent = event as CustomEvent<{ value?: string }>;
 
     if (!target.configValue) {
       return;
@@ -1076,8 +1078,26 @@ class DualOutletCardEditor extends LitElement {
 
     this.updateConfig({
       [target.configValue]:
-        target.checked !== undefined ? target.checked : target.value,
+        target.checked !== undefined
+          ? target.checked
+          : customEvent.detail?.value ?? target.value,
     } as Partial<DualOutletCardConfig>);
+  }
+
+  private renderEntityPicker(
+    label: string,
+    key: keyof DualOutletCardConfig,
+  ): TemplateResult {
+    return html`
+      <ha-entity-picker
+        .hass=${this.hass}
+        .label=${label}
+        .value=${this.config[key] ?? ''}
+        .configValue=${key}
+        .includeDomains=${['switch', 'light', 'input_boolean']}
+        @value-changed=${this.valueChanged}
+      ></ha-entity-picker>
+    `;
   }
 
   private renderTextInput(
@@ -1086,13 +1106,13 @@ class DualOutletCardEditor extends LitElement {
     placeholder = '',
   ): TemplateResult {
     return html`
-      <paper-input
-        label=${label}
-        placeholder=${placeholder}
+      <ha-textfield
+        .label=${label}
+        .placeholder=${placeholder}
         .value=${this.config[key] ?? ''}
         .configValue=${key}
-        @value-changed=${this.valueChanged}
-      ></paper-input>
+        @input=${this.valueChanged}
+      ></ha-textfield>
     `;
   }
 
@@ -1144,14 +1164,10 @@ class DualOutletCardEditor extends LitElement {
         <section class="section">
           <h3>Outlets</h3>
           <div class="grid">
-            ${this.renderTextInput('Outlet 1 Entity', 'entity_1', 'switch.outlet_top')}
+            ${this.renderEntityPicker('Outlet 1 Entity', 'entity_1')}
             ${this.renderTextInput('Outlet 1 Name', 'name_1', 'Top Outlet')}
             ${this.renderTextInput('Outlet 1 Icon', 'icon_1', 'mdi:power-socket-us')}
-            ${this.renderTextInput(
-              'Outlet 2 Entity',
-              'entity_2',
-              'switch.outlet_bottom',
-            )}
+            ${this.renderEntityPicker('Outlet 2 Entity', 'entity_2')}
             ${this.renderTextInput('Outlet 2 Name', 'name_2', 'Bottom Outlet')}
             ${this.renderTextInput('Outlet 2 Icon', 'icon_2', 'mdi:power-socket-us')}
           </div>

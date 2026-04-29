@@ -774,7 +774,8 @@ class SpeedFanCardEditor extends LitElement {
         min-height: 34px;
       }
 
-      paper-input,
+      ha-entity-picker,
+      ha-textfield,
       ha-select {
         width: 100%;
       }
@@ -807,6 +808,7 @@ class SpeedFanCardEditor extends LitElement {
 
   private valueChanged(event: Event): void {
     const target = event.target as ConfigElement;
+    const customEvent = event as CustomEvent<{ value?: string }>;
 
     if (!target.configValue) {
       return;
@@ -814,8 +816,26 @@ class SpeedFanCardEditor extends LitElement {
 
     this.updateConfig({
       [target.configValue]:
-        target.checked !== undefined ? target.checked : target.value,
+        target.checked !== undefined
+          ? target.checked
+          : customEvent.detail?.value ?? target.value,
     } as Partial<SpeedFanCardConfig>);
+  }
+
+  private renderEntityPicker(
+    label: string,
+    key: keyof SpeedFanCardConfig,
+  ): TemplateResult {
+    return html`
+      <ha-entity-picker
+        .hass=${this.hass}
+        .label=${label}
+        .value=${this.config[key] ?? ''}
+        .configValue=${key}
+        .includeDomains=${['fan']}
+        @value-changed=${this.valueChanged}
+      ></ha-entity-picker>
+    `;
   }
 
   private renderTextInput(
@@ -824,13 +844,13 @@ class SpeedFanCardEditor extends LitElement {
     placeholder = '',
   ): TemplateResult {
     return html`
-      <paper-input
-        label=${label}
-        placeholder=${placeholder}
+      <ha-textfield
+        .label=${label}
+        .placeholder=${placeholder}
         .value=${this.config[key] ?? ''}
         .configValue=${key}
-        @value-changed=${this.valueChanged}
-      ></paper-input>
+        @input=${this.valueChanged}
+      ></ha-textfield>
     `;
   }
 
@@ -840,14 +860,14 @@ class SpeedFanCardEditor extends LitElement {
     placeholder = '',
   ): TemplateResult {
     return html`
-      <paper-input
+      <ha-textfield
         type="number"
-        label=${label}
-        placeholder=${placeholder}
+        .label=${label}
+        .placeholder=${placeholder}
         .value=${this.config[key] ?? ''}
         .configValue=${key}
-        @value-changed=${this.valueChanged}
-      ></paper-input>
+        @input=${this.valueChanged}
+      ></ha-textfield>
     `;
   }
 
@@ -899,7 +919,7 @@ class SpeedFanCardEditor extends LitElement {
         <section class="section">
           <h3>Main</h3>
           <div class="grid">
-            ${this.renderTextInput('Entity', 'entity', 'fan.kitchen_fan')}
+            ${this.renderEntityPicker('Entity', 'entity')}
             ${this.renderTextInput('Name', 'name', 'Fan')}
             ${this.renderTextInput('Icon', 'icon', 'mdi:fan')}
             ${this.renderTextInput('Width', 'width', '260px')}
