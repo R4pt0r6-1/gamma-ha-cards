@@ -17,6 +17,7 @@
     "hacs",
     "custom-card",
     "light",
+    "switch",
     "dashboard-cards"
   ],
   "author": {

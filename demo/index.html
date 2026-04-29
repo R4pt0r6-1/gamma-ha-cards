@@ -75,6 +75,14 @@
       </section>
 
       <section class="demo-section">
+        <h2 class="group-title">Switches</h2>
+        <div class="grid">
+          <glow-switch-card id="coffee-maker"></glow-switch-card>
+          <glow-switch-card id="air-purifier"></glow-switch-card>
+        </div>
+      </section>
+
+      <section class="demo-section">
         <h2 class="group-title">Outlets</h2>
         <dual-outlet-card id="desk-outlets"></dual-outlet-card>
       </section>
@@ -116,9 +124,11 @@
                 : icon.includes('ceiling')
                   ? '▣'
                   : icon.includes('socket')
-                    ? '▤'
-                    : icon.includes('fan')
-                      ? '✣'
+                  ? '▤'
+                  : icon.includes('fan')
+                    ? '✣'
+                    : icon.includes('toggle')
+                      ? '⏻'
                     : icon.includes('power')
                       ? '⏻'
                   : '●';
@@ -158,6 +168,22 @@
           attributes: {
             friendly_name: 'Bottom Outlet',
             icon: 'mdi:power-socket-us',
+          },
+        },
+        'switch.coffee_maker': {
+          entity_id: 'switch.coffee_maker',
+          state: 'on',
+          attributes: {
+            friendly_name: 'Coffee Maker',
+            icon: 'mdi:coffee-maker',
+          },
+        },
+        'switch.air_purifier': {
+          entity_id: 'switch.air_purifier',
+          state: 'off',
+          attributes: {
+            friendly_name: 'Air Purifier',
+            icon: 'mdi:air-purifier',
           },
         },
         'fan.kitchen_fan': {
@@ -212,7 +238,7 @@
           }
 
           document
-            .querySelectorAll('glow-light-card, dual-outlet-card, speed-fan-card')
+            .querySelectorAll('glow-light-card, glow-switch-card, dual-outlet-card, speed-fan-card')
             .forEach((card) => {
               card.hass = { ...hass, states: { ...states } };
             });
@@ -234,6 +260,22 @@
         has_dimmer: true,
       });
       bar.hass = hass;
+
+      const coffeeMaker = document.querySelector('#coffee-maker');
+      coffeeMaker.setConfig({
+        entity: 'switch.coffee_maker',
+        icon: 'mdi:coffee-maker',
+        width: '100%',
+      });
+      coffeeMaker.hass = hass;
+
+      const airPurifier = document.querySelector('#air-purifier');
+      airPurifier.setConfig({
+        entity: 'switch.air_purifier',
+        icon: 'mdi:air-purifier',
+        width: '100%',
+      });
+      airPurifier.hass = hass;
 
       const deskOutlets = document.querySelector('#desk-outlets');
       deskOutlets.setConfig({

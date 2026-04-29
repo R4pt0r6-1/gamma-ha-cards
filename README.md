@@ -5,6 +5,7 @@ A fast Home Assistant Lovelace card collection for compact, animated dashboard c
 ## Cards
 
 - `custom:glow-light-card` - a resizable glowing toggle card for lights and other toggleable entities.
+- `custom:glow-switch-card` - a compact switch-only button with a green on-state outline glow.
 - `custom:dual-outlet-card` - one duplex socket card for two switch entities, with independent tap toggles and a red on-state outline glow.
 - `custom:speed-fan-card` - a compact fan card with Off, 1, 2, and 3 speed controls.
 
@@ -59,6 +60,34 @@ icon: mdi:ceiling-light
 | `tap_action`    | `string`  | `toggle`            | `toggle`, `more-info`, or `none`. |
 | `hold_action`   | `string`  | `more-info`         | `toggle`, `more-info`, or `none`. |
 | `animated`      | `boolean` | `true`              | Enable glow animation when on.    |
+
+## Glow Switch Card
+
+```yaml
+type: custom:glow-switch-card
+entity: switch.coffee_maker
+name: Coffee Maker
+icon: mdi:coffee-maker
+```
+
+### Glow Switch Options
+
+| Name             | Type      | Default             | Description                       |
+| ---------------- | --------- | ------------------- | --------------------------------- |
+| `entity`         | `string`  | Required            | Switch entity to display and toggle. |
+| `name`           | `string`  | Entity friendly name | Display name.                    |
+| `icon`           | `string`  | `mdi:toggle-switch` | Icon shown on the left.           |
+| `width`          | `string`  | `260px`             | CSS width of the card.            |
+| `fill_container` | `boolean` | `false`             | Stretch the card to the full dashboard column width. |
+| `height`         | `string`  | `64px`              | CSS minimum height of the card.   |
+| `border_radius`  | `string`  | `999px`             | CSS border radius.                |
+| `show_state`     | `boolean` | `true`              | Show state text under the name.   |
+| `on_color`       | `string`  | `#45d158`           | Glow color when on.               |
+| `off_color`      | `string`  | `#697382`           | Icon/border color when off.       |
+| `background`     | `string`  | `#101722`           | Base card background.             |
+| `tap_action`     | `string`  | `toggle`            | `toggle`, `more-info`, or `none`. |
+| `hold_action`    | `string`  | `more-info`         | `toggle`, `more-info`, or `none`. |
+| `animated`       | `boolean` | `true`              | Enable glow animation when on.    |
 
 ## Dual Outlet Card
 
