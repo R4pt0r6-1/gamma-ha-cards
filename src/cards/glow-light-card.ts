@@ -97,6 +97,9 @@ export class GlowLightCard extends LitElement {
   private holdActive = false;
   private dimmingPercent?: number;
   private isDimming = false;
+  private pendingDimmerPointer = false;
+  private pointerStartX = 0;
+  private pointerStartY = 0;
   private suppressClick = false;
 
   static get styles(): CSSResultGroup {
@@ -586,13 +589,24 @@ export class GlowLightCard extends LitElement {
   private handlePointerDown(event: PointerEvent): void {
     window.clearTimeout(this.holdTimer);
     this.holdActive = false;
+    this.suppressClick = false;
 
     if (this.hasDimmer && !this.isUnavailable) {
-      this.isDimming = true;
-      this.suppressClick = true;
-      this.dimmingPercent = this.brightnessFromPointer(event);
+      this.pendingDimmerPointer = true;
+      this.isDimming = false;
+      this.pointerStartX = event.clientX;
+      this.pointerStartY = event.clientY;
       (event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId);
-      event.preventDefault();
+      this.holdTimer = window.setTimeout(() => {
+        if (!this.pendingDimmerPointer || this.isDimming) {
+          return;
+        }
+
+        this.holdActive = true;
+        this.pendingDimmerPointer = false;
+        this.suppressClick = true;
+        this.performAction(this.config.hold_action);
+      }, 500);
       return;
     }
 
@@ -603,8 +617,22 @@ export class GlowLightCard extends LitElement {
   }
 
   private handlePointerMove(event: PointerEvent): void {
-    if (!this.hasDimmer || !this.isDimming) {
+    if (!this.hasDimmer || (!this.pendingDimmerPointer && !this.isDimming)) {
       return;
+    }
+
+    const deltaX = Math.abs(event.clientX - this.pointerStartX);
+    const deltaY = Math.abs(event.clientY - this.pointerStartY);
+
+    if (!this.isDimming) {
+      if (deltaX < 9 || deltaY > deltaX * 1.4) {
+        return;
+      }
+
+      window.clearTimeout(this.holdTimer);
+      this.isDimming = true;
+      this.pendingDimmerPointer = false;
+      this.suppressClick = true;
     }
 
     this.dimmingPercent = this.brightnessFromPointer(event);
@@ -619,17 +647,24 @@ export class GlowLightCard extends LitElement {
       this.dimmingPercent = percent;
       this.commitBrightness(percent);
       this.isDimming = false;
+      this.pendingDimmerPointer = false;
       window.setTimeout(() => {
         this.dimmingPercent = undefined;
         this.suppressClick = false;
       }, 180);
       event.preventDefault();
+      return;
+    }
+
+    if (this.hasDimmer) {
+      this.pendingDimmerPointer = false;
     }
   }
 
   private handlePointerCancel(): void {
     window.clearTimeout(this.holdTimer);
     this.isDimming = false;
+    this.pendingDimmerPointer = false;
     this.dimmingPercent = undefined;
     window.setTimeout(() => {
       this.suppressClick = false;
@@ -920,36 +955,22 @@ class GlowLightCardEditor extends LitElement {
     `;
   }
 
-  private renderMainForm(): TemplateResult {
+  private renderEntityForm(): TemplateResult {
     const schema = [
       {
         name: 'entity',
         required: true,
         selector: { entity: { domain: 'light' } },
       },
-      { name: 'name', selector: { text: {} } },
-      { name: 'icon', selector: { icon: {} } },
-      { name: 'width', selector: { text: {} } },
-      { name: 'height', selector: { text: {} } },
-      { name: 'border_radius', selector: { text: {} } },
-      { name: 'fill_container', selector: { boolean: {} } },
-      { name: 'has_dimmer', selector: { boolean: {} } },
     ];
     const labels: Record<string, string> = {
-      entity: 'Entity',
-      name: 'Name',
-      icon: 'Icon',
-      width: 'Width',
-      height: 'Height',
-      border_radius: 'Radius',
-      fill_container: 'Fill Container',
-      has_dimmer: 'Has Dimmer',
+      entity: 'Light Entity',
     };
 
     return html`
       <ha-form
         .hass=${this.hass}
-        .data=${this.config}
+        .data=${{ entity: this.config.entity }}
         .schema=${schema}
         .computeLabel=${(schemaItem: { name: string }) =>
           labels[schemaItem.name] ?? schemaItem.name}
@@ -963,7 +984,18 @@ class GlowLightCardEditor extends LitElement {
       <div class="editor">
         <section class="section">
           <h3>Main</h3>
-          ${this.renderMainForm()}
+          ${this.renderEntityForm()}
+          <div class="grid">
+            ${this.renderTextInput('Name', 'name', 'Bar Lights')}
+            ${this.renderIconPicker('Icon', 'icon')}
+            ${this.renderTextInput('Width', 'width', '260px')}
+            ${this.renderTextInput('Height', 'height', '64px')}
+            ${this.renderTextInput('Radius', 'border_radius', '999px')}
+          </div>
+          <div class="grid">
+            ${this.renderSwitch('Fill Container', 'fill_container', false)}
+            ${this.renderSwitch('Has Dimmer', 'has_dimmer', false)}
+          </div>
         </section>
 
         <section class="section">
