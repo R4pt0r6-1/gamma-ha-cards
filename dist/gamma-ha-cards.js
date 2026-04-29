@@ -316,8 +316,8 @@ class U {
     for (; (r = y.nextNode()) !== null && l.length < c; ) {
       if (r.nodeType === 1) {
         if (r.hasAttributes()) for (const d of r.getAttributeNames()) if (d.endsWith(jt)) {
-          const m = u[s++], b = r.getAttribute(d).split(x), L = /([.?@])?(.*)/.exec(m);
-          l.push({ type: 1, index: o, name: L[2], strings: b, ctor: L[1] === "." ? ne : L[1] === "?" ? se : L[1] === "@" ? ae : H }), r.removeAttribute(d);
+          const m = u[s++], b = r.getAttribute(d).split(x), M = /([.?@])?(.*)/.exec(m);
+          l.push({ type: 1, index: o, name: M[2], strings: b, ctor: M[1] === "." ? ne : M[1] === "?" ? se : M[1] === "@" ? ae : H }), r.removeAttribute(d);
         } else d.startsWith(x) && (l.push({ type: 6, index: o }), r.removeAttribute(d));
         if (Bt.test(r.tagName)) {
           const d = r.textContent.split(x), m = d.length - 1;
@@ -2780,7 +2780,7 @@ function me(n, t) {
     })
   );
 }
-function M(n, t) {
+function L(n, t) {
   if (typeof n == "number" && Number.isFinite(n))
     return n;
   if (typeof n == "string") {
@@ -2789,6 +2789,10 @@ function M(n, t) {
       return e;
   }
   return t;
+}
+function be(n, t, e) {
+  const i = (n == null ? void 0 : n.trim()) || t, r = /^(\d+(?:\.\d+)?)px$/.exec(i);
+  return r ? `${Math.max(e, Number(r[1]))}px` : i === "auto" || i === "initial" || i === "inherit" ? t : `max(${e}px, ${i})`;
 }
 const pt = class pt extends g {
   constructor() {
@@ -2808,6 +2812,7 @@ const pt = class pt extends g {
 
         display: block;
         max-width: var(--thermostat-card-width);
+        min-height: var(--thermostat-card-height);
         width: 100%;
       }
 
@@ -2816,6 +2821,7 @@ const pt = class pt extends g {
         border: 0;
         box-shadow: none;
         display: block;
+        min-height: var(--thermostat-card-height);
         overflow: visible;
       }
 
@@ -2856,8 +2862,9 @@ const pt = class pt extends g {
         cursor: pointer;
         display: grid;
         gap: 16px;
-        grid-template-rows: auto minmax(0, 1fr) auto;
-        min-height: var(--thermostat-card-height);
+        grid-template-rows: auto minmax(210px, 1fr) auto;
+        height: var(--thermostat-card-height);
+        min-height: 376px;
         overflow: hidden;
         padding: 18px;
         position: relative;
@@ -3154,11 +3161,14 @@ const pt = class pt extends g {
     this.config = {
       ...fe,
       ...t,
-      temperature_step: M(t.temperature_step, 1)
+      temperature_step: L(t.temperature_step, 1)
     }, this.style.setProperty(
       "--thermostat-card-width",
       this.config.fill_container ? "100%" : this.config.width ?? "320px"
-    ), this.style.setProperty("--thermostat-card-height", this.config.height ?? "376px"), this.style.setProperty(
+    ), this.style.setProperty(
+      "--thermostat-card-height",
+      be(this.config.height, "376px", 376)
+    ), this.style.setProperty(
       "--thermostat-card-radius",
       this.config.border_radius ?? "18px"
     ), this.style.setProperty("--thermostat-heat-color", this.config.heat_color ?? "#ff8a1c"), this.style.setProperty("--thermostat-cool-color", this.config.cool_color ?? "#2f80ff"), this.style.setProperty("--thermostat-idle-color", this.config.idle_color ?? "#45d158"), this.style.setProperty("--thermostat-off-color", this.config.off_color ?? "#697382"), this.style.setProperty(
@@ -3213,11 +3223,11 @@ const pt = class pt extends g {
   }
   get minTemperature() {
     var t;
-    return M((t = this.entity) == null ? void 0 : t.attributes.min_temp, 55);
+    return L((t = this.entity) == null ? void 0 : t.attributes.min_temp, 55);
   }
   get maxTemperature() {
     var t;
-    return M((t = this.entity) == null ? void 0 : t.attributes.max_temp, 85);
+    return L((t = this.entity) == null ? void 0 : t.attributes.max_temp, 85);
   }
   get targetTemperature() {
     var r, o, s;
@@ -3293,7 +3303,7 @@ const pt = class pt extends g {
     );
   }
   adjustTemperature(t) {
-    const e = M(this.config.temperature_step, 1);
+    const e = L(this.config.temperature_step, 1);
     this.setTargetTemperature(this.targetTemperature + t * e);
   }
   performAction(t) {
@@ -3630,7 +3640,7 @@ window.customCards.push({
   name: "Glow Thermostat Card",
   description: "A dial-style thermostat card with instant setpoint controls."
 });
-const Lt = {
+const Mt = {
   title: "Outlets",
   icon_1: "mdi:power-socket-us",
   icon_2: "mdi:power-socket-us",
@@ -3647,8 +3657,8 @@ const Lt = {
   tap_action: "toggle",
   hold_action: "more-info",
   animated: !0
-}, Mt = ["toggle", "more-info", "none"], be = ["duplex", "grid", "stack"];
-function xe(n, t) {
+}, Lt = ["toggle", "more-info", "none"], xe = ["duplex", "grid", "stack"];
+function ve(n, t) {
   n.dispatchEvent(
     new CustomEvent("config-changed", {
       detail: { config: t },
@@ -4217,7 +4227,7 @@ const gt = class gt extends g {
     if (!(t != null && t.entity_1))
       throw new Error("Entity 1 is required");
     this.config = {
-      ...Lt,
+      ...Mt,
       ...t
     }, this.style.setProperty(
       "--outlet-card-width",
@@ -4287,7 +4297,7 @@ const gt = class gt extends g {
   }
   displayIcon(t) {
     const e = this.getEntity(t.entityId);
-    return t.icon || (e == null ? void 0 : e.attributes.icon) || Lt.icon_1;
+    return t.icon || (e == null ? void 0 : e.attributes.icon) || Mt.icon_1;
   }
   dispatchMoreInfo(t) {
     this.dispatchEvent(
@@ -4547,7 +4557,7 @@ const ft = class ft extends g {
     Object.keys(e).forEach((i) => {
       const r = i;
       e[r] === "" && delete e[r];
-    }), this.config = e, xe(this, e);
+    }), this.config = e, ve(this, e);
   }
   valueChanged(t) {
     var r;
@@ -4644,7 +4654,7 @@ const ft = class ft extends g {
             ${this.renderTextInput("Width", "width", "320px")}
             ${this.renderTextInput("Button Height", "button_height", "54px")}
             ${this.renderTextInput("Gap", "gap", "12px")}
-            ${this.renderSelect("Layout", "layout", be, "duplex")}
+            ${this.renderSelect("Layout", "layout", xe, "duplex")}
           </div>
           <div class="grid">
             ${this.renderSwitch("Show Title", "show_title", !1)}
@@ -4666,11 +4676,11 @@ const ft = class ft extends g {
         <section class="section">
           <h3>Actions</h3>
           <div class="grid">
-            ${this.renderSelect("Tap Action", "tap_action", Mt, "toggle")}
+            ${this.renderSelect("Tap Action", "tap_action", Lt, "toggle")}
             ${this.renderSelect(
       "Hold Action",
       "hold_action",
-      Mt,
+      Lt,
       "more-info"
     )}
           </div>
@@ -4713,8 +4723,8 @@ const Nt = {
   tap_action: "cycle",
   hold_action: "more-info",
   animated: !0
-}, ve = ["cycle", "more-info", "none"], we = ["more-info", "none"];
-function ye(n, t) {
+}, we = ["cycle", "more-info", "none"], ye = ["more-info", "none"];
+function $e(n, t) {
   n.dispatchEvent(
     new CustomEvent("config-changed", {
       detail: { config: t },
@@ -5358,7 +5368,7 @@ const bt = class bt extends g {
     Object.keys(e).forEach((i) => {
       const r = i;
       e[r] === "" && delete e[r];
-    }), this.config = e, ye(this, e);
+    }), this.config = e, $e(this, e);
   }
   valueChanged(t) {
     var r;
@@ -5495,11 +5505,11 @@ const bt = class bt extends g {
         <section class="section">
           <h3>Actions</h3>
           <div class="grid">
-            ${this.renderSelect("Tap Action", "tap_action", ve, "cycle")}
+            ${this.renderSelect("Tap Action", "tap_action", we, "cycle")}
             ${this.renderSelect(
       "Hold Action",
       "hold_action",
-      we,
+      ye,
       "more-info"
     )}
           </div>

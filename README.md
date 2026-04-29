@@ -139,7 +139,7 @@ temperature_step: 1
 | `name`             | `string`  | Entity friendly name | Display name.                  |
 | `width`            | `string`  | `320px`           | CSS width of the card.            |
 | `fill_container`   | `boolean` | `false`           | Stretch the card to the full dashboard column width. |
-| `height`           | `string`  | `376px`           | CSS minimum height of the card.   |
+| `height`           | `string`  | `376px`           | CSS height of the card, clamped to keep the dial visible. |
 | `border_radius`    | `string`  | `18px`            | CSS border radius.                |
 | `show_state`       | `boolean` | `false`           | Show current state text under the title. |
 | `show_current`     | `boolean` | `true`            | Show current temperature when available. |

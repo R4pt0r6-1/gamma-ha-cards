@@ -110,6 +110,25 @@ function toNumber(value: unknown, fallback: number): number {
   return fallback;
 }
 
+function clampCssLength(
+  value: string | undefined,
+  fallback: string,
+  minPixels: number,
+): string {
+  const length = value?.trim() || fallback;
+  const pxMatch = /^(\d+(?:\.\d+)?)px$/.exec(length);
+
+  if (pxMatch) {
+    return `${Math.max(minPixels, Number(pxMatch[1]))}px`;
+  }
+
+  if (length === 'auto' || length === 'initial' || length === 'inherit') {
+    return fallback;
+  }
+
+  return `max(${minPixels}px, ${length})`;
+}
+
 export class GlowThermostatCard extends LitElement {
   static properties = {
     hass: { attribute: false },
@@ -140,6 +159,7 @@ export class GlowThermostatCard extends LitElement {
 
         display: block;
         max-width: var(--thermostat-card-width);
+        min-height: var(--thermostat-card-height);
         width: 100%;
       }
 
@@ -148,6 +168,7 @@ export class GlowThermostatCard extends LitElement {
         border: 0;
         box-shadow: none;
         display: block;
+        min-height: var(--thermostat-card-height);
         overflow: visible;
       }
 
@@ -188,8 +209,9 @@ export class GlowThermostatCard extends LitElement {
         cursor: pointer;
         display: grid;
         gap: 16px;
-        grid-template-rows: auto minmax(0, 1fr) auto;
-        min-height: var(--thermostat-card-height);
+        grid-template-rows: auto minmax(210px, 1fr) auto;
+        height: var(--thermostat-card-height);
+        min-height: 376px;
         overflow: hidden;
         padding: 18px;
         position: relative;
@@ -499,7 +521,10 @@ export class GlowThermostatCard extends LitElement {
       '--thermostat-card-width',
       this.config.fill_container ? '100%' : this.config.width ?? '320px',
     );
-    this.style.setProperty('--thermostat-card-height', this.config.height ?? '376px');
+    this.style.setProperty(
+      '--thermostat-card-height',
+      clampCssLength(this.config.height, '376px', 376),
+    );
     this.style.setProperty(
       '--thermostat-card-radius',
       this.config.border_radius ?? '18px',
