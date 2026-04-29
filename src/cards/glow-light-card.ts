@@ -356,6 +356,7 @@ export class GlowLightCard extends LitElement {
           color-mix(in srgb, var(--glow-state-color) 26%, transparent);
         border-radius: 999px;
         color: var(--glow-icon-color);
+        cursor: pointer;
         display: inline-flex;
         height: 38px;
         justify-content: center;
@@ -743,6 +744,28 @@ export class GlowLightCard extends LitElement {
     this.performAction(this.config.tap_action);
   }
 
+  private handleIconPointerDown(event: Event): void {
+    if (!this.hasDimmer) {
+      return;
+    }
+
+    event.stopPropagation();
+    window.clearTimeout(this.holdTimer);
+    this.holdActive = false;
+    this.pendingDimmerPointer = false;
+    this.isDimming = false;
+  }
+
+  private handleIconClick(event: Event): void {
+    if (!this.hasDimmer) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.performAction(this.config.tap_action);
+  }
+
   protected render(): TemplateResult {
     if (!this.config) {
       return html``;
@@ -797,7 +820,11 @@ export class GlowLightCard extends LitElement {
           <span class="ambient-glow"></span>
           <span class="slider-fill"></span>
           <span class="outline-glow"></span>
-          <span class="icon-shell">
+          <span
+            class="icon-shell"
+            @pointerdown=${this.handleIconPointerDown}
+            @click=${this.handleIconClick}
+          >
             <ha-icon icon=${this.icon}></ha-icon>
           </span>
           <span class="content">

@@ -83,6 +83,22 @@
       </section>
 
       <section class="demo-section">
+        <h2 class="group-title">Locks</h2>
+        <div class="grid">
+          <glow-lock-card id="front-door"></glow-lock-card>
+          <glow-lock-card id="garage-entry"></glow-lock-card>
+        </div>
+      </section>
+
+      <section class="demo-section">
+        <h2 class="group-title">Thermostats</h2>
+        <div class="grid">
+          <glow-thermostat-card id="hallway-thermostat"></glow-thermostat-card>
+          <glow-thermostat-card id="bedroom-thermostat"></glow-thermostat-card>
+        </div>
+      </section>
+
+      <section class="demo-section">
         <h2 class="group-title">Outlets</h2>
         <dual-outlet-card id="desk-outlets"></dual-outlet-card>
       </section>
@@ -129,6 +145,10 @@
                     ? '✣'
                     : icon.includes('toggle')
                       ? '⏻'
+                    : icon.includes('lock')
+                      ? '▣'
+                    : icon.includes('thermostat')
+                      ? '◉'
                     : icon.includes('power')
                       ? '⏻'
                   : '●';
@@ -186,6 +206,50 @@
             icon: 'mdi:air-purifier',
           },
         },
+        'lock.front_door': {
+          entity_id: 'lock.front_door',
+          state: 'locked',
+          attributes: {
+            friendly_name: 'Front Door',
+            icon: 'mdi:lock',
+          },
+        },
+        'lock.garage_entry': {
+          entity_id: 'lock.garage_entry',
+          state: 'unlocked',
+          attributes: {
+            friendly_name: 'Garage Entry',
+            icon: 'mdi:lock-open-variant',
+          },
+        },
+        'climate.hallway': {
+          entity_id: 'climate.hallway',
+          state: 'heat',
+          attributes: {
+            friendly_name: 'Hallway',
+            current_temperature: 69,
+            temperature: 72,
+            min_temp: 55,
+            max_temp: 85,
+            temperature_unit: '°F',
+            hvac_action: 'heating',
+            icon: 'mdi:thermostat',
+          },
+        },
+        'climate.bedroom': {
+          entity_id: 'climate.bedroom',
+          state: 'cool',
+          attributes: {
+            friendly_name: 'Bedroom',
+            current_temperature: 74,
+            temperature: 70,
+            min_temp: 55,
+            max_temp: 85,
+            temperature_unit: '°F',
+            hvac_action: 'cooling',
+            icon: 'mdi:thermostat',
+          },
+        },
         'fan.kitchen_fan': {
           entity_id: 'fan.kitchen_fan',
           state: 'off',
@@ -215,6 +279,12 @@
           if (domain === 'fan' && service === 'set_percentage') {
             entity.state = Number(data.percentage) > 0 ? 'on' : 'off';
             entity.attributes.percentage = Number(data.percentage);
+          } else if (domain === 'lock' && service === 'lock') {
+            entity.state = 'locked';
+          } else if (domain === 'lock' && service === 'unlock') {
+            entity.state = 'unlocked';
+          } else if (domain === 'climate' && service === 'set_temperature') {
+            entity.attributes.temperature = Number(data.temperature);
           } else if (service === 'turn_off') {
             entity.state = 'off';
             if (entity.attributes.percentage !== undefined) {
@@ -238,7 +308,9 @@
           }
 
           document
-            .querySelectorAll('glow-light-card, glow-switch-card, dual-outlet-card, speed-fan-card')
+            .querySelectorAll(
+              'glow-light-card, glow-switch-card, glow-lock-card, glow-thermostat-card, dual-outlet-card, speed-fan-card',
+            )
             .forEach((card) => {
               card.hass = { ...hass, states: { ...states } };
             });
@@ -276,6 +348,34 @@
         width: '100%',
       });
       airPurifier.hass = hass;
+
+      const frontDoor = document.querySelector('#front-door');
+      frontDoor.setConfig({
+        entity: 'lock.front_door',
+        width: '100%',
+      });
+      frontDoor.hass = hass;
+
+      const garageEntry = document.querySelector('#garage-entry');
+      garageEntry.setConfig({
+        entity: 'lock.garage_entry',
+        width: '100%',
+      });
+      garageEntry.hass = hass;
+
+      const hallwayThermostat = document.querySelector('#hallway-thermostat');
+      hallwayThermostat.setConfig({
+        entity: 'climate.hallway',
+        width: '100%',
+      });
+      hallwayThermostat.hass = hass;
+
+      const bedroomThermostat = document.querySelector('#bedroom-thermostat');
+      bedroomThermostat.setConfig({
+        entity: 'climate.bedroom',
+        width: '100%',
+      });
+      bedroomThermostat.hass = hass;
 
       const deskOutlets = document.querySelector('#desk-outlets');
       deskOutlets.setConfig({

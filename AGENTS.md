@@ -22,6 +22,8 @@ This repo is a Home Assistant Lovelace card collection. Future agents should rea
   - Lights: orange, usually `#ff8a1c`.
   - Switches and fans: green, usually `#45d158`.
   - Outlets: red, usually `#ff3b30`.
+  - Locks: green when locked, orange when unlocked, red when jammed.
+  - Thermostats: orange when heating, blue when cooling, green when idle.
 - Use an outline glow all around the active card. Keep the glow visible on all edges.
 - Use `border-radius: 999px` for pill controls unless the card represents a grouped object like a duplex outlet.
 - Keep cards usable at narrow widths. Long names must truncate cleanly and never overlap icons/buttons.
@@ -50,6 +52,7 @@ This repo is a Home Assistant Lovelace card collection. Future agents should rea
   - Fan speed controls call `fan.set_percentage`.
 - Interactive controls should update optimistically before the Home Assistant service round-trip finishes, then fall back to HA state after a short timeout or on service failure.
 - Dimmer controls should keep an optimistic brightness percent after pointer release so the slider fill and glow do not snap back while Home Assistant updates.
+- Slider-style cards should make the icon a dedicated toggle target. The body can drag/adjust, but tapping the icon should toggle the entity immediately.
 - Dispatch `hass-more-info` for more-info actions:
 
 ```ts
@@ -69,6 +72,8 @@ this.dispatchEvent(
   - Light card: `selector: { entity: { domain: 'light' } }`
   - Switch card: `selector: { entity: { domain: 'switch' } }`
   - Fan card: `selector: { entity: { domain: 'fan' } }`
+  - Lock card: `selector: { entity: { domain: 'lock' } }`
+  - Thermostat card: `selector: { entity: { domain: 'climate' } }`
 - Include visual editor controls for the expected dashboard options:
   - Entity
   - Name
@@ -105,6 +110,8 @@ this.dispatchEvent(
 
 - `src/cards/glow-light-card.ts`: best reference for a simple glowing pill plus dimmer behavior.
 - `src/cards/glow-switch-card.ts`: best reference for a plain switch-only glowing toggle.
+- `src/cards/glow-lock-card.ts`: best reference for a lock/unlock optimistic control.
+- `src/cards/glow-thermostat-card.ts`: best reference for compact setpoint controls.
 - `src/cards/speed-fan-card.ts`: best reference for compact controls inside the pill.
 - `src/cards/dual-outlet-card.ts`: best reference for grouped controls and custom object styling.
 

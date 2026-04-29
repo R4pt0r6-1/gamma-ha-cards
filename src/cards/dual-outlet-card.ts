@@ -69,7 +69,7 @@ const DEFAULT_CONFIG: Omit<DualOutletCardConfig, 'entity_1'> = {
   button_height: '58px',
   gap: '12px',
   layout: 'duplex',
-  show_title: true,
+  show_title: false,
   show_state: true,
   on_color: '#ff3b30',
   off_color: '#697382',
@@ -1253,7 +1253,7 @@ class DualOutletCardEditor extends LitElement {
             ${this.renderSelect('Layout', 'layout', LAYOUTS, 'duplex')}
           </div>
           <div class="grid">
-            ${this.renderSwitch('Show Title', 'show_title', true)}
+            ${this.renderSwitch('Show Title', 'show_title', false)}
             ${this.renderSwitch('Show State', 'show_state', true)}
             ${this.renderSwitch('Fill Container', 'fill_container', false)}
             ${this.renderSwitch('Animated Glow', 'animated', true)}

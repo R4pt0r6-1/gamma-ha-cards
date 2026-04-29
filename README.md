@@ -6,6 +6,8 @@ A fast Home Assistant Lovelace card collection for compact, animated dashboard c
 
 - `custom:glow-light-card` - a resizable glowing toggle card for lights and other toggleable entities.
 - `custom:glow-switch-card` - a compact switch-only button with a green on-state outline glow.
+- `custom:glow-lock-card` - a compact smart lock card with instant lock and unlock feedback.
+- `custom:glow-thermostat-card` - a compact thermostat card with instant setpoint controls.
 - `custom:dual-outlet-card` - one duplex socket card for two switch entities, with independent tap toggles and a red on-state outline glow.
 - `custom:speed-fan-card` - a compact fan card with Off, 1, 2, and 3 speed controls.
 
@@ -89,6 +91,69 @@ icon: mdi:coffee-maker
 | `hold_action`    | `string`  | `more-info`         | `toggle`, `more-info`, or `none`. |
 | `animated`       | `boolean` | `true`              | Enable glow animation when on.    |
 
+## Glow Lock Card
+
+```yaml
+type: custom:glow-lock-card
+entity: lock.front_door
+name: Front Door
+```
+
+### Glow Lock Options
+
+| Name             | Type      | Default                  | Description                       |
+| ---------------- | --------- | ------------------------ | --------------------------------- |
+| `entity`         | `string`  | Required                 | Lock entity to display and control. |
+| `name`           | `string`  | Entity friendly name     | Display name.                     |
+| `icon`           | `string`  | State icon               | Optional icon override.           |
+| `locked_icon`    | `string`  | `mdi:lock`               | Icon when locked.                 |
+| `unlocked_icon`  | `string`  | `mdi:lock-open-variant`  | Icon when unlocked.               |
+| `width`          | `string`  | `260px`                  | CSS width of the card.            |
+| `fill_container` | `boolean` | `false`                  | Stretch the card to the full dashboard column width. |
+| `height`         | `string`  | `64px`                   | CSS minimum height of the card.   |
+| `border_radius`  | `string`  | `999px`                  | CSS border radius.                |
+| `show_state`     | `boolean` | `true`                   | Show state text under the name.   |
+| `locked_color`   | `string`  | `#45d158`                | Glow color when locked.           |
+| `unlocked_color` | `string`  | `#ff8a1c`                | Glow color when unlocked.         |
+| `jammed_color`   | `string`  | `#ff3b30`                | Glow color when jammed.           |
+| `background`     | `string`  | `#101722`                | Base card background.             |
+| `tap_action`     | `string`  | `toggle`                 | `toggle`, `lock`, `unlock`, `more-info`, or `none`. |
+| `hold_action`    | `string`  | `more-info`              | `toggle`, `lock`, `unlock`, `more-info`, or `none`. |
+| `animated`       | `boolean` | `true`                   | Enable glow animation.            |
+
+## Glow Thermostat Card
+
+```yaml
+type: custom:glow-thermostat-card
+entity: climate.hallway
+name: Hallway
+temperature_step: 1
+```
+
+### Glow Thermostat Options
+
+| Name               | Type      | Default           | Description                       |
+| ------------------ | --------- | ----------------- | --------------------------------- |
+| `entity`           | `string`  | Required          | Climate entity to display and control. |
+| `name`             | `string`  | Entity friendly name | Display name.                  |
+| `icon`             | `string`  | `mdi:thermostat`  | Icon shown on the left.           |
+| `width`            | `string`  | `320px`           | CSS width of the card.            |
+| `fill_container`   | `boolean` | `false`           | Stretch the card to the full dashboard column width. |
+| `height`           | `string`  | `72px`            | CSS minimum height of the card.   |
+| `border_radius`    | `string`  | `999px`           | CSS border radius.                |
+| `show_state`       | `boolean` | `true`            | Show current state text.          |
+| `show_current`     | `boolean` | `true`            | Show current temperature when available. |
+| `show_controls`    | `boolean` | `true`            | Show `-` and `+` setpoint buttons. |
+| `temperature_step` | `number`  | `1`               | Setpoint change per tap.          |
+| `heat_color`       | `string`  | `#ff8a1c`         | Glow color when heating.          |
+| `cool_color`       | `string`  | `#2f80ff`         | Glow color when cooling.          |
+| `idle_color`       | `string`  | `#45d158`         | Glow color when active but idle.  |
+| `off_color`        | `string`  | `#697382`         | Icon/border color when off.       |
+| `background`       | `string`  | `#101722`         | Base card background.             |
+| `tap_action`       | `string`  | `more-info`       | `more-info` or `none`.            |
+| `hold_action`      | `string`  | `more-info`       | `more-info` or `none`.            |
+| `animated`         | `boolean` | `true`            | Enable glow animation.            |
+
 ## Dual Outlet Card
 
 ```yaml
@@ -117,7 +182,7 @@ layout: duplex
 | `button_height` | `string`  | `58px`                  | CSS minimum height per outlet.    |
 | `gap`           | `string`  | `12px`                  | Space between outlet buttons.     |
 | `layout`        | `string`  | `duplex`                | `duplex`, `grid`, or `stack`.     |
-| `show_title`    | `boolean` | `true`                  | Show the group title.             |
+| `show_title`    | `boolean` | `false`                 | Show the group title.             |
 | `show_state`    | `boolean` | `true`                  | Show outlet state text.           |
 | `on_color`      | `string`  | `#ff3b30`               | Glow color when an outlet is on.  |
 | `off_color`     | `string`  | `#697382`               | Icon/border color when off.       |

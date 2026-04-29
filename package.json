@@ -18,6 +18,9 @@
     "custom-card",
     "light",
     "switch",
+    "lock",
+    "thermostat",
+    "climate",
     "dashboard-cards"
   ],
   "author": {
