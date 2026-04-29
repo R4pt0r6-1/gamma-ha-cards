@@ -765,6 +765,7 @@ class GlowLightCardEditor extends LitElement {
       }
 
       ha-selector,
+      ha-form,
       ha-icon-picker,
       ha-textfield,
       ha-select {
@@ -799,6 +800,18 @@ class GlowLightCardEditor extends LitElement {
     });
     this.config = next;
     fireConfigChanged(this, next);
+  }
+
+  private formChanged(event: Event): void {
+    const customEvent = event as CustomEvent<{
+      value?: Partial<GlowLightCardConfig>;
+    }>;
+
+    if (!customEvent.detail?.value) {
+      return;
+    }
+
+    this.updateConfig(customEvent.detail.value);
   }
 
   private valueChanged(event: Event): void {
@@ -907,23 +920,50 @@ class GlowLightCardEditor extends LitElement {
     `;
   }
 
+  private renderMainForm(): TemplateResult {
+    const schema = [
+      {
+        name: 'entity',
+        required: true,
+        selector: { entity: { domain: 'light' } },
+      },
+      { name: 'name', selector: { text: {} } },
+      { name: 'icon', selector: { icon: {} } },
+      { name: 'width', selector: { text: {} } },
+      { name: 'height', selector: { text: {} } },
+      { name: 'border_radius', selector: { text: {} } },
+      { name: 'fill_container', selector: { boolean: {} } },
+      { name: 'has_dimmer', selector: { boolean: {} } },
+    ];
+    const labels: Record<string, string> = {
+      entity: 'Entity',
+      name: 'Name',
+      icon: 'Icon',
+      width: 'Width',
+      height: 'Height',
+      border_radius: 'Radius',
+      fill_container: 'Fill Container',
+      has_dimmer: 'Has Dimmer',
+    };
+
+    return html`
+      <ha-form
+        .hass=${this.hass}
+        .data=${this.config}
+        .schema=${schema}
+        .computeLabel=${(schemaItem: { name: string }) =>
+          labels[schemaItem.name] ?? schemaItem.name}
+        @value-changed=${this.formChanged}
+      ></ha-form>
+    `;
+  }
+
   protected render(): TemplateResult {
     return html`
       <div class="editor">
         <section class="section">
           <h3>Main</h3>
-          <div class="grid">
-            ${this.renderEntityPicker('Entity', 'entity')}
-            ${this.renderTextInput('Name', 'name', 'Bar Lights')}
-            ${this.renderIconPicker('Icon', 'icon')}
-            ${this.renderTextInput('Width', 'width', '260px')}
-            ${this.renderTextInput('Height', 'height', '64px')}
-            ${this.renderTextInput('Radius', 'border_radius', '999px')}
-          </div>
-          <div class="grid">
-            ${this.renderSwitch('Fill Container', 'fill_container', false)}
-            ${this.renderSwitch('Has Dimmer', 'has_dimmer', false)}
-          </div>
+          ${this.renderMainForm()}
         </section>
 
         <section class="section">
