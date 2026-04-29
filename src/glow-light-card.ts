@@ -119,20 +119,35 @@ export class GlowLightCard extends LitElement {
         background:
           radial-gradient(
             circle at 15% 50%,
-            color-mix(in srgb, var(--glow-state-color) 20%, transparent),
-            transparent 42%
+            color-mix(in srgb, var(--glow-state-color) 12%, transparent),
+            transparent 44%
           ),
           linear-gradient(
             135deg,
             color-mix(in srgb, var(--glow-background) 92%, #ffffff 6%),
             color-mix(in srgb, var(--glow-background) 92%, #000000 12%)
           );
-        border: 1px solid
-          color-mix(in srgb, var(--glow-border-color) 70%, transparent);
+        border: 1px solid color-mix(
+          in srgb,
+          var(--glow-border-color) var(--glow-border-strength),
+          transparent
+        );
         border-radius: var(--glow-card-radius);
         box-shadow:
           inset 0 1px 0 rgb(255 255 255 / 7%),
-          0 12px 24px rgb(0 0 0 / 22%);
+          inset 0 0 0 var(--glow-inner-ring-width)
+            color-mix(
+              in srgb,
+              var(--glow-state-color) var(--glow-inner-ring-strength),
+              transparent
+            ),
+          0 12px 24px rgb(0 0 0 / 22%),
+          0 0 var(--glow-outer-blur)
+            color-mix(
+              in srgb,
+              var(--glow-state-color) var(--glow-outer-strength),
+              transparent
+            );
         box-sizing: border-box;
         color: var(--primary-text-color, #f4f7fb);
         cursor: pointer;
@@ -150,14 +165,24 @@ export class GlowLightCard extends LitElement {
       .button::before {
         background:
           radial-gradient(
-            circle at 22% 50%,
-            color-mix(in srgb, var(--glow-state-color) 48%, transparent),
-            transparent 34%
+            ellipse at center,
+            transparent 42%,
+            color-mix(in srgb, var(--glow-state-color) 10%, transparent) 72%,
+            color-mix(in srgb, var(--glow-state-color) 24%, transparent) 100%
           ),
           linear-gradient(
             90deg,
-            color-mix(in srgb, var(--glow-state-color) 13%, transparent),
-            transparent 72%
+            color-mix(in srgb, var(--glow-state-color) 7%, transparent),
+            transparent 34%,
+            transparent 68%,
+            color-mix(in srgb, var(--glow-state-color) 8%, transparent)
+          ),
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--glow-state-color) 10%, transparent),
+            transparent 32%,
+            transparent 70%,
+            color-mix(in srgb, var(--glow-state-color) 8%, transparent)
           );
         content: '';
         inset: 0;
@@ -168,18 +193,60 @@ export class GlowLightCard extends LitElement {
       }
 
       .button::after {
+        border: 1px solid
+          color-mix(in srgb, var(--glow-state-color) 86%, transparent);
         border-radius: inherit;
         box-shadow:
-          0 0 24px
-            color-mix(in srgb, var(--glow-state-color) 48%, transparent),
-          0 0 42px
-            color-mix(in srgb, var(--glow-state-color) 28%, transparent);
+          inset 0 0 12px
+            color-mix(in srgb, var(--glow-state-color) 32%, transparent),
+          0 0 10px
+            color-mix(in srgb, var(--glow-state-color) 56%, transparent),
+          0 0 22px
+            color-mix(in srgb, var(--glow-state-color) 42%, transparent),
+          0 0 46px
+            color-mix(in srgb, var(--glow-state-color) 26%, transparent);
         content: '';
         inset: -1px;
         opacity: var(--glow-on-opacity);
         pointer-events: none;
         position: absolute;
         transition: opacity 160ms ease;
+      }
+
+      .button .outline-glow {
+        border: 1px solid
+          color-mix(in srgb, var(--glow-state-color) 52%, transparent);
+        border-radius: inherit;
+        box-shadow:
+          0 0 6px
+            color-mix(in srgb, var(--glow-state-color) 62%, transparent),
+          0 0 18px
+            color-mix(in srgb, var(--glow-state-color) 46%, transparent),
+          0 0 38px
+            color-mix(in srgb, var(--glow-state-color) 28%, transparent);
+        content: '';
+        inset: 2px;
+        opacity: var(--glow-on-opacity);
+        pointer-events: none;
+        position: absolute;
+        transition: opacity 160ms ease;
+        z-index: 1;
+      }
+
+      .button .ambient-glow {
+        background:
+          radial-gradient(
+            ellipse at center,
+            color-mix(in srgb, var(--glow-state-color) 22%, transparent),
+            transparent 72%
+          );
+        filter: blur(13px);
+        inset: 7px;
+        opacity: var(--glow-on-opacity);
+        pointer-events: none;
+        position: absolute;
+        transition: opacity 160ms ease;
+        z-index: 0;
       }
 
       .button.on.animated::after {
@@ -443,6 +510,11 @@ export class GlowLightCard extends LitElement {
           --glow-border-color: ${stateColor};
           --glow-icon-color: ${stateColor};
           --glow-on-opacity: ${onOpacity};
+          --glow-border-strength: ${this.isOn ? '78%' : '26%'};
+          --glow-inner-ring-width: ${this.isOn ? '1px' : '0px'};
+          --glow-inner-ring-strength: ${this.isOn ? '28%' : '0%'};
+          --glow-outer-blur: ${this.isOn ? '30px' : '0'};
+          --glow-outer-strength: ${this.isOn ? '26%' : '0%'};
         "
       >
         <button
@@ -455,6 +527,8 @@ export class GlowLightCard extends LitElement {
           @pointerup=${this.handlePointerUp}
           @pointercancel=${this.handlePointerUp}
         >
+          <span class="ambient-glow"></span>
+          <span class="outline-glow"></span>
           <span class="icon-shell">
             <ha-icon icon=${this.icon}></ha-icon>
           </span>
