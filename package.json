@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "type": "module",
   "description": "A collection of fast Home Assistant Lovelace dashboard cards",
-  "main": "dist/gamma-ha-cards.js",
+  "main": "gamma-ha-cards.js",
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && cp dist/gamma-ha-cards.js gamma-ha-cards.js && cp dist/gamma-ha-cards.js.map gamma-ha-cards.js.map",
     "demo": "vite --host 0.0.0.0",
     "preview": "vite preview --host 0.0.0.0",
     "test": "npm run build"
