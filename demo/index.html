@@ -195,6 +195,12 @@
           attributes: {
             friendly_name: 'Lanai Lights',
             brightness: 0,
+            color_mode: 'rgb',
+            color_temp_kelvin: 3000,
+            effect: 'Relax',
+            effect_list: ['Relax', 'Night', 'Party', 'Reading'],
+            rgb_color: [255, 190, 142],
+            supported_color_modes: ['rgb', 'color_temp'],
           },
         },
         'light.bar_lights': {
@@ -203,6 +209,12 @@
           attributes: {
             friendly_name: 'Bar Lights',
             brightness: 186,
+            color_mode: 'rgb',
+            color_temp_kelvin: 2700,
+            effect: 'Reading',
+            effect_list: ['Relax', 'Night', 'Party', 'Reading'],
+            rgb_color: [255, 146, 66],
+            supported_color_modes: ['rgb', 'color_temp'],
           },
         },
         'switch.desk_outlet_top': {
@@ -471,6 +483,17 @@
             if (entity.attributes.brightness !== undefined && data.brightness_pct !== undefined) {
               entity.attributes.brightness = Math.round((Number(data.brightness_pct) / 100) * 255);
             }
+            if (Array.isArray(data.rgb_color)) {
+              entity.attributes.rgb_color = data.rgb_color;
+              entity.attributes.color_mode = 'rgb';
+            }
+            if (data.color_temp_kelvin !== undefined) {
+              entity.attributes.color_temp_kelvin = Number(data.color_temp_kelvin);
+              entity.attributes.color_mode = 'color_temp';
+            }
+            if (data.effect !== undefined) {
+              entity.attributes.effect = String(data.effect);
+            }
           } else if (service === 'toggle') {
             entity.state = entity.state === 'on' ? 'off' : 'on';
             if (entity.attributes.brightness !== undefined) {
@@ -494,6 +517,9 @@
       lanai.setConfig({
         entity: 'light.lanai_lights',
         icon: 'mdi:outdoor-lamp',
+        width: '100%',
+        has_dimmer: true,
+        show_light_controls: true,
       });
       lanai.hass = hass;
 
@@ -503,6 +529,7 @@
         icon: 'mdi:ceiling-light',
         width: '100%',
         has_dimmer: true,
+        show_light_controls: true,
       });
       bar.hass = hass;
 

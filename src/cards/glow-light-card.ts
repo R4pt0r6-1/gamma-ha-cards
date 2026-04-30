@@ -8,6 +8,12 @@ type LightEntity = {
     friendly_name?: string;
     icon?: string;
     brightness?: number;
+    color_mode?: string;
+    color_temp_kelvin?: number;
+    effect?: string;
+    effect_list?: string[];
+    rgb_color?: number[];
+    supported_color_modes?: string[];
     [key: string]: unknown;
   };
 };
@@ -24,6 +30,13 @@ type HomeAssistant = {
 
 type StateDisplayMode = 'state' | 'brightness' | 'auto';
 type ActionMode = 'toggle' | 'more-info' | 'none';
+type LightControlMode = 'color' | 'temperature' | 'effect';
+
+type LightColorPreset = {
+  name: string;
+  rgb_color?: number[];
+  color_temp_kelvin?: number;
+};
 
 interface GlowLightCardConfig {
   type?: string;
@@ -35,6 +48,11 @@ interface GlowLightCardConfig {
   height?: string;
   border_radius?: string;
   has_dimmer?: boolean;
+  show_light_controls?: boolean;
+  show_color_presets?: boolean;
+  show_color_temp?: boolean;
+  show_effects?: boolean;
+  color_presets?: LightColorPreset[];
   show_state?: boolean;
   state_display?: StateDisplayMode;
   on_color?: string;
@@ -57,6 +75,10 @@ const DEFAULT_CONFIG: Omit<GlowLightCardConfig, 'entity'> = {
   height: '56px',
   border_radius: '999px',
   has_dimmer: false,
+  show_light_controls: false,
+  show_color_presets: true,
+  show_color_temp: true,
+  show_effects: true,
   show_state: true,
   state_display: 'state',
   on_color: '#ff8a1c',
@@ -69,6 +91,25 @@ const DEFAULT_CONFIG: Omit<GlowLightCardConfig, 'entity'> = {
 
 const ACTIONS: ActionMode[] = ['toggle', 'more-info', 'none'];
 const STATE_DISPLAY_MODES: StateDisplayMode[] = ['state', 'brightness', 'auto'];
+const LIGHT_CONTROL_LABELS: Record<LightControlMode, string> = {
+  color: 'Color',
+  temperature: 'Temp',
+  effect: 'Effect',
+};
+const DEFAULT_COLOR_PRESETS: LightColorPreset[] = [
+  { name: 'Amber', rgb_color: [255, 146, 66] },
+  { name: 'Peach', rgb_color: [255, 191, 142] },
+  { name: 'Cream', rgb_color: [255, 225, 194] },
+  { name: 'White', rgb_color: [255, 255, 244] },
+  { name: 'Sky', rgb_color: [89, 164, 255] },
+  { name: 'Rose', rgb_color: [255, 112, 182] },
+];
+const DEFAULT_TEMP_PRESETS: LightColorPreset[] = [
+  { name: 'Warm', color_temp_kelvin: 2700 },
+  { name: 'Soft', color_temp_kelvin: 3200 },
+  { name: 'Neutral', color_temp_kelvin: 4000 },
+  { name: 'Day', color_temp_kelvin: 5000 },
+];
 
 function fireConfigChanged(
   element: HTMLElement,
@@ -89,6 +130,7 @@ export class GlowLightCard extends LitElement {
     config: { state: true },
     holdActive: { state: true },
     dimmingPercent: { state: true },
+    controlMode: { state: true },
     optimisticOn: { state: true },
     optimisticBrightnessPercent: { state: true },
   };
@@ -99,6 +141,7 @@ export class GlowLightCard extends LitElement {
   private optimisticTimer?: number;
   private holdActive = false;
   private dimmingPercent?: number;
+  private controlMode?: LightControlMode;
   private optimisticOn?: boolean;
   private optimisticBrightnessPercent?: number;
   private isDimming = false;
@@ -186,6 +229,16 @@ export class GlowLightCard extends LitElement {
 
       .button.dimmer {
         touch-action: pan-y;
+      }
+
+      .button.panel {
+        border-radius: min(var(--glow-card-radius), 22px);
+        cursor: default;
+        display: grid;
+        gap: 10px;
+        grid-template-columns: 1fr;
+        min-height: max(216px, var(--glow-card-height));
+        padding: 12px;
       }
 
       .button::before {
@@ -358,8 +411,10 @@ export class GlowLightCard extends LitElement {
         color: var(--glow-icon-color);
         cursor: pointer;
         display: inline-flex;
+        font: inherit;
         height: 38px;
         justify-content: center;
+        padding: 0;
         width: 38px;
       }
 
@@ -397,6 +452,184 @@ export class GlowLightCard extends LitElement {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+      }
+
+      .panel-header,
+      .brightness-control,
+      .mode-tabs,
+      .control-panel {
+        position: relative;
+        z-index: 2;
+      }
+
+      .panel-header {
+        align-items: center;
+        display: grid;
+        gap: 8px;
+        grid-template-columns: 38px minmax(0, 1fr) auto;
+      }
+
+      .level {
+        color: var(--primary-text-color, #f4f7fb);
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+        min-width: 34px;
+        text-align: right;
+      }
+
+      .brightness-control {
+        appearance: none;
+        background: rgb(255 255 255 / 10%);
+        border: 1px solid rgb(255 255 255 / 11%);
+        border-radius: 10px;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%);
+        cursor: pointer;
+        display: block;
+        height: 42px;
+        overflow: hidden;
+        padding: 0;
+        touch-action: pan-y;
+        width: 100%;
+      }
+
+      .brightness-fill {
+        background:
+          linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--glow-state-color) 70%, #ff9a52),
+            #fff6eb
+          );
+        border-radius: inherit;
+        display: block;
+        height: 100%;
+        width: var(--glow-slider-percent);
+      }
+
+      .mode-tabs {
+        background: rgb(0 0 0 / 16%);
+        border: 1px solid rgb(255 255 255 / 10%);
+        border-radius: 999px;
+        display: grid;
+        gap: 2px;
+        grid-auto-columns: minmax(0, 1fr);
+        grid-auto-flow: column;
+        min-height: 30px;
+        padding: 2px;
+      }
+
+      .mode-tab {
+        appearance: none;
+        background: transparent;
+        border: 0;
+        border-radius: 999px;
+        color: var(--secondary-text-color, #b7c0ce);
+        cursor: pointer;
+        font: inherit;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0;
+        padding: 0 8px;
+      }
+
+      .mode-tab.active {
+        background:
+          radial-gradient(
+            circle,
+            color-mix(in srgb, var(--glow-state-color) 24%, transparent),
+            transparent 84%
+          ),
+          color-mix(in srgb, var(--glow-state-color) 24%, #ffffff 4%);
+        color: var(--primary-text-color, #f4f7fb);
+      }
+
+      .control-panel {
+        display: grid;
+        gap: 8px;
+      }
+
+      .swatches {
+        display: grid;
+        gap: 8px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .swatch,
+      .effect-chip {
+        appearance: none;
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .swatch {
+        align-items: center;
+        background: var(--swatch-color);
+        border: 1px solid rgb(255 255 255 / 18%);
+        border-radius: 12px;
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 28%),
+          0 8px 14px rgb(0 0 0 / 14%);
+        display: inline-flex;
+        height: 42px;
+        justify-content: center;
+        padding: 0;
+        position: relative;
+      }
+
+      .swatch.active {
+        border-color: rgb(255 255 255 / 82%);
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 32%),
+          0 0 0 2px color-mix(in srgb, var(--glow-state-color) 62%, #ffffff 18%),
+          0 0 18px color-mix(in srgb, var(--glow-state-color) 36%, transparent);
+      }
+
+      .swatch.active::after {
+        align-items: center;
+        background: rgb(0 0 0 / 42%);
+        border: 1px solid rgb(255 255 255 / 34%);
+        border-radius: 999px;
+        color: #ffffff;
+        content: '✓';
+        display: inline-flex;
+        font-size: 12px;
+        font-weight: 800;
+        height: 20px;
+        justify-content: center;
+        line-height: 1;
+        width: 20px;
+      }
+
+      .effect-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .effect-chip {
+        background: rgb(0 0 0 / 16%);
+        border: 1px solid rgb(255 255 255 / 10%);
+        border-radius: 999px;
+        color: var(--secondary-text-color, #b7c0ce);
+        font-size: 11px;
+        font-weight: 700;
+        min-height: 32px;
+        padding: 0 12px;
+      }
+
+      .effect-chip.active {
+        background: color-mix(in srgb, var(--glow-state-color) 24%, #ffffff 4%);
+        border-color: color-mix(in srgb, var(--glow-state-color) 42%, transparent);
+        color: var(--primary-text-color, #f4f7fb);
+      }
+
+      .brightness-control:focus-visible,
+      .icon-shell:focus-visible,
+      .mode-tab:focus-visible,
+      .swatch:focus-visible,
+      .effect-chip:focus-visible {
+        outline: 2px solid var(--glow-state-color);
+        outline-offset: 3px;
       }
 
       @keyframes glow-breathe {
@@ -460,15 +693,17 @@ export class GlowLightCard extends LitElement {
   }
 
   public getCardSize(): number {
-    return 1;
+    return this.hasLightControls ? 4 : 1;
   }
 
   public getGridOptions() {
+    const hasControls = this.hasLightControls;
+
     return {
-      rows: 1,
+      rows: hasControls ? 4 : 1,
       columns: 6,
-      min_rows: 1,
-      max_rows: 1,
+      min_rows: hasControls ? 3 : 1,
+      max_rows: hasControls ? 5 : 1,
       min_columns: 3,
       max_columns: 12,
     };
@@ -500,6 +735,109 @@ export class GlowLightCard extends LitElement {
 
   private get hasDimmer(): boolean {
     return Boolean(this.config.has_dimmer) && this.domain === 'light';
+  }
+
+  private get hasLightControls(): boolean {
+    return Boolean(this.config.show_light_controls) && this.domain === 'light';
+  }
+
+  private get supportedColorModes(): string[] {
+    const modes = this.entity?.attributes.supported_color_modes;
+
+    if (!Array.isArray(modes)) {
+      return [];
+    }
+
+    return modes.filter((mode): mode is string => typeof mode === 'string');
+  }
+
+  private get effectList(): string[] {
+    const effects = this.entity?.attributes.effect_list;
+
+    if (!Array.isArray(effects)) {
+      return [];
+    }
+
+    return effects.filter((effect): effect is string => typeof effect === 'string');
+  }
+
+  private get supportsColorTemp(): boolean {
+    const attributes = this.entity?.attributes;
+
+    return Boolean(
+      this.supportedColorModes.includes('color_temp') ||
+        typeof attributes?.color_temp_kelvin === 'number' ||
+        typeof attributes?.min_color_temp_kelvin === 'number' ||
+        typeof attributes?.max_color_temp_kelvin === 'number',
+    );
+  }
+
+  private get controlModes(): LightControlMode[] {
+    if (!this.hasLightControls) {
+      return [];
+    }
+
+    const modes: LightControlMode[] = [];
+
+    if (this.config.show_color_presets !== false) {
+      modes.push('color');
+    }
+
+    if (this.config.show_color_temp !== false && this.supportsColorTemp) {
+      modes.push('temperature');
+    }
+
+    if (this.config.show_effects !== false && this.effectList.length > 0) {
+      modes.push('effect');
+    }
+
+    return modes;
+  }
+
+  private get activeControlMode(): LightControlMode | undefined {
+    const modes = this.controlModes;
+
+    if (modes.length === 0) {
+      return undefined;
+    }
+
+    return this.controlMode && modes.includes(this.controlMode)
+      ? this.controlMode
+      : modes[0];
+  }
+
+  private get currentRgb(): number[] | undefined {
+    const rgb = this.entity?.attributes.rgb_color;
+
+    if (!Array.isArray(rgb) || rgb.length < 3) {
+      return undefined;
+    }
+
+    return rgb.slice(0, 3).map((value) =>
+      Math.max(0, Math.min(255, Math.round(Number(value) || 0))),
+    );
+  }
+
+  private get currentKelvin(): number | undefined {
+    const kelvin = this.entity?.attributes.color_temp_kelvin;
+
+    return typeof kelvin === 'number' ? kelvin : undefined;
+  }
+
+  private get colorPresets(): LightColorPreset[] {
+    return this.config.color_presets?.length
+      ? this.config.color_presets
+      : DEFAULT_COLOR_PRESETS;
+  }
+
+  private get stateColor(): string {
+    if (!this.isOn) {
+      return this.config.off_color ?? '#697382';
+    }
+
+    const rgb = this.currentRgb;
+
+    return rgb ? this.rgbToCss(rgb) : this.config.on_color ?? '#ff8a1c';
   }
 
   private get brightnessPercent(): number | undefined {
@@ -562,6 +900,51 @@ export class GlowLightCard extends LitElement {
       DEFAULT_CONFIG.icon ||
       'mdi:lightbulb'
     );
+  }
+
+  private rgbToCss(rgb: number[]): string {
+    return `rgb(${rgb[0]} ${rgb[1]} ${rgb[2]})`;
+  }
+
+  private kelvinToCss(kelvin: number): string {
+    if (kelvin <= 3000) {
+      return '#ffb56f';
+    }
+
+    if (kelvin <= 3800) {
+      return '#ffd9a6';
+    }
+
+    if (kelvin <= 4600) {
+      return '#fff1d6';
+    }
+
+    return '#f2f7ff';
+  }
+
+  private colorDistance(first: number[], second: number[]): number {
+    return Math.sqrt(
+      first.reduce((total, value, index) => {
+        const delta = value - (second[index] ?? 0);
+        return total + delta * delta;
+      }, 0),
+    );
+  }
+
+  private isColorPresetActive(preset: LightColorPreset): boolean {
+    if (!this.isOn || !preset.rgb_color || !this.currentRgb) {
+      return false;
+    }
+
+    return this.colorDistance(preset.rgb_color, this.currentRgb) < 44;
+  }
+
+  private isTemperaturePresetActive(preset: LightColorPreset): boolean {
+    if (!this.isOn || !preset.color_temp_kelvin || !this.currentKelvin) {
+      return false;
+    }
+
+    return Math.abs(preset.color_temp_kelvin - this.currentKelvin) < 220;
   }
 
   private dispatchMoreInfo(): void {
@@ -653,6 +1036,63 @@ export class GlowLightCard extends LitElement {
         brightness_pct: Math.max(1, percent),
       }),
     );
+  }
+
+  private turnOnWithOptions(options: Record<string, unknown>): void {
+    if (this.isUnavailable || this.domain !== 'light') {
+      return;
+    }
+
+    const brightness =
+      typeof options.brightness_pct === 'number'
+        ? options.brightness_pct
+        : this.activeBrightnessPercent || this.brightnessPercent || 100;
+
+    this.setOptimisticOn(true, brightness);
+    this.trackServiceResult(
+      this.hass?.callService('light', 'turn_on', {
+        entity_id: this.config.entity,
+        brightness_pct: Math.max(1, brightness),
+        ...options,
+      }),
+    );
+  }
+
+  private handleControlModeClick(event: Event, mode: LightControlMode): void {
+    event.stopPropagation();
+    this.controlMode = mode;
+  }
+
+  private handleColorPresetClick(event: Event, preset: LightColorPreset): void {
+    event.stopPropagation();
+
+    if (!preset.rgb_color) {
+      return;
+    }
+
+    this.turnOnWithOptions({
+      rgb_color: preset.rgb_color,
+    });
+  }
+
+  private handleTemperaturePresetClick(
+    event: Event,
+    preset: LightColorPreset,
+  ): void {
+    event.stopPropagation();
+
+    if (!preset.color_temp_kelvin) {
+      return;
+    }
+
+    this.turnOnWithOptions({
+      color_temp_kelvin: preset.color_temp_kelvin,
+    });
+  }
+
+  private handleEffectClick(event: Event, effect: string): void {
+    event.stopPropagation();
+    this.turnOnWithOptions({ effect });
   }
 
   private handlePointerDown(event: PointerEvent): void {
@@ -756,7 +1196,7 @@ export class GlowLightCard extends LitElement {
   }
 
   private handleIconPointerDown(event: Event): void {
-    if (!this.hasDimmer) {
+    if (!this.hasDimmer && !this.hasLightControls) {
       return;
     }
 
@@ -768,7 +1208,7 @@ export class GlowLightCard extends LitElement {
   }
 
   private handleIconClick(event: Event): void {
-    if (!this.hasDimmer) {
+    if (!this.hasDimmer && !this.hasLightControls) {
       return;
     }
 
@@ -777,14 +1217,197 @@ export class GlowLightCard extends LitElement {
     this.performAction(this.config.tap_action);
   }
 
+  private renderControlTabs(): TemplateResult | typeof nothing {
+    const modes = this.controlModes;
+
+    if (modes.length <= 1) {
+      return nothing;
+    }
+
+    return html`
+      <span class="mode-tabs" aria-label="Light control modes">
+        ${modes.map(
+          (mode) => html`
+            <button
+              type="button"
+              class="mode-tab ${mode === this.activeControlMode ? 'active' : ''}"
+              @click=${(event: Event) => this.handleControlModeClick(event, mode)}
+            >
+              ${LIGHT_CONTROL_LABELS[mode]}
+            </button>
+          `,
+        )}
+      </span>
+    `;
+  }
+
+  private renderColorControls(): TemplateResult {
+    return html`
+      <span class="swatches" aria-label="Color presets">
+        ${this.colorPresets
+          .filter((preset) => Array.isArray(preset.rgb_color))
+          .map(
+            (preset) => html`
+              <button
+                type="button"
+                class="swatch ${this.isColorPresetActive(preset) ? 'active' : ''}"
+                style="--swatch-color: ${this.rgbToCss(preset.rgb_color ?? [255, 255, 255])}"
+                aria-label=${`Set ${preset.name}`}
+                title=${preset.name}
+                @click=${(event: Event) => this.handleColorPresetClick(event, preset)}
+              ></button>
+            `,
+          )}
+      </span>
+    `;
+  }
+
+  private renderTemperatureControls(): TemplateResult {
+    return html`
+      <span class="swatches" aria-label="Color temperature presets">
+        ${DEFAULT_TEMP_PRESETS.map(
+          (preset) => html`
+            <button
+              type="button"
+              class="swatch ${this.isTemperaturePresetActive(preset) ? 'active' : ''}"
+              style="--swatch-color: ${this.kelvinToCss(
+                preset.color_temp_kelvin ?? 3000,
+              )}"
+              aria-label=${`Set ${preset.name}`}
+              title=${`${preset.name} ${preset.color_temp_kelvin}K`}
+              @click=${(event: Event) =>
+                this.handleTemperaturePresetClick(event, preset)}
+            ></button>
+          `,
+        )}
+      </span>
+    `;
+  }
+
+  private renderEffectControls(): TemplateResult {
+    const currentEffect = String(this.entity?.attributes.effect || '');
+
+    return html`
+      <span class="effect-list" aria-label="Light effects">
+        ${this.effectList.map(
+          (effect) => html`
+            <button
+              type="button"
+              class="effect-chip ${effect === currentEffect ? 'active' : ''}"
+              @click=${(event: Event) => this.handleEffectClick(event, effect)}
+            >
+              ${effect}
+            </button>
+          `,
+        )}
+      </span>
+    `;
+  }
+
+  private renderActiveControls(): TemplateResult | typeof nothing {
+    switch (this.activeControlMode) {
+      case 'color':
+        return this.renderColorControls();
+      case 'temperature':
+        return this.renderTemperatureControls();
+      case 'effect':
+        return this.renderEffectControls();
+      default:
+        return nothing;
+    }
+  }
+
+  private renderCompactButton(): TemplateResult {
+    return html`
+      <button
+        type="button"
+        class="button ${this.hasDimmer ? 'dimmer' : ''} ${this.isOn
+          ? 'on'
+          : 'off'} ${this.isUnavailable ? 'unavailable' : ''} ${this.config
+          .animated
+          ? 'animated'
+          : ''}"
+        aria-label=${this.displayName}
+        @click=${this.handleClick}
+        @pointerdown=${this.handlePointerDown}
+        @pointermove=${this.handlePointerMove}
+        @pointerup=${this.handlePointerUp}
+        @pointercancel=${this.handlePointerCancel}
+      >
+        <span class="ambient-glow"></span>
+        <span class="slider-fill"></span>
+        <span class="outline-glow"></span>
+        <span
+          class="icon-shell"
+          @pointerdown=${this.handleIconPointerDown}
+          @click=${this.handleIconClick}
+        >
+          <ha-icon icon=${this.icon}></ha-icon>
+        </span>
+        <span class="content">
+          <span class="name">${this.displayName}</span>
+          ${this.config.show_state
+            ? html`<span class="state">${this.displayState}</span>`
+            : nothing}
+        </span>
+      </button>
+    `;
+  }
+
+  private renderLightPanel(): TemplateResult {
+    return html`
+      <div
+        class="button panel ${this.isOn ? 'on' : 'off'} ${this.isUnavailable
+          ? 'unavailable'
+          : ''} ${this.config.animated ? 'animated' : ''}"
+      >
+        <span class="ambient-glow"></span>
+        <span class="outline-glow"></span>
+        <span class="panel-header">
+          <button
+            type="button"
+            class="icon-shell"
+            aria-label=${`${this.isOn ? 'Turn off' : 'Turn on'} ${this.displayName}`}
+            @click=${this.handleIconClick}
+          >
+            <ha-icon icon=${this.icon}></ha-icon>
+          </button>
+          <span class="content">
+            <span class="name">${this.displayName}</span>
+            ${this.config.show_state
+              ? html`<span class="state">${this.displayState}</span>`
+              : nothing}
+          </span>
+          <span class="level">${this.activeBrightnessPercent}%</span>
+        </span>
+        ${this.hasDimmer
+          ? html`
+              <button
+                type="button"
+                class="brightness-control"
+                aria-label=${`Set ${this.displayName} brightness`}
+                @click=${(event: Event) => event.stopPropagation()}
+                @pointerdown=${this.handlePointerDown}
+                @pointermove=${this.handlePointerMove}
+                @pointerup=${this.handlePointerUp}
+                @pointercancel=${this.handlePointerCancel}
+              >
+                <span class="brightness-fill"></span>
+              </button>
+            `
+          : nothing}
+        ${this.renderControlTabs()}
+        <span class="control-panel">${this.renderActiveControls()}</span>
+      </div>
+    `;
+  }
+
   protected render(): TemplateResult {
     if (!this.config) {
       return html``;
     }
 
-    const stateColor = this.isOn
-      ? this.config.on_color
-      : this.config.off_color;
+    const stateColor = this.stateColor;
     const onOpacity = this.isOn ? '1' : '0';
     const sliderPercent = this.hasDimmer
       ? `${this.activeBrightnessPercent}%`
@@ -816,35 +1439,7 @@ export class GlowLightCard extends LitElement {
           --glow-slider-handle-opacity: ${sliderHandleOpacity};
         "
       >
-        <button
-          type="button"
-          class="button ${this.hasDimmer ? 'dimmer' : ''} ${this.isOn ? 'on' : 'off'} ${this.isUnavailable
-            ? 'unavailable'
-            : ''} ${this.config.animated ? 'animated' : ''}"
-          aria-label=${this.displayName}
-          @click=${this.handleClick}
-          @pointerdown=${this.handlePointerDown}
-          @pointermove=${this.handlePointerMove}
-          @pointerup=${this.handlePointerUp}
-          @pointercancel=${this.handlePointerCancel}
-        >
-          <span class="ambient-glow"></span>
-          <span class="slider-fill"></span>
-          <span class="outline-glow"></span>
-          <span
-            class="icon-shell"
-            @pointerdown=${this.handleIconPointerDown}
-            @click=${this.handleIconClick}
-          >
-            <ha-icon icon=${this.icon}></ha-icon>
-          </span>
-          <span class="content">
-            <span class="name">${this.displayName}</span>
-            ${this.config.show_state
-              ? html`<span class="state">${this.displayState}</span>`
-              : nothing}
-          </span>
-        </button>
+        ${this.hasLightControls ? this.renderLightPanel() : this.renderCompactButton()}
       </ha-card>
     `;
   }
@@ -1090,6 +1685,7 @@ class GlowLightCardEditor extends LitElement {
           <div class="grid">
             ${this.renderSwitch('Fill Container', 'fill_container', false)}
             ${this.renderSwitch('Has Dimmer', 'has_dimmer', false)}
+            ${this.renderSwitch('Light Controls', 'show_light_controls', false)}
           </div>
         </section>
 
@@ -1109,6 +1705,9 @@ class GlowLightCardEditor extends LitElement {
           <div class="grid">
             ${this.renderSwitch('Show State', 'show_state', true)}
             ${this.renderSwitch('Animated Glow', 'animated', true)}
+            ${this.renderSwitch('Color Presets', 'show_color_presets', true)}
+            ${this.renderSwitch('Color Temp', 'show_color_temp', true)}
+            ${this.renderSwitch('Effects', 'show_effects', true)}
           </div>
         </section>
 

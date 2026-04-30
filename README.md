@@ -40,6 +40,8 @@ type: custom:glow-light-card
 entity: light.bar_lights
 name: Bar Lights
 icon: mdi:ceiling-light
+has_dimmer: true
+show_light_controls: true
 ```
 
 ### Glow Light Options
@@ -54,6 +56,11 @@ icon: mdi:ceiling-light
 | `height`        | `string`  | `56px`              | CSS minimum height of the card.   |
 | `border_radius` | `string`  | `999px`             | CSS border radius.                |
 | `has_dimmer`    | `boolean` | `false`             | Turn the light button into a brightness slider. |
+| `show_light_controls` | `boolean` | `false`        | Show the expanded lamp panel with brightness, color, temperature, and effect controls. |
+| `show_color_presets` | `boolean` | `true`          | Show color swatches when light controls are enabled. |
+| `show_color_temp` | `boolean` | `true`            | Show color temperature presets when supported. |
+| `show_effects`  | `boolean` | `true`              | Show effect chips from the light entity's `effect_list`. |
+| `color_presets` | `array`   | Built in            | Optional color swatches using `name` and `rgb_color`. |
 | `show_state`    | `boolean` | `true`              | Show state text under the name.   |
 | `state_display` | `string`  | `state`             | `state`, `brightness`, or `auto`. |
 | `on_color`      | `string`  | `#ff8a1c`           | Glow color when on.               |
