@@ -78,7 +78,7 @@ const DEFAULT_CONFIG: Omit<GlowLightCardConfig, 'entity'> = {
   show_light_controls: false,
   show_color_presets: true,
   show_color_temp: true,
-  show_effects: true,
+  show_effects: false,
   show_state: true,
   state_display: 'state',
   on_color: '#ff8a1c',
@@ -235,10 +235,10 @@ export class GlowLightCard extends LitElement {
         border-radius: min(var(--glow-card-radius), 22px);
         cursor: default;
         display: grid;
-        gap: 10px;
+        gap: 3px;
         grid-template-columns: 1fr;
-        min-height: max(216px, var(--glow-card-height));
-        padding: 12px;
+        min-height: max(108px, var(--glow-card-height));
+        padding: 5px 10px;
       }
 
       .button::before {
@@ -465,16 +465,37 @@ export class GlowLightCard extends LitElement {
       .panel-header {
         align-items: center;
         display: grid;
-        gap: 8px;
-        grid-template-columns: 38px minmax(0, 1fr) auto;
+        gap: 7px;
+        grid-template-columns: 26px minmax(0, 1fr) auto;
+        min-height: 26px;
+      }
+
+      .panel .icon-shell {
+        height: 26px;
+        width: 26px;
+      }
+
+      .panel .icon-shell ha-icon {
+        --mdc-icon-size: 15px;
+      }
+
+      .panel .name {
+        font-size: 11px;
+        font-weight: 650;
+      }
+
+      .panel .state {
+        font-size: 10px;
+        line-height: 1.1;
+        margin-top: 1px;
       }
 
       .level {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
         line-height: 1;
-        min-width: 34px;
+        min-width: 30px;
         text-align: right;
       }
 
@@ -486,7 +507,7 @@ export class GlowLightCard extends LitElement {
         box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%);
         cursor: pointer;
         display: block;
-        height: 42px;
+        height: 12px;
         overflow: hidden;
         padding: 0;
         touch-action: pan-y;
@@ -514,7 +535,7 @@ export class GlowLightCard extends LitElement {
         gap: 2px;
         grid-auto-columns: minmax(0, 1fr);
         grid-auto-flow: column;
-        min-height: 30px;
+        min-height: 19px;
         padding: 2px;
       }
 
@@ -526,7 +547,7 @@ export class GlowLightCard extends LitElement {
         color: var(--secondary-text-color, #b7c0ce);
         cursor: pointer;
         font: inherit;
-        font-size: 11px;
+        font-size: 9px;
         font-weight: 700;
         letter-spacing: 0;
         padding: 0 8px;
@@ -545,13 +566,21 @@ export class GlowLightCard extends LitElement {
 
       .control-panel {
         display: grid;
-        gap: 8px;
+        gap: 0;
       }
 
       .swatches {
+        background: var(--swatch-line);
+        border: 1px solid rgb(255 255 255 / 12%);
+        border-radius: 999px;
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 22%),
+          0 8px 14px rgb(0 0 0 / 14%);
         display: grid;
-        gap: 8px;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        height: 24px;
+        overflow: hidden;
       }
 
       .swatch,
@@ -563,25 +592,24 @@ export class GlowLightCard extends LitElement {
 
       .swatch {
         align-items: center;
-        background: var(--swatch-color);
-        border: 1px solid rgb(255 255 255 / 18%);
-        border-radius: 12px;
-        box-shadow:
-          inset 0 1px 0 rgb(255 255 255 / 28%),
-          0 8px 14px rgb(0 0 0 / 14%);
+        background: transparent;
+        border: 0;
+        border-left: 1px solid rgb(255 255 255 / 16%);
+        border-radius: 0;
+        box-shadow: none;
         display: inline-flex;
-        height: 42px;
+        height: 100%;
         justify-content: center;
         padding: 0;
         position: relative;
       }
 
+      .swatch:first-child {
+        border-left: 0;
+      }
+
       .swatch.active {
-        border-color: rgb(255 255 255 / 82%);
-        box-shadow:
-          inset 0 1px 0 rgb(255 255 255 / 32%),
-          0 0 0 2px color-mix(in srgb, var(--glow-state-color) 62%, #ffffff 18%),
-          0 0 18px color-mix(in srgb, var(--glow-state-color) 36%, transparent);
+        background: rgb(255 255 255 / 18%);
       }
 
       .swatch.active::after {
@@ -592,18 +620,19 @@ export class GlowLightCard extends LitElement {
         color: #ffffff;
         content: '✓';
         display: inline-flex;
-        font-size: 12px;
+        font-size: 10px;
         font-weight: 800;
-        height: 20px;
+        height: 14px;
         justify-content: center;
         line-height: 1;
-        width: 20px;
+        width: 14px;
       }
 
       .effect-list {
         display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
+        flex-wrap: nowrap;
+        gap: 6px;
+        overflow: hidden;
       }
 
       .effect-chip {
@@ -611,10 +640,15 @@ export class GlowLightCard extends LitElement {
         border: 1px solid rgb(255 255 255 / 10%);
         border-radius: 999px;
         color: var(--secondary-text-color, #b7c0ce);
-        font-size: 11px;
+        flex: 1 1 0;
+        font-size: 10px;
         font-weight: 700;
-        min-height: 32px;
-        padding: 0 12px;
+        min-height: 28px;
+        min-width: 0;
+        overflow: hidden;
+        padding: 0 8px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .effect-chip.active {
@@ -693,17 +727,17 @@ export class GlowLightCard extends LitElement {
   }
 
   public getCardSize(): number {
-    return this.hasLightControls ? 4 : 1;
+    return this.hasLightControls ? 2 : 1;
   }
 
   public getGridOptions() {
     const hasControls = this.hasLightControls;
 
     return {
-      rows: hasControls ? 4 : 1,
+      rows: hasControls ? 2 : 1,
       columns: 6,
-      min_rows: hasControls ? 3 : 1,
-      max_rows: hasControls ? 5 : 1,
+      min_rows: hasControls ? 2 : 1,
+      max_rows: hasControls ? 2 : 1,
       min_columns: 3,
       max_columns: 12,
     };
@@ -1242,37 +1276,46 @@ export class GlowLightCard extends LitElement {
   }
 
   private renderColorControls(): TemplateResult {
+    const presets = this.colorPresets.filter((preset) =>
+      Array.isArray(preset.rgb_color),
+    );
+    const gradient = `linear-gradient(90deg, ${presets
+      .map((preset) => this.rgbToCss(preset.rgb_color ?? [255, 255, 255]))
+      .join(', ')})`;
+
     return html`
-      <span class="swatches" aria-label="Color presets">
-        ${this.colorPresets
-          .filter((preset) => Array.isArray(preset.rgb_color))
-          .map(
-            (preset) => html`
-              <button
-                type="button"
-                class="swatch ${this.isColorPresetActive(preset) ? 'active' : ''}"
-                style="--swatch-color: ${this.rgbToCss(preset.rgb_color ?? [255, 255, 255])}"
-                aria-label=${`Set ${preset.name}`}
-                title=${preset.name}
-                @click=${(event: Event) => this.handleColorPresetClick(event, preset)}
-              ></button>
-            `,
-          )}
+      <span class="swatches" style="--swatch-line: ${gradient}" aria-label="Color presets">
+        ${presets.map(
+          (preset) => html`
+            <button
+              type="button"
+              class="swatch ${this.isColorPresetActive(preset) ? 'active' : ''}"
+              aria-label=${`Set ${preset.name}`}
+              title=${preset.name}
+              @click=${(event: Event) => this.handleColorPresetClick(event, preset)}
+            ></button>
+          `,
+        )}
       </span>
     `;
   }
 
   private renderTemperatureControls(): TemplateResult {
+    const gradient = `linear-gradient(90deg, ${DEFAULT_TEMP_PRESETS.map((preset) =>
+      this.kelvinToCss(preset.color_temp_kelvin ?? 3000),
+    ).join(', ')})`;
+
     return html`
-      <span class="swatches" aria-label="Color temperature presets">
+      <span
+        class="swatches"
+        style="--swatch-line: ${gradient}"
+        aria-label="Color temperature presets"
+      >
         ${DEFAULT_TEMP_PRESETS.map(
           (preset) => html`
             <button
               type="button"
               class="swatch ${this.isTemperaturePresetActive(preset) ? 'active' : ''}"
-              style="--swatch-color: ${this.kelvinToCss(
-                preset.color_temp_kelvin ?? 3000,
-              )}"
               aria-label=${`Set ${preset.name}`}
               title=${`${preset.name} ${preset.color_temp_kelvin}K`}
               @click=${(event: Event) =>
@@ -1707,7 +1750,7 @@ class GlowLightCardEditor extends LitElement {
             ${this.renderSwitch('Animated Glow', 'animated', true)}
             ${this.renderSwitch('Color Presets', 'show_color_presets', true)}
             ${this.renderSwitch('Color Temp', 'show_color_temp', true)}
-            ${this.renderSwitch('Effects', 'show_effects', true)}
+            ${this.renderSwitch('Effects', 'show_effects', false)}
           </div>
         </section>
 
