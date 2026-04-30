@@ -55,6 +55,7 @@ interface GlowThermostatCardConfig {
   show_state?: boolean;
   show_current?: boolean;
   show_controls?: boolean;
+  show_mode_buttons?: boolean;
   show_features?: boolean;
   show_hvac_modes?: boolean;
   show_fan_modes?: boolean;
@@ -98,6 +99,7 @@ const DEFAULT_CONFIG: Omit<GlowThermostatCardConfig, 'entity'> = {
   show_state: false,
   show_current: true,
   show_controls: true,
+  show_mode_buttons: true,
   show_features: false,
   show_hvac_modes: true,
   show_fan_modes: true,
@@ -115,6 +117,15 @@ const DEFAULT_CONFIG: Omit<GlowThermostatCardConfig, 'entity'> = {
 };
 
 const ACTIONS: ActionMode[] = ['more-info', 'none'];
+const MODE_LABELS: Record<string, string> = {
+  auto: 'Auto',
+  cool: 'Cool',
+  dry: 'Dry',
+  fan_only: 'Fan',
+  heat: 'Heat',
+  heat_cool: 'Auto',
+  off: 'Off',
+};
 
 function fireConfigChanged(
   element: HTMLElement,
@@ -169,6 +180,7 @@ export class GlowThermostatCard extends LitElement {
     hass: { attribute: false },
     config: { state: true },
     holdActive: { state: true },
+    optimisticMode: { state: true },
     optimisticTemperature: { state: true },
   };
 
@@ -176,8 +188,10 @@ export class GlowThermostatCard extends LitElement {
   private config!: GlowThermostatCardConfig;
   private holdTimer?: number;
   private optimisticTimer?: number;
+  private optimisticModeTimer?: number;
   private holdActive = false;
   private handledControlPointer = false;
+  private optimisticMode?: string;
   private optimisticTemperature?: number;
 
   static get styles(): CSSResultGroup {
@@ -191,10 +205,12 @@ export class GlowThermostatCard extends LitElement {
         --thermostat-idle-color: #45d158;
         --thermostat-off-color: #697382;
         --thermostat-background: #101722;
+        --thermostat-dial-size: 188px;
 
         display: block;
+        height: var(--thermostat-card-height);
         max-width: var(--thermostat-card-width);
-        min-height: var(--thermostat-card-height);
+        min-height: 0;
         width: 100%;
       }
 
@@ -203,11 +219,14 @@ export class GlowThermostatCard extends LitElement {
         border: 0;
         box-shadow: none;
         display: block;
-        min-height: var(--thermostat-card-height);
+        height: 100%;
+        min-height: 0;
         overflow: visible;
       }
 
       .thermostat {
+        --thermostat-dial-size: clamp(180px, 66cqi, 214px);
+
         align-items: stretch;
         background:
           radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--thermostat-state-color) 18%, transparent), transparent 42%),
@@ -242,14 +261,15 @@ export class GlowThermostatCard extends LitElement {
         box-sizing: border-box;
         color: var(--primary-text-color, #f4f7fb);
         cursor: pointer;
+        container-type: inline-size;
         display: grid;
         align-content: start;
-        gap: 13px;
+        gap: 12px;
         grid-template-rows: auto auto auto auto;
-        height: var(--thermostat-card-height);
-        min-height: 376px;
+        height: 100%;
+        min-height: 0;
         overflow: hidden;
-        padding: 34px 18px 18px;
+        padding: 22px 18px 18px;
         position: relative;
         text-align: center;
         width: 100%;
@@ -338,6 +358,7 @@ export class GlowThermostatCard extends LitElement {
       .header,
       .dial,
       .controls,
+      .mode-controls,
       .features {
         position: relative;
         z-index: 2;
@@ -349,7 +370,7 @@ export class GlowThermostatCard extends LitElement {
         flex-direction: column;
         gap: 4px;
         justify-content: center;
-        min-height: 34px;
+        min-height: 30px;
         text-align: center;
       }
 
@@ -378,11 +399,20 @@ export class GlowThermostatCard extends LitElement {
         align-self: center;
         aspect-ratio: 1;
         background:
-          radial-gradient(circle at center, color-mix(in srgb, var(--thermostat-background) 92%, #ffffff 5%) 0 54%, transparent 55%),
+          radial-gradient(
+            circle at 50% 44%,
+            color-mix(in srgb, var(--thermostat-state-color) 20%, transparent),
+            transparent 52%
+          ),
+          radial-gradient(circle at center, color-mix(in srgb, var(--thermostat-background) 94%, #ffffff 5%) 0 52%, transparent 53%),
           conic-gradient(
             from 215deg,
-            color-mix(in srgb, var(--thermostat-state-color) 88%, #ffffff 8%) 0deg var(--thermostat-arc-degrees),
-            rgb(255 255 255 / 10%) var(--thermostat-arc-degrees) 290deg,
+            color-mix(in srgb, var(--thermostat-state-color) 96%, #ffffff 12%) 0deg,
+            var(--thermostat-state-color)
+              calc(var(--thermostat-arc-degrees) * 0.72),
+            color-mix(in srgb, var(--thermostat-state-color) 72%, #000000 16%)
+              var(--thermostat-arc-degrees),
+            rgb(255 255 255 / 11%) var(--thermostat-arc-degrees) 290deg,
             transparent 290deg 360deg
           );
         border-radius: 999px;
@@ -390,24 +420,37 @@ export class GlowThermostatCard extends LitElement {
           inset 0 0 0 1px rgb(255 255 255 / 7%),
           inset 0 12px 26px rgb(255 255 255 / 5%),
           0 0 34px color-mix(in srgb, var(--thermostat-state-color) 18%, transparent);
+        block-size: var(--thermostat-dial-size);
         display: grid;
         justify-self: center;
-        max-width: 285px;
+        inline-size: var(--thermostat-dial-size);
+        min-block-size: 0;
+        min-inline-size: 0;
         place-items: center;
         position: relative;
-        width: 88%;
       }
 
       .dial::before {
         background:
-          radial-gradient(circle, color-mix(in srgb, var(--thermostat-state-color) 14%, transparent), transparent 72%),
-          linear-gradient(145deg, rgb(255 255 255 / 8%), rgb(0 0 0 / 18%));
+          radial-gradient(
+            circle at 50% 32%,
+            color-mix(in srgb, var(--thermostat-state-color) 24%, transparent),
+            transparent 58%
+          ),
+          linear-gradient(
+            145deg,
+            color-mix(in srgb, var(--thermostat-background) 84%, #ffffff 10%),
+            color-mix(in srgb, var(--thermostat-background) 88%, #000000 24%)
+          );
         border: 1px solid rgb(255 255 255 / 9%);
         border-radius: inherit;
-        box-shadow: inset 0 1px 0 rgb(255 255 255 / 10%);
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 10%),
+          inset 0 -16px 28px rgb(0 0 0 / 15%);
         content: '';
-        inset: 18%;
+        inset: 21%;
         position: absolute;
+        z-index: 1;
       }
 
       .dial-center {
@@ -415,7 +458,7 @@ export class GlowThermostatCard extends LitElement {
         display: flex;
         flex-direction: column;
         position: relative;
-        z-index: 1;
+        z-index: 2;
       }
 
       .mode {
@@ -423,7 +466,7 @@ export class GlowThermostatCard extends LitElement {
         font-size: 13px;
         font-weight: 650;
         line-height: 1.1;
-        margin-bottom: 12px;
+        margin-bottom: 9px;
       }
 
       .target {
@@ -447,9 +490,9 @@ export class GlowThermostatCard extends LitElement {
 
       .current {
         color: var(--secondary-text-color, #b7c0ce);
-        font-size: 13px;
+        font-size: 12px;
         line-height: 1.2;
-        margin-top: 8px;
+        margin-top: 7px;
         white-space: nowrap;
       }
 
@@ -476,7 +519,7 @@ export class GlowThermostatCard extends LitElement {
         font: inherit;
         font-size: 18px;
         font-weight: 650;
-        height: 42px;
+        height: 38px;
         justify-content: center;
         letter-spacing: 0;
         padding: 0;
@@ -492,6 +535,59 @@ export class GlowThermostatCard extends LitElement {
           ),
           color-mix(in srgb, var(--thermostat-state-color) 22%, #ffffff 3%);
         color: var(--primary-text-color, #f4f7fb);
+      }
+
+      .mode-controls {
+        align-self: end;
+        background: rgb(0 0 0 / 18%);
+        border: 1px solid rgb(255 255 255 / 10%);
+        border-radius: 999px;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%);
+        display: grid;
+        gap: 2px;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+        min-height: 30px;
+        overflow: hidden;
+        padding: 2px;
+        width: 100%;
+      }
+
+      .mode-button {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 999px;
+        color: var(--secondary-text-color, #b7c0ce);
+        cursor: pointer;
+        display: inline-flex;
+        font: inherit;
+        font-size: 11px;
+        font-weight: 650;
+        justify-content: center;
+        letter-spacing: 0;
+        line-height: 1;
+        min-width: 0;
+        padding: 0 8px;
+        text-transform: none;
+        white-space: nowrap;
+      }
+
+      .mode-button.active {
+        background:
+          radial-gradient(
+            circle,
+            color-mix(in srgb, var(--thermostat-state-color) 26%, transparent),
+            transparent 86%
+          ),
+          color-mix(in srgb, var(--thermostat-state-color) 28%, #ffffff 4%);
+        color: var(--primary-text-color, #f4f7fb);
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 9%);
+      }
+
+      .mode-button:disabled {
+        cursor: default;
+        opacity: 0.45;
       }
 
       .features,
@@ -632,6 +728,7 @@ export class GlowThermostatCard extends LitElement {
 
       .thermostat:focus-visible,
       .control:focus-visible,
+      .mode-button:focus-visible,
       .feature-button:focus-visible {
         outline: 2px solid var(--thermostat-state-color);
         outline-offset: 3px;
@@ -749,19 +846,35 @@ export class GlowThermostatCard extends LitElement {
   }
 
   private get isOff(): boolean {
-    return this.entity?.state === 'off';
+    return this.hvacMode === 'off';
+  }
+
+  private get hvacMode(): string {
+    return this.optimisticMode ?? String(this.entity?.state || 'off');
   }
 
   private get hvacAction(): string {
-    return String(this.entity?.attributes.hvac_action || this.entity?.state || 'idle');
+    return String(this.entity?.attributes.hvac_action || this.hvacMode || 'idle');
   }
 
   private get isCooling(): boolean {
-    return this.hvacAction === 'cooling' || this.entity?.state === 'cool';
+    return this.hvacAction === 'cooling' || this.hvacMode === 'cool';
   }
 
   private get isHeating(): boolean {
-    return this.hvacAction === 'heating' || this.entity?.state === 'heat';
+    return this.hvacAction === 'heating' || this.hvacMode === 'heat';
+  }
+
+  private get availableModes(): string[] {
+    const modes = this.entity?.attributes.hvac_modes;
+
+    if (!Array.isArray(modes)) {
+      return [];
+    }
+
+    return modes
+      .filter((mode): mode is string => typeof mode === 'string')
+      .filter((mode, index, allModes) => allModes.indexOf(mode) === index);
   }
 
   private get unit(): string {
@@ -934,6 +1047,19 @@ export class GlowThermostatCard extends LitElement {
     this.optimisticTemperature = undefined;
   }
 
+  private setOptimisticMode(mode: string): void {
+    window.clearTimeout(this.optimisticModeTimer);
+    this.optimisticMode = mode;
+    this.optimisticModeTimer = window.setTimeout(() => {
+      this.optimisticMode = undefined;
+    }, 8000);
+  }
+
+  private clearOptimisticMode(): void {
+    window.clearTimeout(this.optimisticModeTimer);
+    this.optimisticMode = undefined;
+  }
+
   private trackServiceResult(result: Promise<unknown> | void): void {
     if (result && typeof result.catch === 'function') {
       result.catch(() => this.clearOptimisticTemperature());
@@ -949,6 +1075,13 @@ export class GlowThermostatCard extends LitElement {
       Math.abs(temperature - this.optimisticTemperature) < 0.1
     ) {
       this.clearOptimisticTemperature();
+    }
+
+    if (
+      this.optimisticMode !== undefined &&
+      this.entity?.state === this.optimisticMode
+    ) {
+      this.clearOptimisticMode();
     }
   }
 
@@ -972,6 +1105,22 @@ export class GlowThermostatCard extends LitElement {
   private adjustTemperature(direction: -1 | 1): void {
     const step = toNumber(this.config.temperature_step, 1);
     this.setTargetTemperature(this.targetTemperature + direction * step);
+  }
+
+  private setHvacMode(mode: string): void {
+    if (this.isUnavailable || mode === this.hvacMode) {
+      return;
+    }
+
+    this.setOptimisticMode(mode);
+    const result = this.hass?.callService('climate', 'set_hvac_mode', {
+      entity_id: this.config.entity,
+      hvac_mode: mode,
+    });
+
+    if (result && typeof result.catch === 'function') {
+      result.catch(() => this.clearOptimisticMode());
+    }
   }
 
   private performAction(action: ActionMode | undefined): void {
@@ -1091,6 +1240,11 @@ export class GlowThermostatCard extends LitElement {
     }
 
     this.adjustTemperature(direction);
+  }
+
+  private handleModeClick(event: Event, mode: string): void {
+    event.stopPropagation();
+    this.setHvacMode(mode);
   }
 
   private renderClimateSelect(
@@ -1335,6 +1489,31 @@ export class GlowThermostatCard extends LitElement {
     return html`<span class="features">${items}</span>`;
   }
 
+  private renderModeButtons(): TemplateResult | typeof nothing {
+    const modes = this.availableModes;
+
+    if (!modes.length) {
+      return nothing;
+    }
+
+    return html`
+      <span class="mode-controls" aria-label="HVAC mode controls">
+        ${modes.map(
+          (mode) => html`
+            <button
+              class="mode-button ${mode === this.hvacMode ? 'active' : ''}"
+              ?disabled=${this.isUnavailable}
+              aria-label=${`Set mode to ${MODE_LABELS[mode] ?? mode}`}
+              @click=${(event: Event) => this.handleModeClick(event, mode)}
+            >
+              ${MODE_LABELS[mode] ?? mode}
+            </button>
+          `,
+        )}
+      </span>
+    `;
+  }
+
   private renderControls(): TemplateResult {
     return html`
       <span class="controls" aria-label="Temperature controls">
@@ -1423,6 +1602,7 @@ export class GlowThermostatCard extends LitElement {
             </span>
           </span>
           ${this.config.show_controls ? this.renderControls() : nothing}
+          ${this.config.show_mode_buttons ? this.renderModeButtons() : nothing}
           ${this.renderFeatures()}
         </div>
       </ha-card>
@@ -1685,6 +1865,7 @@ class GlowThermostatCardEditor extends LitElement {
             ${this.renderSwitch('Show State', 'show_state', false)}
             ${this.renderSwitch('Show Current', 'show_current', true)}
             ${this.renderSwitch('Show Controls', 'show_controls', true)}
+            ${this.renderSwitch('Show Mode Buttons', 'show_mode_buttons', true)}
           </div>
         </section>
 

@@ -443,7 +443,13 @@
           } else if (domain === 'climate' && service === 'set_temperature') {
             entity.attributes.temperature = Number(data.temperature);
           } else if (domain === 'climate' && service === 'set_hvac_mode') {
-            entity.state = data.hvac_mode;
+            entity.state = String(data.hvac_mode);
+            entity.attributes.hvac_action =
+              entity.state === 'heat'
+                ? 'heating'
+                : entity.state === 'cool'
+                  ? 'cooling'
+                  : 'idle';
           } else if (domain === 'climate' && service === 'set_fan_mode') {
             entity.attributes.fan_mode = data.fan_mode;
           } else if (domain === 'climate' && service === 'set_swing_mode') {

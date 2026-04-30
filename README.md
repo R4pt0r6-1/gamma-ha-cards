@@ -167,6 +167,7 @@ sound_switch_entity: switch.lanai_air_conditioner_sound
 | `show_state`       | `boolean` | `false`           | Show current state text under the title. |
 | `show_current`     | `boolean` | `true`            | Show current temperature when available. |
 | `show_controls`    | `boolean` | `true`            | Show `-` and `+` setpoint buttons. |
+| `show_mode_buttons` | `boolean` | `true`            | Show HVAC mode buttons from the climate entity. |
 | `show_features`    | `boolean` | `false`           | Show the compact feature controls area.  |
 | `show_hvac_modes`  | `boolean` | `true`            | Show HVAC mode selector when `hvac_modes` are available. |
 | `show_fan_modes`   | `boolean` | `true`            | Show fan mode selector when `fan_modes` are available. |
