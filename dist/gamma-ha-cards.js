@@ -284,7 +284,7 @@ k.elementStyles = [], k.shadowRootOptions = { mode: "open" }, k[A("elementProper
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const O = globalThis, $t = (n) => n, D = O.trustedTypes, _t = D ? D.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, jt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Vt = "?" + x, ie = `<${Vt}>`, _ = document, E = () => _.createComment(""), M = (n) => n === null || typeof n != "object" && typeof n != "function", nt = Array.isArray, re = (n) => nt(n) || typeof (n == null ? void 0 : n[Symbol.iterator]) == "function", H = `[ 	
+const E = globalThis, $t = (n) => n, D = E.trustedTypes, _t = D ? D.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, jt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Vt = "?" + x, ie = `<${Vt}>`, _ = document, O = () => _.createComment(""), M = (n) => n === null || typeof n != "object" && typeof n != "function", nt = Array.isArray, re = (n) => nt(n) || typeof (n == null ? void 0 : n[Symbol.iterator]) == "function", H = `[ 	
 \f\r]`, P = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, kt = /-->/g, Ct = />/g, w = RegExp(`>|${H}(?:([^\\s"'>=/]+)(${H}*=${H}*(?:[^ 	
 \f\r"'\`<>=]|("|')|))|$)`, "g"), St = /'/g, Pt = /"/g, Wt = /^(?:script|style|textarea|title)$/i, oe = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), s = oe(1), C = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), Tt = /* @__PURE__ */ new WeakMap(), y = _.createTreeWalker(_, 129);
 function qt(n, t) {
@@ -323,8 +323,8 @@ class I {
           const p = r.textContent.split(x), m = p.length - 1;
           if (m > 0) {
             r.textContent = D ? D.emptyScript : "";
-            for (let b = 0; b < m; b++) r.append(p[b], E()), y.nextNode(), c.push({ type: 2, index: ++o });
-            r.append(p[m], E());
+            for (let b = 0; b < m; b++) r.append(p[b], O()), y.nextNode(), c.push({ type: 2, index: ++o });
+            r.append(p[m], O());
           }
         }
       } else if (r.nodeType === 8) if (r.data === Vt) c.push({ type: 2, index: o });
@@ -423,7 +423,7 @@ class U {
     nt(this._$AH) || (this._$AH = [], this._$AR());
     const e = this._$AH;
     let i, r = 0;
-    for (const o of t) r === e.length ? e.push(i = new U(this.O(E()), this.O(E()), this, this.options)) : i = e[r], i._$AI(o), r++;
+    for (const o of t) r === e.length ? e.push(i = new U(this.O(O()), this.O(O()), this, this.options)) : i = e[r], i._$AI(o), r++;
     r < e.length && (this._$AR(i && i._$AB.nextSibling, r), e.length = r);
   }
   _$AR(t = this._$AA.nextSibling, e) {
@@ -504,14 +504,14 @@ class he {
     S(this, t);
   }
 }
-const R = O.litHtmlPolyfillSupport;
-R == null || R(I, U), (O.litHtmlVersions ?? (O.litHtmlVersions = [])).push("3.3.2");
+const R = E.litHtmlPolyfillSupport;
+R == null || R(I, U), (E.litHtmlVersions ?? (E.litHtmlVersions = [])).push("3.3.2");
 const de = (n, t, e) => {
   const i = (e == null ? void 0 : e.renderBefore) ?? t;
   let r = i._$litPart$;
   if (r === void 0) {
     const o = (e == null ? void 0 : e.renderBefore) ?? null;
-    i._$litPart$ = r = new U(t.insertBefore(E(), o), o, void 0, e ?? {});
+    i._$litPart$ = r = new U(t.insertBefore(O(), o), o, void 0, e ?? {});
   }
   return r._$AI(n), r;
 };
@@ -570,7 +570,7 @@ const At = {
   tap_action: "toggle",
   hold_action: "more-info",
   animated: !0
-}, Ot = ["toggle", "more-info", "none"], pe = ["state", "brightness", "auto"], ue = {
+}, Et = ["toggle", "more-info", "none"], pe = ["state", "brightness", "auto"], ue = {
   color: "Color",
   temperature: "Temp",
   effect: "Effect"
@@ -581,7 +581,7 @@ const At = {
   { name: "White", rgb_color: [255, 255, 244] },
   { name: "Sky", rgb_color: [89, 164, 255] },
   { name: "Rose", rgb_color: [255, 112, 182] }
-], Et = [
+], Ot = [
   { name: "Warm", color_temp_kelvin: 2700 },
   { name: "Soft", color_temp_kelvin: 3200 },
   { name: "Neutral", color_temp_kelvin: 4e3 },
@@ -1351,17 +1351,14 @@ const st = class st extends g {
     }
   }
   turnOnWithOptions(t) {
-    var i;
+    var o;
     if (this.isUnavailable || this.domain !== "light")
       return;
-    const e = typeof t.brightness_pct == "number" ? t.brightness_pct : this.activeBrightnessPercent || this.brightnessPercent || 100;
-    this.setOptimisticOn(!0, e), this.trackServiceResult(
-      (i = this.hass) == null ? void 0 : i.callService("light", "turn_on", {
-        entity_id: this.config.entity,
-        brightness_pct: Math.max(1, e),
-        ...t
-      })
-    );
+    const e = this.brightnessPercent && this.brightnessPercent > 0 ? this.brightnessPercent : 100, i = typeof t.brightness_pct == "number" ? t.brightness_pct : this.isOn && this.activeBrightnessPercent || e, r = {
+      entity_id: this.config.entity,
+      ...t
+    };
+    (typeof t.brightness_pct == "number" || !this.isOn) && (r.brightness_pct = Math.max(1, i)), this.setOptimisticOn(!0, i), this.trackServiceResult((o = this.hass) == null ? void 0 : o.callService("light", "turn_on", r));
   }
   handleControlModeClick(t, e) {
     t.stopPropagation(), this.controlMode = e;
@@ -1378,6 +1375,21 @@ const st = class st extends g {
   }
   handleEffectClick(t, e) {
     t.stopPropagation(), this.turnOnWithOptions({ effect: e });
+  }
+  stopControlEvent(t) {
+    t.stopPropagation();
+  }
+  handleBrightnessPointerDown(t) {
+    t.stopPropagation(), this.handlePointerDown(t);
+  }
+  handleBrightnessPointerMove(t) {
+    t.stopPropagation(), this.handlePointerMove(t);
+  }
+  handleBrightnessPointerUp(t) {
+    t.stopPropagation(), this.handlePointerUp(t);
+  }
+  handleBrightnessPointerCancel(t) {
+    t.stopPropagation(), this.handlePointerCancel();
   }
   handlePointerDown(t) {
     var e, i;
@@ -1443,6 +1455,9 @@ const st = class st extends g {
             <button
               type="button"
               class="mode-tab ${e === this.activeControlMode ? "active" : ""}"
+              @pointerdown=${this.stopControlEvent}
+              @pointerup=${this.stopControlEvent}
+              @pointercancel=${this.stopControlEvent}
               @click=${(i) => this.handleControlModeClick(i, e)}
             >
               ${ue[e]}
@@ -1465,6 +1480,9 @@ const st = class st extends g {
               class="swatch ${this.isColorPresetActive(i) ? "active" : ""}"
               aria-label=${`Set ${i.name}`}
               title=${i.name}
+              @pointerdown=${this.stopControlEvent}
+              @pointerup=${this.stopControlEvent}
+              @pointercancel=${this.stopControlEvent}
               @click=${(r) => this.handleColorPresetClick(r, i)}
             ></button>
           `
@@ -1473,7 +1491,7 @@ const st = class st extends g {
     `;
   }
   renderTemperatureControls() {
-    const t = `linear-gradient(90deg, ${Et.map(
+    const t = `linear-gradient(90deg, ${Ot.map(
       (e) => this.kelvinToCss(e.color_temp_kelvin ?? 3e3)
     ).join(", ")})`;
     return s`
@@ -1482,13 +1500,16 @@ const st = class st extends g {
         style="--swatch-line: ${t}"
         aria-label="Color temperature presets"
       >
-        ${Et.map(
+        ${Ot.map(
       (e) => s`
             <button
               type="button"
               class="swatch ${this.isTemperaturePresetActive(e) ? "active" : ""}"
               aria-label=${`Set ${e.name}`}
               title=${`${e.name} ${e.color_temp_kelvin}K`}
+              @pointerdown=${this.stopControlEvent}
+              @pointerup=${this.stopControlEvent}
+              @pointercancel=${this.stopControlEvent}
               @click=${(i) => this.handleTemperaturePresetClick(i, e)}
             ></button>
           `
@@ -1506,6 +1527,9 @@ const st = class st extends g {
             <button
               type="button"
               class="effect-chip ${i === t ? "active" : ""}"
+              @pointerdown=${this.stopControlEvent}
+              @pointerup=${this.stopControlEvent}
+              @pointercancel=${this.stopControlEvent}
               @click=${(r) => this.handleEffectClick(r, i)}
             >
               ${i}
@@ -1560,6 +1584,10 @@ const st = class st extends g {
     return s`
       <div
         class="button panel ${this.isOn ? "on" : "off"} ${this.isUnavailable ? "unavailable" : ""} ${this.config.animated ? "animated" : ""}"
+        @click=${this.stopControlEvent}
+        @pointerdown=${this.stopControlEvent}
+        @pointerup=${this.stopControlEvent}
+        @pointercancel=${this.stopControlEvent}
       >
         <span class="ambient-glow"></span>
         <span class="outline-glow"></span>
@@ -1568,6 +1596,7 @@ const st = class st extends g {
             type="button"
             class="icon-shell"
             aria-label=${`${this.isOn ? "Turn off" : "Turn on"} ${this.displayName}`}
+            @pointerdown=${this.handleIconPointerDown}
             @click=${this.handleIconClick}
           >
             <ha-icon icon=${this.icon}></ha-icon>
@@ -1583,11 +1612,11 @@ const st = class st extends g {
                 type="button"
                 class="brightness-control"
                 aria-label=${`Set ${this.displayName} brightness`}
-                @click=${(t) => t.stopPropagation()}
-                @pointerdown=${this.handlePointerDown}
-                @pointermove=${this.handlePointerMove}
-                @pointerup=${this.handlePointerUp}
-                @pointercancel=${this.handlePointerCancel}
+                @click=${this.stopControlEvent}
+                @pointerdown=${this.handleBrightnessPointerDown}
+                @pointermove=${this.handleBrightnessPointerMove}
+                @pointerup=${this.handleBrightnessPointerUp}
+                @pointercancel=${this.handleBrightnessPointerCancel}
               >
                 <span class="brightness-fill"></span>
               </button>
@@ -1845,11 +1874,11 @@ const at = class at extends g {
         <section class="section">
           <h3>Actions</h3>
           <div class="grid">
-            ${this.renderSelect("Tap Action", "tap_action", Ot, "toggle")}
+            ${this.renderSelect("Tap Action", "tap_action", Et, "toggle")}
             ${this.renderSelect(
       "Hold Action",
       "hold_action",
-      Ot,
+      Et,
       "more-info"
     )}
           </div>

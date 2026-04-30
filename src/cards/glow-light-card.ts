@@ -1077,19 +1077,27 @@ export class GlowLightCard extends LitElement {
       return;
     }
 
+    const fallbackBrightness =
+      this.brightnessPercent && this.brightnessPercent > 0
+        ? this.brightnessPercent
+        : 100;
     const brightness =
       typeof options.brightness_pct === 'number'
         ? options.brightness_pct
-        : this.activeBrightnessPercent || this.brightnessPercent || 100;
+        : this.isOn
+          ? this.activeBrightnessPercent || fallbackBrightness
+          : fallbackBrightness;
+    const serviceData: Record<string, unknown> = {
+      entity_id: this.config.entity,
+      ...options,
+    };
+
+    if (typeof options.brightness_pct === 'number' || !this.isOn) {
+      serviceData.brightness_pct = Math.max(1, brightness);
+    }
 
     this.setOptimisticOn(true, brightness);
-    this.trackServiceResult(
-      this.hass?.callService('light', 'turn_on', {
-        entity_id: this.config.entity,
-        brightness_pct: Math.max(1, brightness),
-        ...options,
-      }),
-    );
+    this.trackServiceResult(this.hass?.callService('light', 'turn_on', serviceData));
   }
 
   private handleControlModeClick(event: Event, mode: LightControlMode): void {
@@ -1127,6 +1135,30 @@ export class GlowLightCard extends LitElement {
   private handleEffectClick(event: Event, effect: string): void {
     event.stopPropagation();
     this.turnOnWithOptions({ effect });
+  }
+
+  private stopControlEvent(event: Event): void {
+    event.stopPropagation();
+  }
+
+  private handleBrightnessPointerDown(event: PointerEvent): void {
+    event.stopPropagation();
+    this.handlePointerDown(event);
+  }
+
+  private handleBrightnessPointerMove(event: PointerEvent): void {
+    event.stopPropagation();
+    this.handlePointerMove(event);
+  }
+
+  private handleBrightnessPointerUp(event: PointerEvent): void {
+    event.stopPropagation();
+    this.handlePointerUp(event);
+  }
+
+  private handleBrightnessPointerCancel(event: PointerEvent): void {
+    event.stopPropagation();
+    this.handlePointerCancel();
   }
 
   private handlePointerDown(event: PointerEvent): void {
@@ -1265,6 +1297,9 @@ export class GlowLightCard extends LitElement {
             <button
               type="button"
               class="mode-tab ${mode === this.activeControlMode ? 'active' : ''}"
+              @pointerdown=${this.stopControlEvent}
+              @pointerup=${this.stopControlEvent}
+              @pointercancel=${this.stopControlEvent}
               @click=${(event: Event) => this.handleControlModeClick(event, mode)}
             >
               ${LIGHT_CONTROL_LABELS[mode]}
@@ -1292,6 +1327,9 @@ export class GlowLightCard extends LitElement {
               class="swatch ${this.isColorPresetActive(preset) ? 'active' : ''}"
               aria-label=${`Set ${preset.name}`}
               title=${preset.name}
+              @pointerdown=${this.stopControlEvent}
+              @pointerup=${this.stopControlEvent}
+              @pointercancel=${this.stopControlEvent}
               @click=${(event: Event) => this.handleColorPresetClick(event, preset)}
             ></button>
           `,
@@ -1318,6 +1356,9 @@ export class GlowLightCard extends LitElement {
               class="swatch ${this.isTemperaturePresetActive(preset) ? 'active' : ''}"
               aria-label=${`Set ${preset.name}`}
               title=${`${preset.name} ${preset.color_temp_kelvin}K`}
+              @pointerdown=${this.stopControlEvent}
+              @pointerup=${this.stopControlEvent}
+              @pointercancel=${this.stopControlEvent}
               @click=${(event: Event) =>
                 this.handleTemperaturePresetClick(event, preset)}
             ></button>
@@ -1337,6 +1378,9 @@ export class GlowLightCard extends LitElement {
             <button
               type="button"
               class="effect-chip ${effect === currentEffect ? 'active' : ''}"
+              @pointerdown=${this.stopControlEvent}
+              @pointerup=${this.stopControlEvent}
+              @pointercancel=${this.stopControlEvent}
               @click=${(event: Event) => this.handleEffectClick(event, effect)}
             >
               ${effect}
@@ -1403,6 +1447,10 @@ export class GlowLightCard extends LitElement {
         class="button panel ${this.isOn ? 'on' : 'off'} ${this.isUnavailable
           ? 'unavailable'
           : ''} ${this.config.animated ? 'animated' : ''}"
+        @click=${this.stopControlEvent}
+        @pointerdown=${this.stopControlEvent}
+        @pointerup=${this.stopControlEvent}
+        @pointercancel=${this.stopControlEvent}
       >
         <span class="ambient-glow"></span>
         <span class="outline-glow"></span>
@@ -1411,6 +1459,7 @@ export class GlowLightCard extends LitElement {
             type="button"
             class="icon-shell"
             aria-label=${`${this.isOn ? 'Turn off' : 'Turn on'} ${this.displayName}`}
+            @pointerdown=${this.handleIconPointerDown}
             @click=${this.handleIconClick}
           >
             <ha-icon icon=${this.icon}></ha-icon>
@@ -1429,11 +1478,11 @@ export class GlowLightCard extends LitElement {
                 type="button"
                 class="brightness-control"
                 aria-label=${`Set ${this.displayName} brightness`}
-                @click=${(event: Event) => event.stopPropagation()}
-                @pointerdown=${this.handlePointerDown}
-                @pointermove=${this.handlePointerMove}
-                @pointerup=${this.handlePointerUp}
-                @pointercancel=${this.handlePointerCancel}
+                @click=${this.stopControlEvent}
+                @pointerdown=${this.handleBrightnessPointerDown}
+                @pointermove=${this.handleBrightnessPointerMove}
+                @pointerup=${this.handleBrightnessPointerUp}
+                @pointercancel=${this.handleBrightnessPointerCancel}
               >
                 <span class="brightness-fill"></span>
               </button>
