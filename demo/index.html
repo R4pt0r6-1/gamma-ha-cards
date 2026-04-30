@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gamma HA Cards Demo</title>
-    <script type="module" src="/dist/gamma-ha-cards.js"></script>
+    <script type="module" src="/src/index.ts"></script>
     <style>
       :root {
         --primary-text-color: #f4f7fb;
@@ -121,8 +121,19 @@
         customElements.define(
           'ha-icon',
           class extends HTMLElement {
+            #icon = '';
+
             static get observedAttributes() {
               return ['icon'];
+            }
+
+            get icon() {
+              return this.#icon || this.getAttribute('icon') || '';
+            }
+
+            set icon(value) {
+              this.#icon = value || '';
+              this.render();
             }
 
             connectedCallback() {
@@ -134,15 +145,35 @@
             }
 
             render() {
-              const icon = this.getAttribute('icon') || '';
-              this.textContent = icon.includes('outdoor')
+              const icon = this.icon;
+              this.textContent = icon.includes('tune')
+                ? '≋'
+                : icon.includes('power-cycle')
+                ? '↻'
+                : icon.includes('power')
+                  ? '⏻'
+                : icon.includes('leaf')
+                  ? '⌁'
+                : icon.includes('arrow-up-down')
+                  ? '↕'
+                : icon.includes('arrow-left-right')
+                  ? '↔'
+                : icon.includes('weather-night')
+                  ? '☾'
+                : icon.includes('air-filter')
+                  ? '▥'
+                : icon.includes('alert')
+                  ? '!'
+                : icon.includes('monitor')
+                  ? '▣'
+                : icon.includes('outdoor')
                 ? '↪'
                 : icon.includes('ceiling')
                   ? '▣'
                   : icon.includes('socket')
                   ? '▤'
                   : icon.includes('fan')
-                    ? '✣'
+                    ? '✢'
                     : icon.includes('toggle')
                       ? '⏻'
                     : icon.includes('lock')
@@ -250,6 +281,129 @@
             icon: 'mdi:thermostat',
           },
         },
+        'climate.lanai_ac': {
+          entity_id: 'climate.lanai_ac',
+          state: 'cool',
+          attributes: {
+            friendly_name: 'Lanai Air conditioner',
+            current_temperature: 79,
+            temperature: 71,
+            min_temp: 61,
+            max_temp: 88,
+            temperature_unit: '°F',
+            hvac_modes: ['off', 'heat_cool', 'cool', 'heat', 'fan_only', 'dry'],
+            fan_modes: ['auto', 'quiet', 'low', 'medlow', 'medium', 'medhigh', 'high', 'strong'],
+            swing_modes: ['off', 'Full', 'Upper', 'Lower'],
+            swing_horizontal_modes: ['off', 'Full', 'Left', 'Center', 'Right'],
+            fan_mode: 'quiet',
+            swing_mode: 'off',
+            swing_horizontal_mode: 'off',
+            air_quality: 'great',
+            icon: 'mdi:air-conditioner',
+          },
+        },
+        'binary_sensor.lanai_air_conditioner_filter': {
+          entity_id: 'binary_sensor.lanai_air_conditioner_filter',
+          state: 'on',
+          attributes: {
+            friendly_name: 'Lanai Air conditioner Filter',
+            device_class: 'problem',
+          },
+        },
+        'binary_sensor.lanai_air_conditioner_problem': {
+          entity_id: 'binary_sensor.lanai_air_conditioner_problem',
+          state: 'off',
+          attributes: {
+            friendly_name: 'Lanai Air conditioner Problem',
+            device_class: 'problem',
+            fault_code: 0,
+          },
+        },
+        'light.lanai_air_conditioner_display': {
+          entity_id: 'light.lanai_air_conditioner_display',
+          state: 'on',
+          attributes: {
+            friendly_name: 'Lanai Air conditioner Display',
+          },
+        },
+        'select.lanai_air_conditioner_sleep_mode': {
+          entity_id: 'select.lanai_air_conditioner_sleep_mode',
+          state: 'Off',
+          attributes: {
+            friendly_name: 'Lanai Air conditioner Sleep mode',
+            options: ['Off', 'Standard', 'Elderly', 'Child'],
+            icon: 'mdi:weather-night',
+          },
+        },
+        'select.lanai_air_conditioner_vertical_position': {
+          entity_id: 'select.lanai_air_conditioner_vertical_position',
+          state: 'Unknown',
+          attributes: {
+            friendly_name: 'Lanai Air conditioner Vertical position',
+            options: ['Unknown', 'Top', 'Slightly up', 'Middle', 'Slightly down', 'Bottom'],
+            icon: 'mdi:unfold-more-horizontal',
+          },
+        },
+        'select.lanai_air_conditioner_horizontal_position': {
+          entity_id: 'select.lanai_air_conditioner_horizontal_position',
+          state: 'Unknown',
+          attributes: {
+            friendly_name: 'Lanai Air conditioner Horizontal position',
+            options: ['Unknown', 'Leftmost', 'Slight Left', 'Center', 'Slight Right', 'Rightmost'],
+            icon: 'mdi:unfold-more-vertical',
+          },
+        },
+        'sensor.lanai_air_conditioner_pm2_5': {
+          entity_id: 'sensor.lanai_air_conditioner_pm2_5',
+          state: '0',
+          attributes: {
+            friendly_name: 'Lanai Air conditioner PM2.5',
+            unit_of_measurement: 'μg/m³',
+            device_class: 'pm25',
+          },
+        },
+        'switch.lanai_air_conditioner_anti_frost': {
+          entity_id: 'switch.lanai_air_conditioner_anti_frost',
+          state: 'off',
+          attributes: { friendly_name: 'Lanai Air conditioner Anti-frost' },
+        },
+        'switch.lanai_air_conditioner_anti_mildew': {
+          entity_id: 'switch.lanai_air_conditioner_anti_mildew',
+          state: 'off',
+          attributes: {
+            friendly_name: 'Lanai Air conditioner Anti-mildew',
+            icon: 'mdi:water-off-outline',
+          },
+        },
+        'switch.lanai_air_conditioner_eco_mode': {
+          entity_id: 'switch.lanai_air_conditioner_eco_mode',
+          state: 'off',
+          attributes: {
+            friendly_name: 'Lanai Air conditioner Eco mode',
+            icon: 'mdi:leaf',
+          },
+        },
+        'switch.lanai_air_conditioner_health': {
+          entity_id: 'switch.lanai_air_conditioner_health',
+          state: 'off',
+          attributes: {
+            friendly_name: 'Lanai Air conditioner Health',
+            icon: 'mdi:heart-outline',
+          },
+        },
+        'switch.lanai_air_conditioner_soft_wind': {
+          entity_id: 'switch.lanai_air_conditioner_soft_wind',
+          state: 'off',
+          attributes: {
+            friendly_name: 'Lanai Air conditioner Soft wind',
+            icon: 'mdi:weather-windy',
+          },
+        },
+        'switch.lanai_air_conditioner_sound': {
+          entity_id: 'switch.lanai_air_conditioner_sound',
+          state: 'on',
+          attributes: { friendly_name: 'Lanai Air conditioner Sound' },
+        },
         'fan.kitchen_fan': {
           entity_id: 'fan.kitchen_fan',
           state: 'off',
@@ -288,6 +442,16 @@
             entity.state = 'unlocked';
           } else if (domain === 'climate' && service === 'set_temperature') {
             entity.attributes.temperature = Number(data.temperature);
+          } else if (domain === 'climate' && service === 'set_hvac_mode') {
+            entity.state = data.hvac_mode;
+          } else if (domain === 'climate' && service === 'set_fan_mode') {
+            entity.attributes.fan_mode = data.fan_mode;
+          } else if (domain === 'climate' && service === 'set_swing_mode') {
+            entity.attributes.swing_mode = data.swing_mode;
+          } else if (domain === 'climate' && service === 'set_swing_horizontal_mode') {
+            entity.attributes.swing_horizontal_mode = data.swing_horizontal_mode;
+          } else if (domain === 'select' && service === 'select_option') {
+            entity.state = data.option;
           } else if (service === 'turn_off') {
             entity.state = 'off';
             if (entity.attributes.percentage !== undefined) {
@@ -375,8 +539,24 @@
 
       const bedroomThermostat = document.querySelector('#bedroom-thermostat');
       bedroomThermostat.setConfig({
-        entity: 'climate.bedroom',
+        entity: 'climate.lanai_ac',
+        name: 'Lanai AC',
         width: '100%',
+        height: '500px',
+        show_features: true,
+        filter_entity: 'binary_sensor.lanai_air_conditioner_filter',
+        problem_entity: 'binary_sensor.lanai_air_conditioner_problem',
+        pm25_entity: 'sensor.lanai_air_conditioner_pm2_5',
+        display_light_entity: 'light.lanai_air_conditioner_display',
+        sleep_mode_entity: 'select.lanai_air_conditioner_sleep_mode',
+        vertical_position_entity: 'select.lanai_air_conditioner_vertical_position',
+        horizontal_position_entity: 'select.lanai_air_conditioner_horizontal_position',
+        anti_frost_switch_entity: 'switch.lanai_air_conditioner_anti_frost',
+        anti_mildew_switch_entity: 'switch.lanai_air_conditioner_anti_mildew',
+        eco_switch_entity: 'switch.lanai_air_conditioner_eco_mode',
+        health_switch_entity: 'switch.lanai_air_conditioner_health',
+        soft_wind_switch_entity: 'switch.lanai_air_conditioner_soft_wind',
+        sound_switch_entity: 'switch.lanai_air_conditioner_sound',
       });
       bedroomThermostat.hass = hass;
 

@@ -131,6 +131,29 @@ name: Hallway
 temperature_step: 1
 ```
 
+Lanai AC feature example:
+
+```yaml
+type: custom:glow-thermostat-card
+entity: climate.lanai_ac
+name: Lanai AC
+height: 500px
+show_features: true
+filter_entity: binary_sensor.lanai_air_conditioner_filter
+problem_entity: binary_sensor.lanai_air_conditioner_problem
+pm25_entity: sensor.lanai_air_conditioner_pm2_5
+display_light_entity: light.lanai_air_conditioner_display
+sleep_mode_entity: select.lanai_air_conditioner_sleep_mode
+vertical_position_entity: select.lanai_air_conditioner_vertical_position
+horizontal_position_entity: select.lanai_air_conditioner_horizontal_position
+anti_frost_switch_entity: switch.lanai_air_conditioner_anti_frost
+anti_mildew_switch_entity: switch.lanai_air_conditioner_anti_mildew
+eco_switch_entity: switch.lanai_air_conditioner_eco_mode
+health_switch_entity: switch.lanai_air_conditioner_health
+soft_wind_switch_entity: switch.lanai_air_conditioner_soft_wind
+sound_switch_entity: switch.lanai_air_conditioner_sound
+```
+
 ### Glow Thermostat Options
 
 | Name               | Type      | Default           | Description                       |
@@ -144,6 +167,24 @@ temperature_step: 1
 | `show_state`       | `boolean` | `false`           | Show current state text under the title. |
 | `show_current`     | `boolean` | `true`            | Show current temperature when available. |
 | `show_controls`    | `boolean` | `true`            | Show `-` and `+` setpoint buttons. |
+| `show_features`    | `boolean` | `false`           | Show the compact feature controls area.  |
+| `show_hvac_modes`  | `boolean` | `true`            | Show HVAC mode selector when `hvac_modes` are available. |
+| `show_fan_modes`   | `boolean` | `true`            | Show fan mode selector when `fan_modes` are available. |
+| `show_swing_modes` | `boolean` | `true`            | Show vertical swing selector when `swing_modes` are available. |
+| `show_horizontal_swing_modes` | `boolean` | `true` | Show horizontal swing selector when supported. |
+| `filter_entity`    | `string`  | Optional          | Binary problem sensor for filter alerts. |
+| `problem_entity`   | `string`  | Optional          | Binary problem sensor for AC faults.     |
+| `pm25_entity`      | `string`  | Optional          | PM2.5 sensor to display.                 |
+| `display_light_entity` | `string` | Optional        | Display light entity to toggle.          |
+| `sleep_mode_entity` | `string` | Optional          | Select entity for sleep mode.            |
+| `vertical_position_entity` | `string` | Optional    | Select entity for vertical vane position. |
+| `horizontal_position_entity` | `string` | Optional  | Select entity for horizontal vane position. |
+| `anti_frost_switch_entity` | `string` | Optional   | Anti-frost switch entity to toggle.      |
+| `anti_mildew_switch_entity` | `string` | Optional  | Anti-mildew switch entity to toggle.     |
+| `eco_switch_entity` | `string` | Optional          | Eco mode switch entity to toggle.        |
+| `health_switch_entity` | `string` | Optional       | Health switch entity to toggle.          |
+| `soft_wind_switch_entity` | `string` | Optional    | Soft wind switch entity to toggle.       |
+| `sound_switch_entity` | `string` | Optional       | Sound switch entity to toggle.           |
 | `temperature_step` | `number`  | `1`               | Setpoint change per tap.          |
 | `heat_color`       | `string`  | `#ff8a1c`         | Glow color when heating.          |
 | `cool_color`       | `string`  | `#2f80ff`         | Glow color when cooling.          |

@@ -19,8 +19,20 @@ type ClimateEntity = {
   };
 };
 
+type HassEntity = {
+  entity_id: string;
+  state: string;
+  attributes: {
+    friendly_name?: string;
+    icon?: string;
+    options?: string[];
+    unit_of_measurement?: string;
+    [key: string]: unknown;
+  };
+};
+
 type HomeAssistant = {
-  states: Record<string, ClimateEntity | undefined>;
+  states: Record<string, HassEntity | ClimateEntity | undefined>;
   callService: (
     domain: string,
     service: string,
@@ -43,6 +55,24 @@ interface GlowThermostatCardConfig {
   show_state?: boolean;
   show_current?: boolean;
   show_controls?: boolean;
+  show_features?: boolean;
+  show_hvac_modes?: boolean;
+  show_fan_modes?: boolean;
+  show_swing_modes?: boolean;
+  show_horizontal_swing_modes?: boolean;
+  filter_entity?: string;
+  problem_entity?: string;
+  pm25_entity?: string;
+  display_light_entity?: string;
+  sleep_mode_entity?: string;
+  vertical_position_entity?: string;
+  horizontal_position_entity?: string;
+  anti_frost_switch_entity?: string;
+  anti_mildew_switch_entity?: string;
+  eco_switch_entity?: string;
+  health_switch_entity?: string;
+  soft_wind_switch_entity?: string;
+  sound_switch_entity?: string;
   temperature_step?: number;
   heat_color?: string;
   cool_color?: string;
@@ -68,6 +98,11 @@ const DEFAULT_CONFIG: Omit<GlowThermostatCardConfig, 'entity'> = {
   show_state: false,
   show_current: true,
   show_controls: true,
+  show_features: false,
+  show_hvac_modes: true,
+  show_fan_modes: true,
+  show_swing_modes: true,
+  show_horizontal_swing_modes: true,
   temperature_step: 1,
   heat_color: '#ff8a1c',
   cool_color: '#2f80ff',
@@ -208,12 +243,13 @@ export class GlowThermostatCard extends LitElement {
         color: var(--primary-text-color, #f4f7fb);
         cursor: pointer;
         display: grid;
-        gap: 16px;
-        grid-template-rows: auto minmax(210px, 1fr) auto;
+        align-content: start;
+        gap: 13px;
+        grid-template-rows: auto auto auto auto;
         height: var(--thermostat-card-height);
         min-height: 376px;
         overflow: hidden;
-        padding: 18px;
+        padding: 34px 18px 18px;
         position: relative;
         text-align: center;
         width: 100%;
@@ -301,7 +337,8 @@ export class GlowThermostatCard extends LitElement {
 
       .header,
       .dial,
-      .controls {
+      .controls,
+      .features {
         position: relative;
         z-index: 2;
       }
@@ -355,10 +392,10 @@ export class GlowThermostatCard extends LitElement {
           0 0 34px color-mix(in srgb, var(--thermostat-state-color) 18%, transparent);
         display: grid;
         justify-self: center;
-        max-width: 220px;
+        max-width: 285px;
         place-items: center;
         position: relative;
-        width: 76%;
+        width: 88%;
       }
 
       .dial::before {
@@ -457,8 +494,145 @@ export class GlowThermostatCard extends LitElement {
         color: var(--primary-text-color, #f4f7fb);
       }
 
+      .features,
+      .feature-group {
+        display: grid;
+        background:
+          linear-gradient(180deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 3%)),
+          color-mix(in srgb, var(--thermostat-background) 78%, #ffffff 4%);
+        border: 1px solid rgb(255 255 255 / 10%);
+        border-radius: 18px;
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 11%),
+          0 10px 20px rgb(0 0 0 / 16%);
+        gap: 0;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        justify-content: center;
+        overflow: hidden;
+        padding: 0;
+      }
+
+      .feature-button,
+      .feature-status {
+        background: transparent;
+        border: 0;
+        border-left: 1px solid rgb(255 255 255 / 8%);
+        border-radius: 0;
+        box-sizing: border-box;
+        color: var(--primary-text-color, #f4f7fb);
+        box-shadow: none;
+        min-height: 74px;
+        min-width: 0;
+        width: 100%;
+      }
+
+      .feature-button:first-child,
+      .feature-status:first-child {
+        border-left: 0;
+      }
+
+      .feature-button,
+      .feature-status {
+        align-items: center;
+        display: inline-grid;
+        gap: 3px;
+        grid-template-rows: 26px auto auto;
+        justify-content: center;
+        justify-items: center;
+        padding: 9px 4px 7px;
+        text-align: center;
+      }
+
+      .feature-button {
+        appearance: none;
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .feature-button.on {
+        background:
+          radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--thermostat-state-color) 20%, transparent), transparent 54%),
+          color-mix(in srgb, var(--thermostat-state-color) 10%, transparent);
+      }
+
+      .feature-button.problem,
+      .feature-status.problem {
+        border-color: color-mix(in srgb, #ff3b30 50%, transparent);
+        color: #ffb3ad;
+      }
+
+      .feature-button.unavailable,
+      .feature-status.unavailable {
+        opacity: 0.55;
+      }
+
+      .feature-icon {
+        flex: 0 0 auto;
+        --mdc-icon-size: 28px;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        color: color-mix(in srgb, var(--thermostat-state-color) 58%, #ffffff 42%);
+        filter: drop-shadow(0 0 10px color-mix(in srgb, var(--thermostat-state-color) 24%, transparent));
+        font-size: 28px;
+        height: 28px;
+        justify-self: center;
+        line-height: 28px;
+        padding: 0;
+        transition:
+          transform 140ms ease;
+        width: 28px;
+      }
+
+      .feature-button.on .feature-icon {
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        color: #ffffff;
+        filter: drop-shadow(0 0 12px color-mix(in srgb, var(--thermostat-state-color) 42%, transparent));
+      }
+
+      .feature-button:active .feature-icon {
+        transform: scale(0.94);
+      }
+
+      .feature-text {
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+      }
+
+      .feature-label {
+        color: var(--primary-text-color, #f4f7fb);
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .feature-value {
+        color: color-mix(in srgb, var(--secondary-text-color, #b7c0ce) 88%, transparent);
+        font-size: 11px;
+        font-weight: 650;
+        line-height: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
       .thermostat:focus-visible,
-      .control:focus-visible {
+      .control:focus-visible,
+      .feature-button:focus-visible {
         outline: 2px solid var(--thermostat-state-color);
         outline-offset: 3px;
       }
@@ -523,7 +697,11 @@ export class GlowThermostatCard extends LitElement {
     );
     this.style.setProperty(
       '--thermostat-card-height',
-      clampCssLength(this.config.height, '376px', 376),
+      clampCssLength(
+        this.config.height,
+        this.config.show_features ? '500px' : '376px',
+        this.config.show_features ? 470 : 376,
+      ),
     );
     this.style.setProperty(
       '--thermostat-card-radius',
@@ -555,7 +733,15 @@ export class GlowThermostatCard extends LitElement {
   }
 
   private get entity(): ClimateEntity | undefined {
-    return this.hass?.states[this.config.entity];
+    return this.hass?.states[this.config.entity] as ClimateEntity | undefined;
+  }
+
+  private getFeatureEntity(entityId?: string): HassEntity | undefined {
+    if (!entityId) {
+      return undefined;
+    }
+
+    return this.hass?.states[entityId] as HassEntity | undefined;
   }
 
   private get isUnavailable(): boolean {
@@ -686,6 +872,28 @@ export class GlowThermostatCard extends LitElement {
     return this.config.idle_color ?? '#45d158';
   }
 
+  private get hasConfiguredFeatures(): boolean {
+    return Boolean(
+      this.config.show_hvac_modes ||
+        this.config.show_fan_modes ||
+        this.config.show_swing_modes ||
+        this.config.show_horizontal_swing_modes ||
+        this.config.filter_entity ||
+        this.config.problem_entity ||
+        this.config.pm25_entity ||
+        this.config.display_light_entity ||
+        this.config.sleep_mode_entity ||
+        this.config.vertical_position_entity ||
+        this.config.horizontal_position_entity ||
+        this.config.anti_frost_switch_entity ||
+        this.config.anti_mildew_switch_entity ||
+        this.config.eco_switch_entity ||
+        this.config.health_switch_entity ||
+        this.config.soft_wind_switch_entity ||
+        this.config.sound_switch_entity,
+    );
+  }
+
   private formatTemperature(value: number): string {
     return `${Math.round(value * 10) / 10}${this.unit}`;
   }
@@ -774,6 +982,75 @@ export class GlowThermostatCard extends LitElement {
     this.dispatchMoreInfo();
   }
 
+  private setClimateMode(attribute: string, service: string, value: string): void {
+    if (this.isUnavailable || !value) {
+      return;
+    }
+
+    this.hass?.callService('climate', service, {
+      entity_id: this.config.entity,
+      [attribute]: value,
+    });
+  }
+
+  private toggleFeatureEntity(entityId?: string): void {
+    const entity = this.getFeatureEntity(entityId);
+
+    if (!entity || ['unavailable', 'unknown'].includes(entity.state)) {
+      return;
+    }
+
+    const [domain] = entity.entity_id.split('.');
+    this.hass?.callService(domain, 'toggle', {
+      entity_id: entity.entity_id,
+    });
+  }
+
+  private selectFeatureOption(entityId: string | undefined, option: string): void {
+    const entity = this.getFeatureEntity(entityId);
+
+    if (!entity || ['unavailable', 'unknown'].includes(entity.state) || !option) {
+      return;
+    }
+
+    this.hass?.callService('select', 'select_option', {
+      entity_id: entity.entity_id,
+      option,
+    });
+  }
+
+  private nextOption(options: unknown, current: string | undefined): string | undefined {
+    if (!Array.isArray(options) || options.length === 0) {
+      return undefined;
+    }
+
+    const values = options.map((option) => String(option));
+    const index = Math.max(0, values.indexOf(current ?? values[0]));
+
+    return values[(index + 1) % values.length];
+  }
+
+  private renderOffFeature(): TemplateResult {
+    const off = this.entity?.state === 'off';
+
+    return html`
+      <button
+        class="feature-button ${off ? '' : 'on'}"
+        ?disabled=${this.isUnavailable}
+        title="Off"
+        aria-label="Turn thermostat off"
+        @click=${(event: Event) => {
+          event.stopPropagation();
+          this.setClimateMode('hvac_mode', 'set_hvac_mode', 'off');
+        }}
+      >
+        <ha-icon class="feature-icon" .icon=${'mdi:power'}></ha-icon>
+        <span class="feature-label">Off</span>
+        <span class="feature-value">${off ? 'off' : 'tap'}</span>
+      </button>
+    `;
+  }
+
   private handlePointerDown(): void {
     window.clearTimeout(this.holdTimer);
     this.holdActive = false;
@@ -814,6 +1091,248 @@ export class GlowThermostatCard extends LitElement {
     }
 
     this.adjustTemperature(direction);
+  }
+
+  private renderClimateSelect(
+    label: string,
+    icon: string,
+    value: string | undefined,
+    options: unknown,
+    service: string,
+    serviceField: string,
+  ): TemplateResult | typeof nothing {
+    if (!Array.isArray(options) || options.length === 0) {
+      return nothing;
+    }
+
+    const selected = value ?? String(options[0]);
+
+    return html`
+      <button
+        class="feature-button ${selected !== 'off' ? 'on' : ''}"
+        ?disabled=${this.isUnavailable}
+        title=${`${label}: ${selected}`}
+        aria-label=${`${label}: ${selected}. Tap to change.`}
+        @click=${(event: Event) => {
+          event.stopPropagation();
+          const next = this.nextOption(options, selected);
+          if (next) {
+            this.setClimateMode(serviceField, service, next);
+          }
+        }}
+      >
+        <ha-icon class="feature-icon" .icon=${icon}></ha-icon>
+        <span class="feature-label">${label}</span>
+        <span class="feature-value">${selected}</span>
+      </button>
+    `;
+  }
+
+  private renderSelectEntity(
+    label: string,
+    icon: string,
+    entityId: string | undefined,
+  ): TemplateResult | typeof nothing {
+    const entity = this.getFeatureEntity(entityId);
+
+    if (!entity || !Array.isArray(entity.attributes.options)) {
+      return nothing;
+    }
+
+    return html`
+      <button
+        class="feature-button ${entity.state !== 'Off' &&
+        entity.state !== 'off' &&
+        entity.state !== 'Unknown'
+          ? 'on'
+          : ''}"
+        ?disabled=${['unavailable', 'unknown'].includes(entity.state)}
+        title=${`${label}: ${entity.state}`}
+        aria-label=${`${label}: ${entity.state}. Tap to change.`}
+        @click=${(event: Event) => {
+          event.stopPropagation();
+          const next = this.nextOption(entity.attributes.options, entity.state);
+          if (next) {
+            this.selectFeatureOption(entity.entity_id, next);
+          }
+        }}
+      >
+        <ha-icon class="feature-icon" .icon=${entity.attributes.icon || icon}></ha-icon>
+        <span class="feature-label">${label}</span>
+        <span class="feature-value">${entity.state}</span>
+      </button>
+    `;
+  }
+
+  private renderToggleFeature(
+    label: string,
+    entityId: string | undefined,
+    icon: string,
+  ): TemplateResult | typeof nothing {
+    const entity = this.getFeatureEntity(entityId);
+
+    if (!entity) {
+      return nothing;
+    }
+
+    const unavailable = ['unavailable', 'unknown'].includes(entity.state);
+    const on = entity.state === 'on';
+    const problem =
+      entity.attributes.device_class === 'problem' && entity.state === 'on';
+
+    return html`
+      <button
+        class="feature-button ${on ? 'on' : ''} ${problem
+          ? 'problem'
+          : ''} ${unavailable ? 'unavailable' : ''}"
+        ?disabled=${unavailable || entity.entity_id.startsWith('binary_sensor.')}
+        title=${`${label}: ${entity.state}`}
+        aria-label=${`${label}: ${entity.state}`}
+        @click=${(event: Event) => {
+          event.stopPropagation();
+          this.toggleFeatureEntity(entity.entity_id);
+        }}
+      >
+        <ha-icon class="feature-icon" .icon=${entity.attributes.icon || icon}></ha-icon>
+        <span class="feature-label">${label}</span>
+        <span class="feature-value">${on ? 'on' : 'off'}</span>
+      </button>
+    `;
+  }
+
+  private renderSensorFeature(
+    label: string,
+    entityId: string | undefined,
+    icon: string,
+  ): TemplateResult | typeof nothing {
+    const entity = this.getFeatureEntity(entityId);
+
+    if (!entity) {
+      return nothing;
+    }
+
+    const unavailable = ['unavailable', 'unknown'].includes(entity.state);
+    const problem =
+      entity.attributes.device_class === 'problem' && entity.state === 'on';
+    const unit = entity.attributes.unit_of_measurement
+      ? ` ${entity.attributes.unit_of_measurement}`
+      : '';
+
+    return html`
+      <span
+        class="feature-status ${problem ? 'problem' : ''} ${unavailable
+          ? 'unavailable'
+          : ''}"
+        title=${`${label}: ${entity.state}${unit}`}
+        aria-label=${`${label}: ${entity.state}${unit}`}
+      >
+        <ha-icon class="feature-icon" .icon=${entity.attributes.icon || icon}></ha-icon>
+        <span class="feature-label">${label}</span>
+        <span class="feature-value">${entity.state}${unit}</span>
+      </span>
+    `;
+  }
+
+  private renderFeatures(): TemplateResult | typeof nothing {
+    if (!this.config.show_features || !this.hasConfiguredFeatures) {
+      return nothing;
+    }
+
+    const attributes = this.entity?.attributes ?? {};
+    const items: TemplateResult[] = [];
+    const addItem = (item: TemplateResult | typeof nothing): void => {
+      if (item !== nothing && items.length < 4) {
+        items.push(item);
+      }
+    };
+
+    if (this.config.show_hvac_modes) {
+      addItem(
+        this.renderClimateSelect(
+          'Mode',
+          'mdi:tune-variant',
+          this.entity?.state,
+          attributes.hvac_modes,
+          'set_hvac_mode',
+          'hvac_mode',
+        ),
+      );
+    }
+
+    if (this.config.show_fan_modes) {
+      addItem(
+        this.renderClimateSelect(
+          'Fan',
+          'mdi:fan',
+          String(attributes.fan_mode || ''),
+          attributes.fan_modes,
+          'set_fan_mode',
+          'fan_mode',
+        ),
+      );
+    }
+
+    addItem(this.renderToggleFeature('Eco', this.config.eco_switch_entity, 'mdi:leaf'));
+    addItem(this.renderOffFeature());
+
+    addItem(
+      this.renderSelectEntity(
+        'Sleep',
+        'mdi:weather-night',
+        this.config.sleep_mode_entity,
+      ),
+    );
+    addItem(
+      this.renderSelectEntity(
+        'Vertical',
+        'mdi:unfold-more-horizontal',
+        this.config.vertical_position_entity,
+      ),
+    );
+    addItem(
+      this.renderSelectEntity(
+        'Horizontal',
+        'mdi:unfold-more-vertical',
+        this.config.horizontal_position_entity,
+      ),
+    );
+    addItem(this.renderSensorFeature('Filter', this.config.filter_entity, 'mdi:air-filter'));
+    addItem(this.renderSensorFeature('Problem', this.config.problem_entity, 'mdi:alert-circle'));
+    addItem(this.renderSensorFeature('PM2.5', this.config.pm25_entity, 'mdi:blur'));
+    addItem(
+      this.renderToggleFeature('Display', this.config.display_light_entity, 'mdi:monitor'),
+    );
+    addItem(
+      this.renderToggleFeature(
+        'Anti-frost',
+        this.config.anti_frost_switch_entity,
+        'mdi:snowflake-alert',
+      ),
+    );
+    addItem(
+      this.renderToggleFeature(
+        'Anti-mildew',
+        this.config.anti_mildew_switch_entity,
+        'mdi:water-off-outline',
+      ),
+    );
+    addItem(
+      this.renderToggleFeature('Health', this.config.health_switch_entity, 'mdi:heart-outline'),
+    );
+    addItem(
+      this.renderToggleFeature(
+        'Soft wind',
+        this.config.soft_wind_switch_entity,
+        'mdi:weather-windy',
+      ),
+    );
+    addItem(this.renderToggleFeature('Sound', this.config.sound_switch_entity, 'mdi:volume-high'));
+
+    if (items.length === 0) {
+      return nothing;
+    }
+
+    return html`<span class="features">${items}</span>`;
   }
 
   private renderControls(): TemplateResult {
@@ -904,6 +1423,7 @@ export class GlowThermostatCard extends LitElement {
             </span>
           </span>
           ${this.config.show_controls ? this.renderControls() : nothing}
+          ${this.renderFeatures()}
         </div>
       </ha-card>
     `;
@@ -955,6 +1475,7 @@ class GlowThermostatCardEditor extends LitElement {
       }
 
       ha-form,
+      ha-selector,
       ha-icon-picker,
       ha-textfield,
       ha-select {
@@ -1052,6 +1573,23 @@ class GlowThermostatCardEditor extends LitElement {
         .configValue=${key}
         @input=${this.valueChanged}
       ></ha-textfield>
+    `;
+  }
+
+  private renderFeatureEntityPicker(
+    label: string,
+    key: keyof GlowThermostatCardConfig,
+    domain: string,
+  ): TemplateResult {
+    return html`
+      <ha-selector
+        .hass=${this.hass}
+        .label=${label}
+        .selector=${{ entity: { domain } }}
+        .value=${this.config[key] ?? ''}
+        .configValue=${key}
+        @value-changed=${this.valueChanged}
+      ></ha-selector>
     `;
   }
 
@@ -1161,6 +1699,72 @@ class GlowThermostatCardEditor extends LitElement {
           </div>
           <div class="grid">
             ${this.renderSwitch('Animated Glow', 'animated', true)}
+          </div>
+        </section>
+
+        <section class="section">
+          <h3>Features</h3>
+          <div class="grid">
+            ${this.renderSwitch('Show Features', 'show_features', false)}
+            ${this.renderSwitch('HVAC Modes', 'show_hvac_modes', true)}
+            ${this.renderSwitch('Fan Modes', 'show_fan_modes', true)}
+            ${this.renderSwitch('Vertical Swing', 'show_swing_modes', true)}
+            ${this.renderSwitch(
+              'Horizontal Swing',
+              'show_horizontal_swing_modes',
+              true,
+            )}
+          </div>
+          <div class="grid">
+            ${this.renderFeatureEntityPicker(
+              'Filter Sensor',
+              'filter_entity',
+              'binary_sensor',
+            )}
+            ${this.renderFeatureEntityPicker(
+              'Problem Sensor',
+              'problem_entity',
+              'binary_sensor',
+            )}
+            ${this.renderFeatureEntityPicker('PM2.5 Sensor', 'pm25_entity', 'sensor')}
+            ${this.renderFeatureEntityPicker(
+              'Display Light',
+              'display_light_entity',
+              'light',
+            )}
+            ${this.renderFeatureEntityPicker(
+              'Sleep Mode',
+              'sleep_mode_entity',
+              'select',
+            )}
+            ${this.renderFeatureEntityPicker(
+              'Vertical Position',
+              'vertical_position_entity',
+              'select',
+            )}
+            ${this.renderFeatureEntityPicker(
+              'Horizontal Position',
+              'horizontal_position_entity',
+              'select',
+            )}
+            ${this.renderFeatureEntityPicker(
+              'Anti-frost',
+              'anti_frost_switch_entity',
+              'switch',
+            )}
+            ${this.renderFeatureEntityPicker(
+              'Anti-mildew',
+              'anti_mildew_switch_entity',
+              'switch',
+            )}
+            ${this.renderFeatureEntityPicker('Eco', 'eco_switch_entity', 'switch')}
+            ${this.renderFeatureEntityPicker('Health', 'health_switch_entity', 'switch')}
+            ${this.renderFeatureEntityPicker(
+              'Soft Wind',
+              'soft_wind_switch_entity',
+              'switch',
+            )}
+            ${this.renderFeatureEntityPicker('Sound', 'sound_switch_entity', 'switch')}
           </div>
         </section>
 
