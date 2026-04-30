@@ -264,7 +264,7 @@ export class GlowThermostatCard extends LitElement {
         container-type: inline-size;
         display: grid;
         align-content: start;
-        gap: 12px;
+        gap: 10px;
         grid-template-rows: auto auto auto auto;
         height: 100%;
         min-height: 0;
@@ -517,9 +517,9 @@ export class GlowThermostatCard extends LitElement {
         cursor: pointer;
         display: inline-flex;
         font: inherit;
-        font-size: 18px;
+        font-size: 17px;
         font-weight: 650;
-        height: 38px;
+        height: 34px;
         justify-content: center;
         letter-spacing: 0;
         padding: 0;
@@ -592,51 +592,35 @@ export class GlowThermostatCard extends LitElement {
 
       .features,
       .feature-group {
-        display: grid;
-        background:
-          linear-gradient(180deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 3%)),
-          color-mix(in srgb, var(--thermostat-background) 78%, #ffffff 4%);
-        border: 1px solid rgb(255 255 255 / 10%);
-        border-radius: 18px;
-        box-shadow:
-          inset 0 1px 0 rgb(255 255 255 / 11%),
-          0 10px 20px rgb(0 0 0 / 16%);
-        gap: 0;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        justify-content: center;
-        overflow: hidden;
+        align-self: end;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: stretch;
+        overflow: visible;
         padding: 0;
-      }
-
-      .feature-button,
-      .feature-status {
-        background: transparent;
-        border: 0;
-        border-left: 1px solid rgb(255 255 255 / 8%);
-        border-radius: 0;
-        box-sizing: border-box;
-        color: var(--primary-text-color, #f4f7fb);
-        box-shadow: none;
-        min-height: 74px;
-        min-width: 0;
         width: 100%;
-      }
-
-      .feature-button:first-child,
-      .feature-status:first-child {
-        border-left: 0;
       }
 
       .feature-button,
       .feature-status {
         align-items: center;
-        display: inline-grid;
-        gap: 3px;
-        grid-template-rows: 26px auto auto;
+        background: rgb(0 0 0 / 16%);
+        border: 1px solid rgb(255 255 255 / 10%);
+        border-radius: 999px;
+        box-sizing: border-box;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%);
+        color: var(--primary-text-color, #f4f7fb);
+        display: grid;
+        flex: 1 1 118px;
+        gap: 6px;
+        grid-template-columns: 18px minmax(0, 1fr) auto;
         justify-content: center;
-        justify-items: center;
-        padding: 9px 4px 7px;
-        text-align: center;
+        justify-items: stretch;
+        min-height: 36px;
+        min-width: 0;
+        padding: 0 10px;
+        text-align: left;
       }
 
       .feature-button {
@@ -647,8 +631,8 @@ export class GlowThermostatCard extends LitElement {
 
       .feature-button.on {
         background:
-          radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--thermostat-state-color) 20%, transparent), transparent 54%),
-          color-mix(in srgb, var(--thermostat-state-color) 10%, transparent);
+          radial-gradient(circle at 20% 50%, color-mix(in srgb, var(--thermostat-state-color) 20%, transparent), transparent 62%),
+          color-mix(in srgb, var(--thermostat-state-color) 14%, transparent);
       }
 
       .feature-button.problem,
@@ -664,21 +648,21 @@ export class GlowThermostatCard extends LitElement {
 
       .feature-icon {
         flex: 0 0 auto;
-        --mdc-icon-size: 28px;
+        --mdc-icon-size: 18px;
         background: transparent;
         border: 0;
         border-radius: 0;
         box-shadow: none;
         color: color-mix(in srgb, var(--thermostat-state-color) 58%, #ffffff 42%);
-        filter: drop-shadow(0 0 10px color-mix(in srgb, var(--thermostat-state-color) 24%, transparent));
-        font-size: 28px;
-        height: 28px;
+        filter: drop-shadow(0 0 8px color-mix(in srgb, var(--thermostat-state-color) 18%, transparent));
+        font-size: 18px;
+        height: 18px;
         justify-self: center;
-        line-height: 28px;
+        line-height: 18px;
         padding: 0;
         transition:
           transform 140ms ease;
-        width: 28px;
+        width: 18px;
       }
 
       .feature-button.on .feature-icon {
@@ -705,24 +689,26 @@ export class GlowThermostatCard extends LitElement {
 
       .feature-label {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 700;
         line-height: 1;
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
-        text-transform: uppercase;
         white-space: nowrap;
       }
 
       .feature-value {
         color: color-mix(in srgb, var(--secondary-text-color, #b7c0ce) 88%, transparent);
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 650;
+        justify-self: end;
         line-height: 1;
+        max-width: 56px;
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
+        text-transform: capitalize;
         white-space: nowrap;
       }
 
@@ -796,8 +782,8 @@ export class GlowThermostatCard extends LitElement {
       '--thermostat-card-height',
       clampCssLength(
         this.config.height,
-        this.config.show_features ? '500px' : '376px',
-        this.config.show_features ? 470 : 376,
+        this.config.show_features ? '420px' : '376px',
+        this.config.show_features ? 410 : 376,
       ),
     );
     this.style.setProperty(
@@ -1393,6 +1379,8 @@ export class GlowThermostatCard extends LitElement {
     }
 
     const attributes = this.entity?.attributes ?? {};
+    const hasPrimaryModeButtons =
+      Boolean(this.config.show_mode_buttons) && this.availableModes.length > 0;
     const items: TemplateResult[] = [];
     const addItem = (item: TemplateResult | typeof nothing): void => {
       if (item !== nothing && items.length < 4) {
@@ -1400,7 +1388,7 @@ export class GlowThermostatCard extends LitElement {
       }
     };
 
-    if (this.config.show_hvac_modes) {
+    if (this.config.show_hvac_modes && !hasPrimaryModeButtons) {
       addItem(
         this.renderClimateSelect(
           'Mode',
@@ -1427,7 +1415,9 @@ export class GlowThermostatCard extends LitElement {
     }
 
     addItem(this.renderToggleFeature('Eco', this.config.eco_switch_entity, 'mdi:leaf'));
-    addItem(this.renderOffFeature());
+    if (!hasPrimaryModeButtons) {
+      addItem(this.renderOffFeature());
+    }
 
     addItem(
       this.renderSelectEntity(
