@@ -3,7 +3,7 @@
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const L = globalThis, rt = L.ShadowRoot && (L.ShadyCSS === void 0 || L.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, ot = Symbol(), xt = /* @__PURE__ */ new WeakMap();
+const D = globalThis, rt = D.ShadowRoot && (D.ShadyCSS === void 0 || D.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, ot = Symbol(), xt = /* @__PURE__ */ new WeakMap();
 let Ht = class {
   constructor(t, e, i) {
     if (this._$cssResult$ = !0, i !== ot) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
@@ -32,7 +32,7 @@ const qt = (n) => new Ht(typeof n == "string" ? n : n + "", void 0, ot), f = (n,
 }, Jt = (n, t) => {
   if (rt) n.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
   else for (const e of t) {
-    const i = document.createElement("style"), r = L.litNonce;
+    const i = document.createElement("style"), r = D.litNonce;
     r !== void 0 && i.setAttribute("nonce", r), i.textContent = e.cssText, n.appendChild(i);
   }
 }, vt = rt ? (n) => n : (n) => n instanceof CSSStyleSheet ? ((t) => {
@@ -45,7 +45,7 @@ const qt = (n) => new Ht(typeof n == "string" ? n : n + "", void 0, ot), f = (n,
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const { is: Kt, defineProperty: Yt, getOwnPropertyDescriptor: Gt, getOwnPropertyNames: Xt, getOwnPropertySymbols: Zt, getPrototypeOf: Qt } = Object, v = globalThis, wt = v.trustedTypes, te = wt ? wt.emptyScript : "", H = v.reactiveElementPolyfillSupport, A = (n, t) => n, V = { toAttribute(n, t) {
+const { is: Kt, defineProperty: Yt, getOwnPropertyDescriptor: Gt, getOwnPropertyNames: Xt, getOwnPropertySymbols: Zt, getPrototypeOf: Qt } = Object, v = globalThis, wt = v.trustedTypes, te = wt ? wt.emptyScript : "", H = v.reactiveElementPolyfillSupport, T = (n, t) => n, R = { toAttribute(n, t) {
   switch (t) {
     case Boolean:
       n = n ? te : null;
@@ -73,7 +73,7 @@ const { is: Kt, defineProperty: Yt, getOwnPropertyDescriptor: Gt, getOwnProperty
       }
   }
   return e;
-} }, jt = (n, t) => !Kt(n, t), yt = { attribute: !0, type: String, converter: V, reflect: !1, useDefault: !1, hasChanged: jt };
+} }, Bt = (n, t) => !Kt(n, t), yt = { attribute: !0, type: String, converter: R, reflect: !1, useDefault: !1, hasChanged: Bt };
 Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), v.litPropertyMetadata ?? (v.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
 let k = class extends HTMLElement {
   static addInitializer(t) {
@@ -103,13 +103,13 @@ let k = class extends HTMLElement {
     return this.elementProperties.get(t) ?? yt;
   }
   static _$Ei() {
-    if (this.hasOwnProperty(A("elementProperties"))) return;
+    if (this.hasOwnProperty(T("elementProperties"))) return;
     const t = Qt(this);
     t.finalize(), t.l !== void 0 && (this.l = [...t.l]), this.elementProperties = new Map(t.elementProperties);
   }
   static finalize() {
-    if (this.hasOwnProperty(A("finalized"))) return;
-    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(A("properties"))) {
+    if (this.hasOwnProperty(T("finalized"))) return;
+    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(T("properties"))) {
       const e = this.properties, i = [...Xt(e), ...Zt(e)];
       for (const r of i) this.createProperty(r, e[r]);
     }
@@ -184,7 +184,7 @@ let k = class extends HTMLElement {
     var o;
     const i = this.constructor.elementProperties.get(t), r = this.constructor._$Eu(t, i);
     if (r !== void 0 && i.reflect === !0) {
-      const s = (((o = i.converter) == null ? void 0 : o.toAttribute) !== void 0 ? i.converter : V).toAttribute(e, i.type);
+      const s = (((o = i.converter) == null ? void 0 : o.toAttribute) !== void 0 ? i.converter : R).toAttribute(e, i.type);
       this._$Em = t, s == null ? this.removeAttribute(r) : this.setAttribute(r, s), this._$Em = null;
     }
   }
@@ -192,7 +192,7 @@ let k = class extends HTMLElement {
     var o, s;
     const i = this.constructor, r = i._$Eh.get(t);
     if (r !== void 0 && this._$Em !== r) {
-      const l = i.getPropertyOptions(r), c = typeof l.converter == "function" ? { fromAttribute: l.converter } : ((o = l.converter) == null ? void 0 : o.fromAttribute) !== void 0 ? l.converter : V;
+      const l = i.getPropertyOptions(r), c = typeof l.converter == "function" ? { fromAttribute: l.converter } : ((o = l.converter) == null ? void 0 : o.fromAttribute) !== void 0 ? l.converter : R;
       this._$Em = r;
       const d = c.fromAttribute(e, l.type);
       this[r] = d ?? ((s = this._$Ej) == null ? void 0 : s.get(r)) ?? d, this._$Em = null;
@@ -202,7 +202,7 @@ let k = class extends HTMLElement {
     var s;
     if (t !== void 0) {
       const l = this.constructor;
-      if (r === !1 && (o = this[t]), i ?? (i = l.getPropertyOptions(t)), !((i.hasChanged ?? jt)(o, e) || i.useDefault && i.reflect && o === ((s = this._$Ej) == null ? void 0 : s.get(t)) && !this.hasAttribute(l._$Eu(t, i)))) return;
+      if (r === !1 && (o = this[t]), i ?? (i = l.getPropertyOptions(t)), !((i.hasChanged ?? Bt)(o, e) || i.useDefault && i.reflect && o === ((s = this._$Ej) == null ? void 0 : s.get(t)) && !this.hasAttribute(l._$Eu(t, i)))) return;
       this.C(t, e, i);
     }
     this.isUpdatePending === !1 && (this._$ES = this._$EP());
@@ -278,15 +278,15 @@ let k = class extends HTMLElement {
   firstUpdated(t) {
   }
 };
-k.elementStyles = [], k.shadowRootOptions = { mode: "open" }, k[A("elementProperties")] = /* @__PURE__ */ new Map(), k[A("finalized")] = /* @__PURE__ */ new Map(), H == null || H({ ReactiveElement: k }), (v.reactiveElementVersions ?? (v.reactiveElementVersions = [])).push("2.1.2");
+k.elementStyles = [], k.shadowRootOptions = { mode: "open" }, k[T("elementProperties")] = /* @__PURE__ */ new Map(), k[T("finalized")] = /* @__PURE__ */ new Map(), H == null || H({ ReactiveElement: k }), (v.reactiveElementVersions ?? (v.reactiveElementVersions = [])).push("2.1.2");
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const O = globalThis, $t = (n) => n, N = O.trustedTypes, _t = N ? N.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, Bt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, Rt = "?" + x, ee = `<${Rt}>`, _ = document, E = () => _.createComment(""), I = (n) => n === null || typeof n != "object" && typeof n != "function", nt = Array.isArray, ie = (n) => nt(n) || typeof (n == null ? void 0 : n[Symbol.iterator]) == "function", j = `[ 	
-\f\r]`, P = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, kt = /-->/g, St = />/g, w = RegExp(`>|${j}(?:([^\\s"'>=/]+)(${j}*=${j}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), Ct = /'/g, Pt = /"/g, Vt = /^(?:script|style|textarea|title)$/i, re = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), a = re(1), S = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), Tt = /* @__PURE__ */ new WeakMap(), y = _.createTreeWalker(_, 129);
+const O = globalThis, $t = (n) => n, L = O.trustedTypes, _t = L ? L.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, Vt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, jt = "?" + x, ee = `<${jt}>`, _ = document, E = () => _.createComment(""), I = (n) => n === null || typeof n != "object" && typeof n != "function", nt = Array.isArray, ie = (n) => nt(n) || typeof (n == null ? void 0 : n[Symbol.iterator]) == "function", B = `[ 	
+\f\r]`, P = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, kt = /-->/g, St = />/g, w = RegExp(`>|${B}(?:([^\\s"'>=/]+)(${B}*=${B}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), Ct = /'/g, Pt = /"/g, Rt = /^(?:script|style|textarea|title)$/i, re = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), a = re(1), S = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), At = /* @__PURE__ */ new WeakMap(), y = _.createTreeWalker(_, 129);
 function Wt(n, t) {
   if (!nt(n) || !n.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return _t !== void 0 ? _t.createHTML(t) : t;
@@ -297,9 +297,9 @@ const oe = (n, t) => {
   for (let l = 0; l < e; l++) {
     const c = n[l];
     let d, u, p = -1, m = 0;
-    for (; m < c.length && (s.lastIndex = m, u = s.exec(c), u !== null); ) m = s.lastIndex, s === P ? u[1] === "!--" ? s = kt : u[1] !== void 0 ? s = St : u[2] !== void 0 ? (Vt.test(u[2]) && (r = RegExp("</" + u[2], "g")), s = w) : u[3] !== void 0 && (s = w) : s === w ? u[0] === ">" ? (s = r ?? P, p = -1) : u[1] === void 0 ? p = -2 : (p = s.lastIndex - u[2].length, d = u[1], s = u[3] === void 0 ? w : u[3] === '"' ? Pt : Ct) : s === Pt || s === Ct ? s = w : s === kt || s === St ? s = P : (s = w, r = void 0);
+    for (; m < c.length && (s.lastIndex = m, u = s.exec(c), u !== null); ) m = s.lastIndex, s === P ? u[1] === "!--" ? s = kt : u[1] !== void 0 ? s = St : u[2] !== void 0 ? (Rt.test(u[2]) && (r = RegExp("</" + u[2], "g")), s = w) : u[3] !== void 0 && (s = w) : s === w ? u[0] === ">" ? (s = r ?? P, p = -1) : u[1] === void 0 ? p = -2 : (p = s.lastIndex - u[2].length, d = u[1], s = u[3] === void 0 ? w : u[3] === '"' ? Pt : Ct) : s === Pt || s === Ct ? s = w : s === kt || s === St ? s = P : (s = w, r = void 0);
     const b = s === w && n[l + 1].startsWith("/>") ? " " : "";
-    o += s === P ? c + ee : p >= 0 ? (i.push(d), c.slice(0, p) + Bt + c.slice(p) + x + b) : c + x + (p === -2 ? l : b);
+    o += s === P ? c + ee : p >= 0 ? (i.push(d), c.slice(0, p) + Vt + c.slice(p) + x + b) : c + x + (p === -2 ? l : b);
   }
   return [Wt(n, o + (n[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
 };
@@ -315,19 +315,19 @@ class M {
     }
     for (; (r = y.nextNode()) !== null && c.length < l; ) {
       if (r.nodeType === 1) {
-        if (r.hasAttributes()) for (const p of r.getAttributeNames()) if (p.endsWith(Bt)) {
+        if (r.hasAttributes()) for (const p of r.getAttributeNames()) if (p.endsWith(Vt)) {
           const m = u[s++], b = r.getAttribute(p).split(x), z = /([.?@])?(.*)/.exec(m);
-          c.push({ type: 1, index: o, name: z[2], strings: b, ctor: z[1] === "." ? se : z[1] === "?" ? ae : z[1] === "@" ? le : F }), r.removeAttribute(p);
+          c.push({ type: 1, index: o, name: z[2], strings: b, ctor: z[1] === "." ? se : z[1] === "?" ? ae : z[1] === "@" ? le : N }), r.removeAttribute(p);
         } else p.startsWith(x) && (c.push({ type: 6, index: o }), r.removeAttribute(p));
-        if (Vt.test(r.tagName)) {
+        if (Rt.test(r.tagName)) {
           const p = r.textContent.split(x), m = p.length - 1;
           if (m > 0) {
-            r.textContent = N ? N.emptyScript : "";
+            r.textContent = L ? L.emptyScript : "";
             for (let b = 0; b < m; b++) r.append(p[b], E()), y.nextNode(), c.push({ type: 2, index: ++o });
             r.append(p[m], E());
           }
         }
-      } else if (r.nodeType === 8) if (r.data === Rt) c.push({ type: 2, index: o });
+      } else if (r.nodeType === 8) if (r.data === jt) c.push({ type: 2, index: o });
       else {
         let p = -1;
         for (; (p = r.data.indexOf(x, p + 1)) !== -1; ) c.push({ type: 7, index: o }), p += x.length - 1;
@@ -416,8 +416,8 @@ class U {
     }
   }
   _$AC(t) {
-    let e = Tt.get(t.strings);
-    return e === void 0 && Tt.set(t.strings, e = new M(t)), e;
+    let e = At.get(t.strings);
+    return e === void 0 && At.set(t.strings, e = new M(t)), e;
   }
   k(t) {
     nt(this._$AH) || (this._$AH = [], this._$AR());
@@ -438,7 +438,7 @@ class U {
     this._$AM === void 0 && (this._$Cv = t, (e = this._$AP) == null || e.call(this, t));
   }
 }
-class F {
+class N {
   get tagName() {
     return this.element.tagName;
   }
@@ -463,7 +463,7 @@ class F {
     t === h ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
   }
 }
-class se extends F {
+class se extends N {
   constructor() {
     super(...arguments), this.type = 3;
   }
@@ -471,7 +471,7 @@ class se extends F {
     this.element[this.name] = t === h ? void 0 : t;
   }
 }
-class ae extends F {
+class ae extends N {
   constructor() {
     super(...arguments), this.type = 4;
   }
@@ -479,7 +479,7 @@ class ae extends F {
     this.element.toggleAttribute(this.name, !!t && t !== h);
   }
 }
-class le extends F {
+class le extends N {
   constructor(t, e, i, r, o) {
     super(t, e, i, r, o), this.type = 5;
   }
@@ -504,8 +504,8 @@ class ce {
     C(this, t);
   }
 }
-const B = O.litHtmlPolyfillSupport;
-B == null || B(M, U), (O.litHtmlVersions ?? (O.litHtmlVersions = [])).push("3.3.2");
+const V = O.litHtmlPolyfillSupport;
+V == null || V(M, U), (O.litHtmlVersions ?? (O.litHtmlVersions = [])).push("3.3.2");
 const he = (n, t, e) => {
   const i = (e == null ? void 0 : e.renderBefore) ?? t;
   let r = i._$litPart$;
@@ -546,12 +546,12 @@ class g extends k {
     return S;
   }
 }
-var Ft;
-g._$litElement$ = !0, g.finalized = !0, (Ft = $.litElementHydrateSupport) == null || Ft.call($, { LitElement: g });
-const R = $.litElementPolyfillSupport;
-R == null || R({ LitElement: g });
+var Nt;
+g._$litElement$ = !0, g.finalized = !0, (Nt = $.litElementHydrateSupport) == null || Nt.call($, { LitElement: g });
+const j = $.litElementPolyfillSupport;
+j == null || j({ LitElement: g });
 ($.litElementVersions ?? ($.litElementVersions = [])).push("4.2.2");
-const At = {
+const Tt = {
   icon: "mdi:ceiling-light",
   width: "260px",
   fill_container: !1,
@@ -905,7 +905,7 @@ const st = class st extends g {
     if (!(t != null && t.entity))
       throw new Error("Entity is required");
     this.config = {
-      ...At,
+      ...Tt,
       ...t
     }, this.style.setProperty(
       "--glow-card-width",
@@ -969,7 +969,7 @@ const st = class st extends g {
   }
   get icon() {
     var t;
-    return this.config.icon || ((t = this.entity) == null ? void 0 : t.attributes.icon) || At.icon;
+    return this.config.icon || ((t = this.entity) == null ? void 0 : t.attributes.icon) || Tt.icon;
   }
   dispatchMoreInfo() {
     this.dispatchEvent(
@@ -2758,7 +2758,6 @@ const me = {
   icon: "mdi:thermostat",
   width: "320px",
   fill_container: !1,
-  height: "376px",
   border_radius: "18px",
   show_state: !1,
   show_current: !0,
@@ -2796,7 +2795,7 @@ function be(n, t) {
     })
   );
 }
-function D(n, t) {
+function F(n, t) {
   if (typeof n == "number" && Number.isFinite(n))
     return n;
   if (typeof n == "string") {
@@ -2818,7 +2817,7 @@ const pt = class pt extends g {
     return f`
       :host {
         --thermostat-card-width: 320px;
-        --thermostat-card-height: 376px;
+        --thermostat-card-height: auto;
         --thermostat-card-radius: 18px;
         --thermostat-heat-color: #ff8a1c;
         --thermostat-cool-color: #2f80ff;
@@ -2839,7 +2838,7 @@ const pt = class pt extends g {
         border: 0;
         box-shadow: none;
         display: block;
-        height: 100%;
+        height: var(--thermostat-card-height);
         min-height: 0;
         overflow: visible;
       }
@@ -2886,7 +2885,7 @@ const pt = class pt extends g {
         align-content: start;
         gap: 10px;
         grid-template-rows: auto auto auto auto;
-        height: 100%;
+        height: var(--thermostat-card-height);
         min-height: 0;
         overflow: hidden;
         padding: 22px 18px 18px;
@@ -3385,17 +3384,13 @@ const pt = class pt extends g {
     this.config = {
       ...me,
       ...t,
-      temperature_step: D(t.temperature_step, 1)
+      temperature_step: F(t.temperature_step, 1)
     }, this.style.setProperty(
       "--thermostat-card-width",
       this.config.fill_container ? "100%" : this.config.width ?? "320px"
     ), this.style.setProperty(
       "--thermostat-card-height",
-      xe(
-        this.config.height,
-        this.config.show_features ? "420px" : "376px",
-        this.config.show_features ? 410 : 376
-      )
+      xe(t.height, "auto", 0)
     ), this.style.setProperty(
       "--thermostat-card-radius",
       this.config.border_radius ?? "18px"
@@ -3405,13 +3400,13 @@ const pt = class pt extends g {
     );
   }
   getCardSize() {
-    return 8;
+    return this.hasVisibleFeatureControls ? 8 : 6;
   }
   getGridOptions() {
     return {
-      rows: 6,
+      rows: this.hasVisibleFeatureControls ? 6 : 5,
       columns: 6,
-      min_rows: 5,
+      min_rows: 4,
       max_rows: 8,
       min_columns: 4,
       max_columns: 12
@@ -3462,11 +3457,11 @@ const pt = class pt extends g {
   }
   get minTemperature() {
     var t;
-    return D((t = this.entity) == null ? void 0 : t.attributes.min_temp, 55);
+    return F((t = this.entity) == null ? void 0 : t.attributes.min_temp, 55);
   }
   get maxTemperature() {
     var t;
-    return D((t = this.entity) == null ? void 0 : t.attributes.max_temp, 85);
+    return F((t = this.entity) == null ? void 0 : t.attributes.max_temp, 85);
   }
   get targetTemperature() {
     var r, o, s;
@@ -3496,6 +3491,16 @@ const pt = class pt extends g {
   }
   get hasConfiguredFeatures() {
     return !!(this.config.show_hvac_modes || this.config.show_fan_modes || this.config.show_swing_modes || this.config.show_horizontal_swing_modes || this.config.filter_entity || this.config.problem_entity || this.config.pm25_entity || this.config.display_light_entity || this.config.sleep_mode_entity || this.config.vertical_position_entity || this.config.horizontal_position_entity || this.config.anti_frost_switch_entity || this.config.anti_mildew_switch_entity || this.config.eco_switch_entity || this.config.health_switch_entity || this.config.soft_wind_switch_entity || this.config.sound_switch_entity);
+  }
+  get hasPrimaryModeButtons() {
+    return !!this.config.show_mode_buttons && this.availableModes.length > 0;
+  }
+  get hasVisibleFeatureControls() {
+    var e, i;
+    if (!((e = this.config) != null && e.show_features) || !this.hasConfiguredFeatures)
+      return !1;
+    const t = ((i = this.entity) == null ? void 0 : i.attributes) ?? {};
+    return this.config.show_hvac_modes && !this.hasPrimaryModeButtons && Array.isArray(t.hvac_modes) && t.hvac_modes.length > 0 || this.config.show_fan_modes && Array.isArray(t.fan_modes) && t.fan_modes.length > 0 || !this.hasPrimaryModeButtons ? !0 : !!(this.getFeatureEntity(this.config.eco_switch_entity) || this.getFeatureEntity(this.config.sleep_mode_entity) || this.getFeatureEntity(this.config.vertical_position_entity) || this.getFeatureEntity(this.config.horizontal_position_entity) || this.getFeatureEntity(this.config.filter_entity) || this.getFeatureEntity(this.config.problem_entity) || this.getFeatureEntity(this.config.pm25_entity) || this.getFeatureEntity(this.config.display_light_entity) || this.getFeatureEntity(this.config.anti_frost_switch_entity) || this.getFeatureEntity(this.config.anti_mildew_switch_entity) || this.getFeatureEntity(this.config.health_switch_entity) || this.getFeatureEntity(this.config.soft_wind_switch_entity) || this.getFeatureEntity(this.config.sound_switch_entity));
   }
   formatTemperature(t) {
     return `${Math.round(t * 10) / 10}${this.unit}`;
@@ -3553,7 +3558,7 @@ const pt = class pt extends g {
     );
   }
   adjustTemperature(t) {
-    const e = D(this.config.temperature_step, 1);
+    const e = F(this.config.temperature_step, 1);
     this.setTargetTemperature(this.targetTemperature + t * e);
   }
   setHvacMode(t) {
@@ -3734,7 +3739,7 @@ const pt = class pt extends g {
     var o, s;
     if (!this.config.show_features || !this.hasConfiguredFeatures)
       return h;
-    const t = ((o = this.entity) == null ? void 0 : o.attributes) ?? {}, e = !!this.config.show_mode_buttons && this.availableModes.length > 0, i = [], r = (l) => {
+    const t = ((o = this.entity) == null ? void 0 : o.attributes) ?? {}, e = this.hasPrimaryModeButtons, i = [], r = (l) => {
       l !== h && i.length < 4 && i.push(l);
     };
     return this.config.show_hvac_modes && !e && r(
@@ -4081,7 +4086,7 @@ const ut = class ut extends g {
           <div class="grid">
             ${this.renderTextInput("Name", "name", "Thermostat")}
             ${this.renderTextInput("Width", "width", "320px")}
-            ${this.renderTextInput("Height", "height", "376px")}
+            ${this.renderTextInput("Height", "height", "auto")}
             ${this.renderTextInput("Radius", "border_radius", "18px")}
             ${this.renderNumberInput("Temperature Step", "temperature_step", "1")}
           </div>
@@ -4203,7 +4208,7 @@ window.customCards.push({
   name: "Glow Thermostat Card",
   description: "A dial-style thermostat card with instant setpoint controls."
 });
-const Dt = {
+const Ft = {
   title: "Outlets",
   icon_1: "mdi:power-socket-us",
   icon_2: "mdi:power-socket-us",
@@ -4220,7 +4225,7 @@ const Dt = {
   tap_action: "toggle",
   hold_action: "more-info",
   animated: !0
-}, Lt = ["toggle", "more-info", "none"], ve = ["duplex", "grid", "stack"];
+}, Dt = ["toggle", "more-info", "none"], ve = ["duplex", "grid", "stack"];
 function we(n, t) {
   n.dispatchEvent(
     new CustomEvent("config-changed", {
@@ -4790,7 +4795,7 @@ const gt = class gt extends g {
     if (!(t != null && t.entity_1))
       throw new Error("Entity 1 is required");
     this.config = {
-      ...Dt,
+      ...Ft,
       ...t
     }, this.style.setProperty(
       "--outlet-card-width",
@@ -4860,7 +4865,7 @@ const gt = class gt extends g {
   }
   displayIcon(t) {
     const e = this.getEntity(t.entityId);
-    return t.icon || (e == null ? void 0 : e.attributes.icon) || Dt.icon_1;
+    return t.icon || (e == null ? void 0 : e.attributes.icon) || Ft.icon_1;
   }
   dispatchMoreInfo(t) {
     this.dispatchEvent(
@@ -5239,11 +5244,11 @@ const ft = class ft extends g {
         <section class="section">
           <h3>Actions</h3>
           <div class="grid">
-            ${this.renderSelect("Tap Action", "tap_action", Lt, "toggle")}
+            ${this.renderSelect("Tap Action", "tap_action", Dt, "toggle")}
             ${this.renderSelect(
       "Hold Action",
       "hold_action",
-      Lt,
+      Dt,
       "more-info"
     )}
           </div>
@@ -5265,7 +5270,7 @@ window.customCards.push({
   name: "Dual Outlet Card",
   description: "A two-outlet toggle card with red on-state glow."
 });
-const Nt = {
+const Lt = {
   icon: "mdi:fan",
   width: "260px",
   fill_container: !1,
@@ -5296,7 +5301,7 @@ function _e(n, t) {
     })
   );
 }
-function T(n, t) {
+function A(n, t) {
   if (typeof n == "number" && Number.isFinite(n))
     return n;
   if (typeof n == "string") {
@@ -5628,11 +5633,11 @@ const mt = class mt extends g {
     if (!(t != null && t.entity))
       throw new Error("Entity is required");
     this.config = {
-      ...Nt,
+      ...Lt,
       ...t,
-      speed_1_percentage: T(t.speed_1_percentage, 33),
-      speed_2_percentage: T(t.speed_2_percentage, 66),
-      speed_3_percentage: T(t.speed_3_percentage, 100)
+      speed_1_percentage: A(t.speed_1_percentage, 33),
+      speed_2_percentage: A(t.speed_2_percentage, 66),
+      speed_3_percentage: A(t.speed_3_percentage, 100)
     }, this.style.setProperty(
       "--fan-card-width",
       this.config.fill_container ? "100%" : this.config.width ?? "260px"
@@ -5667,11 +5672,11 @@ const mt = class mt extends g {
   }
   get percentage() {
     var t;
-    return this.optimisticLevel !== void 0 ? this.optimisticLevel === 0 ? 0 : this.percentageForLevel(this.optimisticLevel) : this.isOn ? T((t = this.entity) == null ? void 0 : t.attributes.percentage, 100) : 0;
+    return this.optimisticLevel !== void 0 ? this.optimisticLevel === 0 ? 0 : this.percentageForLevel(this.optimisticLevel) : this.isOn ? A((t = this.entity) == null ? void 0 : t.attributes.percentage, 100) : 0;
   }
   get entityPercentage() {
     var t, e;
-    return ((t = this.entity) == null ? void 0 : t.state) !== "on" ? 0 : T((e = this.entity) == null ? void 0 : e.attributes.percentage, 100);
+    return ((t = this.entity) == null ? void 0 : t.state) !== "on" ? 0 : A((e = this.entity) == null ? void 0 : e.attributes.percentage, 100);
   }
   levelFromPercentage(t) {
     if (t <= 0)
@@ -5697,7 +5702,7 @@ const mt = class mt extends g {
   }
   get icon() {
     var t;
-    return this.config.icon || ((t = this.entity) == null ? void 0 : t.attributes.icon) || Nt.icon;
+    return this.config.icon || ((t = this.entity) == null ? void 0 : t.attributes.icon) || Lt.icon;
   }
   percentageForLevel(t) {
     return t === 1 ? this.config.speed_1_percentage ?? 33 : t === 2 ? this.config.speed_2_percentage ?? 66 : this.config.speed_3_percentage ?? 100;

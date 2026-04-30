@@ -94,7 +94,6 @@ const DEFAULT_CONFIG: Omit<GlowThermostatCardConfig, 'entity'> = {
   icon: 'mdi:thermostat',
   width: '320px',
   fill_container: false,
-  height: '376px',
   border_radius: '18px',
   show_state: false,
   show_current: true,
@@ -198,7 +197,7 @@ export class GlowThermostatCard extends LitElement {
     return css`
       :host {
         --thermostat-card-width: 320px;
-        --thermostat-card-height: 376px;
+        --thermostat-card-height: auto;
         --thermostat-card-radius: 18px;
         --thermostat-heat-color: #ff8a1c;
         --thermostat-cool-color: #2f80ff;
@@ -219,7 +218,7 @@ export class GlowThermostatCard extends LitElement {
         border: 0;
         box-shadow: none;
         display: block;
-        height: 100%;
+        height: var(--thermostat-card-height);
         min-height: 0;
         overflow: visible;
       }
@@ -266,7 +265,7 @@ export class GlowThermostatCard extends LitElement {
         align-content: start;
         gap: 10px;
         grid-template-rows: auto auto auto auto;
-        height: 100%;
+        height: var(--thermostat-card-height);
         min-height: 0;
         overflow: hidden;
         padding: 22px 18px 18px;
@@ -780,11 +779,7 @@ export class GlowThermostatCard extends LitElement {
     );
     this.style.setProperty(
       '--thermostat-card-height',
-      clampCssLength(
-        this.config.height,
-        this.config.show_features ? '420px' : '376px',
-        this.config.show_features ? 410 : 376,
-      ),
+      clampCssLength(config.height, 'auto', 0),
     );
     this.style.setProperty(
       '--thermostat-card-radius',
@@ -801,14 +796,16 @@ export class GlowThermostatCard extends LitElement {
   }
 
   public getCardSize(): number {
-    return 8;
+    return this.hasVisibleFeatureControls ? 8 : 6;
   }
 
   public getGridOptions() {
+    const hasFeatures = this.hasVisibleFeatureControls;
+
     return {
-      rows: 6,
+      rows: hasFeatures ? 6 : 5,
       columns: 6,
-      min_rows: 5,
+      min_rows: 4,
       max_rows: 8,
       min_columns: 4,
       max_columns: 12,
@@ -990,6 +987,55 @@ export class GlowThermostatCard extends LitElement {
         this.config.health_switch_entity ||
         this.config.soft_wind_switch_entity ||
         this.config.sound_switch_entity,
+    );
+  }
+
+  private get hasPrimaryModeButtons(): boolean {
+    return Boolean(this.config.show_mode_buttons) && this.availableModes.length > 0;
+  }
+
+  private get hasVisibleFeatureControls(): boolean {
+    if (!this.config?.show_features || !this.hasConfiguredFeatures) {
+      return false;
+    }
+
+    const attributes = this.entity?.attributes ?? {};
+
+    if (
+      this.config.show_hvac_modes &&
+      !this.hasPrimaryModeButtons &&
+      Array.isArray(attributes.hvac_modes) &&
+      attributes.hvac_modes.length > 0
+    ) {
+      return true;
+    }
+
+    if (
+      this.config.show_fan_modes &&
+      Array.isArray(attributes.fan_modes) &&
+      attributes.fan_modes.length > 0
+    ) {
+      return true;
+    }
+
+    if (!this.hasPrimaryModeButtons) {
+      return true;
+    }
+
+    return Boolean(
+      this.getFeatureEntity(this.config.eco_switch_entity) ||
+        this.getFeatureEntity(this.config.sleep_mode_entity) ||
+        this.getFeatureEntity(this.config.vertical_position_entity) ||
+        this.getFeatureEntity(this.config.horizontal_position_entity) ||
+        this.getFeatureEntity(this.config.filter_entity) ||
+        this.getFeatureEntity(this.config.problem_entity) ||
+        this.getFeatureEntity(this.config.pm25_entity) ||
+        this.getFeatureEntity(this.config.display_light_entity) ||
+        this.getFeatureEntity(this.config.anti_frost_switch_entity) ||
+        this.getFeatureEntity(this.config.anti_mildew_switch_entity) ||
+        this.getFeatureEntity(this.config.health_switch_entity) ||
+        this.getFeatureEntity(this.config.soft_wind_switch_entity) ||
+        this.getFeatureEntity(this.config.sound_switch_entity),
     );
   }
 
@@ -1379,8 +1425,7 @@ export class GlowThermostatCard extends LitElement {
     }
 
     const attributes = this.entity?.attributes ?? {};
-    const hasPrimaryModeButtons =
-      Boolean(this.config.show_mode_buttons) && this.availableModes.length > 0;
+    const hasPrimaryModeButtons = this.hasPrimaryModeButtons;
     const items: TemplateResult[] = [];
     const addItem = (item: TemplateResult | typeof nothing): void => {
       if (item !== nothing && items.length < 4) {
@@ -1846,7 +1891,7 @@ class GlowThermostatCardEditor extends LitElement {
           <div class="grid">
             ${this.renderTextInput('Name', 'name', 'Thermostat')}
             ${this.renderTextInput('Width', 'width', '320px')}
-            ${this.renderTextInput('Height', 'height', '376px')}
+            ${this.renderTextInput('Height', 'height', 'auto')}
             ${this.renderTextInput('Radius', 'border_radius', '18px')}
             ${this.renderNumberInput('Temperature Step', 'temperature_step', '1')}
           </div>

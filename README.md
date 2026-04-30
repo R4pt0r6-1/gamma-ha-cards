@@ -137,7 +137,6 @@ Lanai AC feature example:
 type: custom:glow-thermostat-card
 entity: climate.lanai_ac
 name: Lanai AC
-height: 500px
 show_features: true
 filter_entity: binary_sensor.lanai_air_conditioner_filter
 problem_entity: binary_sensor.lanai_air_conditioner_problem
@@ -162,7 +161,7 @@ sound_switch_entity: switch.lanai_air_conditioner_sound
 | `name`             | `string`  | Entity friendly name | Display name.                  |
 | `width`            | `string`  | `320px`           | CSS width of the card.            |
 | `fill_container`   | `boolean` | `false`           | Stretch the card to the full dashboard column width. |
-| `height`           | `string`  | `376px`           | CSS height of the card, clamped to keep the dial visible. |
+| `height`           | `string`  | `auto`            | Optional fixed CSS height. Leave unset to shrink-wrap visible controls. |
 | `border_radius`    | `string`  | `18px`            | CSS border radius.                |
 | `show_state`       | `boolean` | `false`           | Show current state text under the title. |
 | `show_current`     | `boolean` | `true`            | Show current temperature when available. |
