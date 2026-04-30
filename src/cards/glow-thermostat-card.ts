@@ -274,6 +274,13 @@ export class GlowThermostatCard extends LitElement {
         width: 100%;
       }
 
+      .thermostat.features-visible {
+        --thermostat-dial-size: clamp(164px, 54cqi, 190px);
+
+        gap: 8px;
+        padding: 20px 18px 16px;
+      }
+
       .thermostat::before {
         background:
           radial-gradient(
@@ -518,7 +525,7 @@ export class GlowThermostatCard extends LitElement {
         font: inherit;
         font-size: 17px;
         font-weight: 650;
-        height: 34px;
+        height: 33px;
         justify-content: center;
         letter-spacing: 0;
         padding: 0;
@@ -594,7 +601,7 @@ export class GlowThermostatCard extends LitElement {
         align-self: end;
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 6px;
         justify-content: stretch;
         overflow: visible;
         padding: 0;
@@ -616,7 +623,7 @@ export class GlowThermostatCard extends LitElement {
         grid-template-columns: 18px minmax(0, 1fr) auto;
         justify-content: center;
         justify-items: stretch;
-        min-height: 36px;
+        min-height: 32px;
         min-width: 0;
         padding: 0 10px;
         text-align: left;
@@ -796,17 +803,17 @@ export class GlowThermostatCard extends LitElement {
   }
 
   public getCardSize(): number {
-    return this.hasVisibleFeatureControls ? 8 : 6;
+    return this.hasVisibleFeatureControls ? 7 : 6;
   }
 
   public getGridOptions() {
     const hasFeatures = this.hasVisibleFeatureControls;
 
     return {
-      rows: hasFeatures ? 6 : 5,
+      rows: hasFeatures ? 7 : 5,
       columns: 6,
-      min_rows: 4,
-      max_rows: 8,
+      min_rows: hasFeatures ? 6 : 4,
+      max_rows: 9,
       min_columns: 4,
       max_columns: 12,
     };
@@ -1606,6 +1613,8 @@ export class GlowThermostatCard extends LitElement {
         <div
           class="thermostat ${active ? 'active' : 'off'} ${this.isUnavailable
             ? 'unavailable'
+            : ''} ${this.hasVisibleFeatureControls
+            ? 'features-visible'
             : ''} ${this.config.animated ? 'animated' : ''}"
           role="button"
           tabindex="0"

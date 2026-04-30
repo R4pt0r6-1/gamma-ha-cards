@@ -2894,6 +2894,13 @@ const pt = class pt extends g {
         width: 100%;
       }
 
+      .thermostat.features-visible {
+        --thermostat-dial-size: clamp(164px, 54cqi, 190px);
+
+        gap: 8px;
+        padding: 20px 18px 16px;
+      }
+
       .thermostat::before {
         background:
           radial-gradient(
@@ -3138,7 +3145,7 @@ const pt = class pt extends g {
         font: inherit;
         font-size: 17px;
         font-weight: 650;
-        height: 34px;
+        height: 33px;
         justify-content: center;
         letter-spacing: 0;
         padding: 0;
@@ -3214,7 +3221,7 @@ const pt = class pt extends g {
         align-self: end;
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 6px;
         justify-content: stretch;
         overflow: visible;
         padding: 0;
@@ -3236,7 +3243,7 @@ const pt = class pt extends g {
         grid-template-columns: 18px minmax(0, 1fr) auto;
         justify-content: center;
         justify-items: stretch;
-        min-height: 36px;
+        min-height: 32px;
         min-width: 0;
         padding: 0 10px;
         text-align: left;
@@ -3400,14 +3407,15 @@ const pt = class pt extends g {
     );
   }
   getCardSize() {
-    return this.hasVisibleFeatureControls ? 8 : 6;
+    return this.hasVisibleFeatureControls ? 7 : 6;
   }
   getGridOptions() {
+    const t = this.hasVisibleFeatureControls;
     return {
-      rows: this.hasVisibleFeatureControls ? 6 : 5,
+      rows: t ? 7 : 5,
       columns: 6,
-      min_rows: 4,
-      max_rows: 8,
+      min_rows: t ? 6 : 4,
+      max_rows: 9,
       min_columns: 4,
       max_columns: 12
     };
@@ -3863,7 +3871,7 @@ const pt = class pt extends g {
         "
       >
         <div
-          class="thermostat ${e ? "active" : "off"} ${this.isUnavailable ? "unavailable" : ""} ${this.config.animated ? "animated" : ""}"
+          class="thermostat ${e ? "active" : "off"} ${this.isUnavailable ? "unavailable" : ""} ${this.hasVisibleFeatureControls ? "features-visible" : ""} ${this.config.animated ? "animated" : ""}"
           role="button"
           tabindex="0"
           aria-label=${this.displayName}
