@@ -352,8 +352,8 @@ detail_entities:
 | `image`                 | `string`  | Optional            | Appliance image URL.              |
 | `power_entity`          | `string`  | Optional            | LG ThinQ power switch.            |
 | `operation_entity`      | `string`  | Optional            | LG ThinQ operation select with `start`, `stop`, `power_on`, and `power_off` options. |
-| `remaining_time_entity` | `string`  | Optional            | Timestamp sensor for estimated finish time. |
-| `total_time_entity`     | `string`  | Optional            | Total cycle duration sensor.      |
+| `remaining_time_entity` | `string`  | Optional            | Timestamp or duration sensor for estimated finish time. |
+| `total_time_entity`     | `string`  | Optional            | Total cycle duration sensor; minutes, `HH:MM:SS`, and ISO durations are supported. |
 | `remote_start_entity`   | `string`  | Optional            | Remote-start binary sensor; Start is disabled when this is off. |
 | `delayed_start_entity`  | `string`  | Optional            | Delayed-start entity shown in details. |
 | `notification_entity`   | `string`  | Optional            | LG notification event entity.     |
@@ -363,11 +363,11 @@ detail_entities:
 | `detail_entities`       | `array`   | Built from config   | Extra entities shown in the expandable settings drawer. |
 | `width`                 | `string`  | `100%`              | CSS width of the card.            |
 | `fill_container`        | `boolean` | `true`              | Stretch the card to the full dashboard column width. |
-| `border_radius`         | `string`  | `24px`              | CSS border radius.                |
+| `border_radius`         | `string`  | `18px`              | CSS border radius.                |
 | `background`            | `string`  | `#101722`           | Base card background.             |
-| `running_color`         | `string`  | `#39c6ff`           | Glow color while running.         |
-| `complete_color`        | `string`  | `#45d158`           | Glow color when complete.         |
-| `paused_color`          | `string`  | `#ffb020`           | Glow color when paused/reserved.  |
+| `running_color`         | `string`  | Kind accent         | Glow color while running; washer defaults blue, dryer defaults orange-red. |
+| `complete_color`        | `string`  | Kind accent         | Glow color when complete; washer defaults blue, dryer defaults orange-red. |
+| `paused_color`          | `string`  | `#ff8a1c`           | Glow color when paused/reserved.  |
 | `error_color`           | `string`  | `#ff3b5c`           | Glow color for errors.            |
 | `off_color`             | `string`  | `#697382`           | Muted color when idle/off.        |
 | `show_details`          | `boolean` | `false`             | Open the settings drawer by default. |

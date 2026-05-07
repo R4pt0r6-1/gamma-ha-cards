@@ -9,6 +9,7 @@ type HassEntity = {
     icon?: string;
     options?: string[];
     unit_of_measurement?: string;
+    device_class?: string;
     event_type?: string | null;
     [key: string]: unknown;
   };
@@ -65,11 +66,9 @@ const DEFAULT_CONFIG: Omit<LgLaundryCardConfig, 'entity'> = {
   kind: 'washer',
   width: '100%',
   fill_container: true,
-  border_radius: '24px',
+  border_radius: '18px',
   background: '#101722',
-  running_color: '#39c6ff',
-  complete_color: '#45d158',
-  paused_color: '#ffb020',
+  paused_color: '#ff8a1c',
   error_color: '#ff3b5c',
   off_color: '#697382',
   show_details: false,
@@ -128,11 +127,6 @@ function humanize(value: string | undefined): string {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-function toNumber(value: unknown): number | undefined {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : undefined;
-}
-
 function formatDuration(minutes: number | undefined): string {
   if (minutes === undefined || minutes < 0) {
     return '--';
@@ -158,6 +152,22 @@ function formatEntityState(entity: HassEntity | undefined): string {
     return 'Unknown';
   }
 
+  if (entity?.attributes.device_class === 'timestamp') {
+    const date = parseTimestamp(entity.state);
+    if (date) {
+      return date.toLocaleTimeString([], {
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+    }
+  }
+
+  if (entity?.attributes.device_class === 'duration') {
+    return formatDuration(
+      parseDurationMinutes(entity.state, entity.attributes.unit_of_measurement),
+    );
+  }
+
   const unit = entity?.attributes.unit_of_measurement;
   const eventType = entity?.attributes.event_type;
   const raw = eventType || entity?.state || '';
@@ -165,14 +175,113 @@ function formatEntityState(entity: HassEntity | undefined): string {
   return unit ? `${value} ${unit}` : value;
 }
 
-function minutesUntil(timestamp: string): number | undefined {
-  const date = new Date(timestamp);
+function parseTimestamp(value: string): Date | undefined {
+  const trimmed = value.trim();
+  if (!/^\d{4}-\d{2}-\d{2}(T|\s)/.test(trimmed)) {
+    return undefined;
+  }
+
+  const date = new Date(trimmed);
 
   if (Number.isNaN(date.getTime())) {
     return undefined;
   }
 
+  return date;
+}
+
+function minutesUntil(timestamp: string): number | undefined {
+  const date = parseTimestamp(timestamp);
+  if (!date) {
+    return undefined;
+  }
+
   return Math.max(0, (date.getTime() - Date.now()) / 60000);
+}
+
+function numericMinutes(value: number, unit?: string): number {
+  const normalizedUnit = unit?.trim().toLowerCase();
+
+  if (['ms', 'millisecond', 'milliseconds'].includes(normalizedUnit ?? '')) {
+    return value / 60000;
+  }
+
+  if (['s', 'sec', 'secs', 'second', 'seconds'].includes(normalizedUnit ?? '')) {
+    return value / 60;
+  }
+
+  if (['h', 'hr', 'hrs', 'hour', 'hours'].includes(normalizedUnit ?? '')) {
+    return value * 60;
+  }
+
+  return value;
+}
+
+function parseDurationMinutes(value: unknown, unit?: string): number | undefined {
+  const raw = String(value ?? '').trim();
+
+  if (!raw || ['unknown', 'unavailable'].includes(raw)) {
+    return undefined;
+  }
+
+  const numeric = Number(raw);
+  if (Number.isFinite(numeric)) {
+    return numericMinutes(numeric, unit);
+  }
+
+  const isoDuration = raw.match(
+    /^P(?:T(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S)?)$/i,
+  );
+  if (isoDuration) {
+    const hours = Number(isoDuration[1] ?? 0);
+    const minutes = Number(isoDuration[2] ?? 0);
+    const seconds = Number(isoDuration[3] ?? 0);
+    return hours * 60 + minutes + seconds / 60;
+  }
+
+  const clockDuration = raw.match(/^(\d+):([0-5]\d)(?::([0-5]\d))?$/);
+  if (clockDuration) {
+    const first = Number(clockDuration[1]);
+    const second = Number(clockDuration[2]);
+    const third = clockDuration[3] ? Number(clockDuration[3]) : undefined;
+
+    if (third !== undefined) {
+      return first * 60 + second + third / 60;
+    }
+
+    return first > 12 ? first + second / 60 : first * 60 + second;
+  }
+
+  const textDuration = raw.match(
+    /^(?:(\d+(?:\.\d+)?)\s*h(?:ours?|rs?)?)?\s*(?:(\d+(?:\.\d+)?)\s*m(?:in(?:ute)?s?)?)?\s*(?:(\d+(?:\.\d+)?)\s*s(?:ec(?:ond)?s?)?)?$/i,
+  );
+  if (textDuration?.[1] || textDuration?.[2] || textDuration?.[3]) {
+    const hours = Number(textDuration[1] ?? 0);
+    const minutes = Number(textDuration[2] ?? 0);
+    const seconds = Number(textDuration[3] ?? 0);
+    return hours * 60 + minutes + seconds / 60;
+  }
+
+  return undefined;
+}
+
+function entityDurationMinutes(entity: HassEntity | undefined): number | undefined {
+  if (isUnavailable(entity)) {
+    return undefined;
+  }
+
+  return parseDurationMinutes(entity?.state, entity?.attributes.unit_of_measurement);
+}
+
+function remainingEntityMinutes(entity: HassEntity | undefined): number | undefined {
+  if (isUnavailable(entity)) {
+    return undefined;
+  }
+
+  return (
+    minutesUntil(entity?.state ?? '') ??
+    parseDurationMinutes(entity?.state, entity?.attributes.unit_of_measurement)
+  );
 }
 
 export class LgLaundryCard extends LitElement {
@@ -193,7 +302,7 @@ export class LgLaundryCard extends LitElement {
     return css`
       :host {
         --laundry-card-width: 100%;
-        --laundry-card-radius: 24px;
+        --laundry-card-radius: 18px;
         --laundry-background: #101722;
 
         display: block;
@@ -221,16 +330,16 @@ export class LgLaundryCard extends LitElement {
         box-shadow:
           inset 0 1px 0 rgb(255 255 255 / 10%),
           inset 0 0 0 1px rgb(255 255 255 / 3%),
-          0 18px 36px rgb(0 0 0 / 26%),
+          0 10px 22px rgb(0 0 0 / 24%),
           0 0 var(--laundry-glow-size)
-            color-mix(in srgb, var(--laundry-state-color) 16%, transparent);
+            color-mix(in srgb, var(--laundry-state-color) 10%, transparent);
         box-sizing: border-box;
         color: var(--primary-text-color, #f4f7fb);
         container-type: inline-size;
         display: grid;
-        gap: 14px;
+        gap: 6px;
         overflow: hidden;
-        padding: 14px;
+        padding: 7px;
         position: relative;
       }
 
@@ -239,9 +348,9 @@ export class LgLaundryCard extends LitElement {
           linear-gradient(120deg, rgb(255 255 255 / 12%), transparent 42%),
           linear-gradient(
             90deg,
-            color-mix(in srgb, var(--laundry-state-color) 16%, transparent),
+            color-mix(in srgb, var(--laundry-state-color) 10%, transparent),
             transparent 48%,
-            color-mix(in srgb, var(--laundry-contrast-color) 13%, transparent)
+            color-mix(in srgb, var(--laundry-contrast-color) 10%, transparent)
           );
         content: '';
         inset: 0;
@@ -251,32 +360,34 @@ export class LgLaundryCard extends LitElement {
       }
 
       .top {
+        align-items: start;
         display: grid;
-        gap: 14px;
-        grid-template-columns: minmax(116px, 30%) minmax(0, 1fr);
+        gap: 8px;
+        grid-template-columns: 52px minmax(0, 1fr);
         position: relative;
         z-index: 1;
       }
 
       .image-wrap {
         align-items: center;
-        aspect-ratio: 1 / 1.15;
         background:
           linear-gradient(145deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 2%)),
           color-mix(in srgb, var(--laundry-state-color) 7%, transparent);
         border: 1px solid rgb(255 255 255 / 12%);
-        border-radius: 20px;
+        border-radius: 12px;
         display: grid;
+        height: 60px;
         justify-items: center;
         min-width: 0;
         overflow: hidden;
-        padding: 8px;
+        padding: 4px;
+        width: 52px;
       }
 
       .appliance-image {
-        filter: drop-shadow(0 20px 18px rgb(0 0 0 / 28%));
+        filter: drop-shadow(0 8px 7px rgb(0 0 0 / 28%));
         height: 100%;
-        max-height: 210px;
+        max-height: 52px;
         object-fit: contain;
         width: 100%;
       }
@@ -287,13 +398,13 @@ export class LgLaundryCard extends LitElement {
           linear-gradient(145deg, #eff4f9, #6f7782 54%, #252a31),
           #8b94a0;
         border: 1px solid rgb(255 255 255 / 38%);
-        border-radius: 22px;
+        border-radius: 14px;
         box-shadow:
           inset 0 2px 7px rgb(255 255 255 / 42%),
           inset 0 -18px 26px rgb(0 0 0 / 28%),
           0 18px 18px rgb(0 0 0 / 24%);
         position: relative;
-        width: min(100%, 150px);
+        width: min(100%, 44px);
       }
 
       .fallback-machine::before {
@@ -326,26 +437,32 @@ export class LgLaundryCard extends LitElement {
 
       .summary {
         display: grid;
-        gap: 12px;
+        gap: 4px 7px;
+        grid-template-areas:
+          'header controls'
+          'timer controls'
+          'stats controls';
+        grid-template-columns: minmax(0, 1fr) auto;
         min-width: 0;
       }
 
       .header {
-        align-items: start;
+        align-items: center;
         display: grid;
-        gap: 8px;
+        gap: 4px;
+        grid-area: header;
         grid-template-columns: minmax(0, 1fr) auto;
       }
 
       .title {
         display: grid;
-        gap: 4px;
+        gap: 1px;
         min-width: 0;
       }
 
       .name {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: clamp(20px, 12cqi, 28px);
+        font-size: 17px;
         font-weight: 700;
         letter-spacing: 0;
         line-height: 1.05;
@@ -358,18 +475,18 @@ export class LgLaundryCard extends LitElement {
         align-items: center;
         color: var(--secondary-text-color, #b7c0ce);
         display: inline-flex;
-        font-size: 13px;
-        gap: 8px;
+        font-size: 10.5px;
+        gap: 5px;
         min-width: 0;
       }
 
       .status-dot {
         background: var(--laundry-state-color);
         border-radius: 999px;
-        box-shadow: 0 0 16px color-mix(in srgb, var(--laundry-state-color) 52%, transparent);
-        height: 8px;
+        box-shadow: 0 0 10px color-mix(in srgb, var(--laundry-state-color) 42%, transparent);
+        height: 6px;
         opacity: var(--laundry-status-opacity);
-        width: 8px;
+        width: 6px;
       }
 
       .status-text {
@@ -379,41 +496,47 @@ export class LgLaundryCard extends LitElement {
       }
 
       .timer {
-        background:
-          linear-gradient(145deg, rgb(255 255 255 / 9%), rgb(255 255 255 / 3%));
-        border: 1px solid rgb(255 255 255 / 10%);
-        border-radius: 18px;
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
         display: grid;
-        gap: 8px;
-        padding: 14px;
+        gap: 1px 6px;
+        grid-area: timer;
+        grid-template-columns: max-content minmax(0, 1fr);
+        padding: 0;
       }
 
       .timer-label {
-        color: var(--secondary-text-color, #b7c0ce);
-        font-size: 11px;
-        font-weight: 650;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
+        display: none;
       }
 
       .timer-value {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: clamp(32px, 18cqi, 48px);
+        font-size: 20px;
         font-weight: 750;
+        grid-row: 2 / span 2;
         letter-spacing: 0;
-        line-height: 0.95;
+        line-height: 1;
       }
 
       .timer-subtext {
         color: var(--secondary-text-color, #b7c0ce);
-        font-size: 12px;
+        font-size: 10px;
+        grid-column: 2;
+        grid-row: 2;
         line-height: 1.25;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .progress {
-        background: rgb(255 255 255 / 9%);
+        background: rgb(255 255 255 / 10%);
         border-radius: 999px;
-        height: 9px;
+        grid-column: 2;
+        grid-row: 3;
+        height: 4px;
         overflow: hidden;
       }
 
@@ -421,31 +544,33 @@ export class LgLaundryCard extends LitElement {
         background:
           linear-gradient(90deg, var(--laundry-state-color), var(--laundry-contrast-color));
         border-radius: inherit;
-        box-shadow: 0 0 16px color-mix(in srgb, var(--laundry-state-color) 42%, transparent);
+        box-shadow: 0 0 10px color-mix(in srgb, var(--laundry-state-color) 34%, transparent);
         height: 100%;
         transition: width 240ms ease;
         width: var(--laundry-progress);
       }
 
       .stats {
-        display: grid;
-        gap: 8px;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        display: flex;
+        gap: 4px;
+        grid-area: stats;
+        min-width: 0;
       }
 
       .stat {
         background: rgb(255 255 255 / 6%);
         border: 1px solid rgb(255 255 255 / 8%);
-        border-radius: 14px;
+        border-radius: 8px;
         display: grid;
-        gap: 3px;
+        flex: 1 1 0;
+        gap: 1px;
         min-width: 0;
-        padding: 9px 10px;
+        padding: 3px 5px;
       }
 
       .stat-label {
         color: var(--secondary-text-color, #b7c0ce);
-        font-size: 10px;
+        font-size: 7px;
         font-weight: 650;
         letter-spacing: 0.04em;
         text-transform: uppercase;
@@ -453,7 +578,7 @@ export class LgLaundryCard extends LitElement {
 
       .stat-value {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 13px;
+        font-size: 9.5px;
         font-weight: 650;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -462,8 +587,10 @@ export class LgLaundryCard extends LitElement {
 
       .controls {
         display: grid;
-        gap: 8px;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        align-self: end;
+        gap: 4px;
+        grid-area: controls;
+        grid-template-columns: repeat(2, 26px);
         position: relative;
         z-index: 1;
       }
@@ -474,16 +601,17 @@ export class LgLaundryCard extends LitElement {
         background:
           linear-gradient(145deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 4%));
         border: 1px solid rgb(255 255 255 / 11%);
-        border-radius: 15px;
+        border-radius: 9px;
         color: var(--primary-text-color, #f4f7fb);
         cursor: pointer;
         display: inline-flex;
         font: inherit;
-        gap: 8px;
+        font-size: 11px;
+        gap: 5px;
         justify-content: center;
-        min-height: 44px;
+        min-height: 26px;
         min-width: 0;
-        padding: 0 10px;
+        padding: 0;
         transition:
           background 160ms ease,
           border-color 160ms ease,
@@ -493,17 +621,14 @@ export class LgLaundryCard extends LitElement {
 
       .control ha-icon,
       .details-toggle ha-icon {
-        --mdc-icon-size: 19px;
+        --mdc-icon-size: 15px;
         color: currentColor;
         flex: 0 0 auto;
       }
 
       .control span,
       .details-toggle span {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        display: none;
       }
 
       .control.primary {
@@ -514,7 +639,7 @@ export class LgLaundryCard extends LitElement {
             color-mix(in srgb, var(--laundry-state-color) 14%, rgb(255 255 255 / 4%))
           );
         border-color: color-mix(in srgb, var(--laundry-state-color) 44%, transparent);
-        box-shadow: 0 0 26px color-mix(in srgb, var(--laundry-state-color) 14%, transparent);
+        box-shadow: 0 0 14px color-mix(in srgb, var(--laundry-state-color) 12%, transparent);
       }
 
       .control.warning {
@@ -538,8 +663,10 @@ export class LgLaundryCard extends LitElement {
       }
 
       .details-toggle {
+        border-radius: 999px;
         justify-self: end;
-        min-height: 36px;
+        min-height: 26px;
+        width: 28px;
       }
 
       .details {
@@ -641,45 +768,68 @@ export class LgLaundryCard extends LitElement {
 
       @container (max-width: 430px) {
         .top {
-          grid-template-columns: 1fr;
+          gap: 7px;
+          grid-template-columns: 46px minmax(0, 1fr);
         }
 
         .image-wrap {
-          aspect-ratio: 16 / 7;
-          max-height: 142px;
-          padding: 7px;
+          height: 54px;
+          width: 46px;
         }
 
         .appliance-image {
-          max-height: 126px;
+          max-height: 46px;
         }
 
         .fallback-machine {
-          width: min(46%, 118px);
+          width: min(100%, 38px);
         }
 
         .name {
-          font-size: 22px;
+          font-size: 16px;
         }
 
-        .timer {
-          padding: 12px;
+        .timer-value {
+          font-size: 18px;
         }
 
         .controls {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 3px;
+          grid-template-columns: repeat(2, 24px);
+        }
+
+        .control {
+          min-height: 24px;
         }
 
         .stats {
-          gap: 6px;
+          gap: 3px;
         }
 
         .stat {
-          padding: 8px;
+          padding: 3px 4px;
         }
 
         .stat-label {
+          display: none;
+        }
+
+        .stat-value {
           font-size: 9px;
+        }
+      }
+
+      @container (max-width: 360px) {
+        .summary {
+          grid-template-areas:
+            'header header'
+            'timer controls'
+            'stats stats';
+        }
+
+        .stats {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
         }
       }
     `;
@@ -722,7 +872,7 @@ export class LgLaundryCard extends LitElement {
     );
     this.style.setProperty(
       '--laundry-card-radius',
-      this.config.border_radius ?? '24px',
+      this.config.border_radius ?? '18px',
     );
     this.style.setProperty('--laundry-background', this.config.background ?? '#101722');
   }
@@ -808,11 +958,19 @@ export class LgLaundryCard extends LitElement {
     return 'off';
   }
 
+  private get kindColor(): string {
+    return this.kind === 'dryer' ? '#ff5a2f' : '#2f8cff';
+  }
+
+  private get kindContrastColor(): string {
+    return this.kind === 'dryer' ? '#ff9a1f' : '#4ad7ff';
+  }
+
   private get stateColor(): string {
     const colors = {
-      running: this.config.running_color ?? '#39c6ff',
-      complete: this.config.complete_color ?? '#45d158',
-      paused: this.config.paused_color ?? '#ffb020',
+      running: this.config.running_color ?? this.kindColor,
+      complete: this.config.complete_color ?? this.kindColor,
+      paused: this.config.paused_color ?? '#ff8a1c',
       error: this.config.error_color ?? '#ff3b5c',
       off: this.config.off_color ?? '#697382',
     };
@@ -821,17 +979,11 @@ export class LgLaundryCard extends LitElement {
   }
 
   private get remainingMinutes(): number | undefined {
-    const remaining = this.entity(this.config.remaining_time_entity);
-
-    if (isUnavailable(remaining)) {
-      return undefined;
-    }
-
-    return minutesUntil(remaining?.state ?? '');
+    return remainingEntityMinutes(this.entity(this.config.remaining_time_entity));
   }
 
   private get totalMinutes(): number | undefined {
-    return toNumber(this.entity(this.config.total_time_entity)?.state);
+    return entityDurationMinutes(this.entity(this.config.total_time_entity));
   }
 
   private get progress(): number {
@@ -878,12 +1030,17 @@ export class LgLaundryCard extends LitElement {
     }
 
     if (!isUnavailable(remaining) && remaining) {
-      const date = new Date(remaining.state);
-      if (!Number.isNaN(date.getTime())) {
+      const date = parseTimestamp(remaining.state);
+      if (date) {
         return `Finishes around ${date.toLocaleTimeString([], {
           hour: 'numeric',
           minute: '2-digit',
         })}`;
+      }
+
+      const duration = this.remainingMinutes;
+      if (duration !== undefined) {
+        return `${formatDuration(duration)} remaining`;
       }
     }
 
@@ -893,6 +1050,11 @@ export class LgLaundryCard extends LitElement {
   private hasOperation(option: string): boolean {
     const operation = this.entity(this.config.operation_entity);
     return Boolean(operation?.attributes.options?.includes(option));
+  }
+
+  private canCallOperation(option: string): boolean {
+    const operation = this.entity(this.config.operation_entity);
+    return Boolean(operation && operation.state !== 'unavailable' && this.hasOperation(option));
   }
 
   private isRemoteStartReady(): boolean {
@@ -906,6 +1068,22 @@ export class LgLaundryCard extends LitElement {
     this.optimisticTimer = window.setTimeout(() => {
       this.optimisticOperation = undefined;
     }, 2200);
+  }
+
+  private optimisticStatusForOperation(option: string): string {
+    if (option === 'start') {
+      return 'running';
+    }
+
+    if (option === 'stop') {
+      return 'pause';
+    }
+
+    if (option === 'power_on') {
+      return 'initial';
+    }
+
+    return option;
   }
 
   private trackServiceResult(result: Promise<unknown> | void): void {
@@ -922,7 +1100,7 @@ export class LgLaundryCard extends LitElement {
       return;
     }
 
-    this.setOptimisticOperation(option === 'start' ? 'running' : option);
+    this.setOptimisticOperation(this.optimisticStatusForOperation(option));
     this.trackServiceResult(
       this.hass?.callService('select', 'select_option', {
         entity_id: this.config.operation_entity,
@@ -953,6 +1131,11 @@ export class LgLaundryCard extends LitElement {
 
   private toggleDetails(): void {
     this.detailsOpen = !this.detailsOpen;
+  }
+
+  public disconnectedCallback(): void {
+    super.disconnectedCallback();
+    window.clearTimeout(this.optimisticTimer);
   }
 
   private dispatchMoreInfo(entityId?: string): void {
@@ -988,18 +1171,18 @@ export class LgLaundryCard extends LitElement {
   }
 
   private renderImage(): TemplateResult {
-    if (this.config.image) {
-      return html`
-        <img
-          class="appliance-image"
-          alt=${this.displayName}
-          src=${this.config.image}
-          loading="lazy"
-        />
-      `;
-    }
+    const image =
+      this.config.image ??
+      `/hacsfiles/gamma-ha-cards/assets/laundry-${this.kind}.svg`;
 
-    return html`<div class="fallback-machine" aria-hidden="true"></div>`;
+    return html`
+      <img
+        class="appliance-image"
+        alt=${this.displayName}
+        src=${image}
+        loading="lazy"
+      />
+    `;
   }
 
   private renderStat(label: string, entityId?: string): TemplateResult {
@@ -1023,7 +1206,9 @@ export class LgLaundryCard extends LitElement {
       <button
         type="button"
         class="control ${className}"
+        aria-label=${label}
         ?disabled=${disabled}
+        title=${label}
         @click=${handler}
       >
         <ha-icon icon=${icon}></ha-icon>
@@ -1088,15 +1273,26 @@ export class LgLaundryCard extends LitElement {
 
     const powerEntity = this.entity(this.config.power_entity);
     const operationEntity = this.entity(this.config.operation_entity);
-    const operationUnavailable = isUnavailable(operationEntity);
+    const isRunning = this.stateGroup === 'running';
+    const isPausable = this.stateGroup === 'running' || this.stateGroup === 'paused';
+    const hasPowerSwitch = Boolean(this.config.power_entity && powerEntity);
+    const operationUnavailable = !operationEntity || operationEntity.state === 'unavailable';
     const startDisabled =
-      operationUnavailable || !this.hasOperation('start') || !this.isRemoteStartReady();
-    const stopDisabled = operationUnavailable || !this.hasOperation('stop');
+      operationUnavailable ||
+      !this.canCallOperation('start') ||
+      !this.isRemoteStartReady() ||
+      isRunning;
+    const stopDisabled =
+      operationUnavailable || !this.canCallOperation('stop') || !isPausable;
     const powerOnDisabled =
-      isUnavailable(powerEntity) && !this.hasOperation('power_on');
+      hasPowerSwitch
+        ? isUnavailable(powerEntity) || powerEntity?.state === 'on'
+        : !this.canCallOperation('power_on');
     const powerOffDisabled =
-      isUnavailable(powerEntity) && !this.hasOperation('power_off');
-    const contrastColor = this.kind === 'dryer' ? '#ff8a1c' : '#45d1a8';
+      hasPowerSwitch
+        ? isUnavailable(powerEntity) || powerEntity?.state === 'off'
+        : !this.canCallOperation('power_off');
+    const contrastColor = this.kindContrastColor;
 
     return html`
       <ha-card>
@@ -1125,6 +1321,8 @@ export class LgLaundryCard extends LitElement {
                 <button
                   type="button"
                   class="details-toggle"
+                  aria-label=${this.detailsOpen ? 'Close settings' : 'Open settings'}
+                  title=${this.detailsOpen ? 'Close settings' : 'Open settings'}
                   @click=${this.toggleDetails}
                 >
                   <ha-icon
@@ -1148,36 +1346,36 @@ export class LgLaundryCard extends LitElement {
                 ${this.renderStat('Remote', this.config.remote_start_entity)}
                 ${this.renderStat('Energy', this.config.energy_entity)}
               </div>
-            </div>
-          </div>
 
-          <div class="controls">
-            ${this.renderControl(
-              'Power',
-              'mdi:power',
-              () => this.setPower(true),
-              powerOnDisabled,
-            )}
-            ${this.renderControl(
-              'Start',
-              'mdi:play',
-              () => this.callOperation('start'),
-              startDisabled,
-              'primary',
-            )}
-            ${this.renderControl(
-              'Stop',
-              'mdi:stop',
-              () => this.callOperation('stop'),
-              stopDisabled,
-            )}
-            ${this.renderControl(
-              'Off',
-              'mdi:power-standby',
-              () => this.setPower(false),
-              powerOffDisabled,
-              'warning',
-            )}
+              <div class="controls">
+                ${this.renderControl(
+                  'Power',
+                  'mdi:power',
+                  () => this.setPower(true),
+                  powerOnDisabled,
+                )}
+                ${this.renderControl(
+                  'Start',
+                  'mdi:play',
+                  () => this.callOperation('start'),
+                  startDisabled,
+                  'primary',
+                )}
+                ${this.renderControl(
+                  'Stop',
+                  'mdi:stop',
+                  () => this.callOperation('stop'),
+                  stopDisabled,
+                )}
+                ${this.renderControl(
+                  'Off',
+                  'mdi:power-standby',
+                  () => this.setPower(false),
+                  powerOffDisabled,
+                  'warning',
+                )}
+              </div>
+            </div>
           </div>
 
           ${this.detailsOpen
@@ -1268,6 +1466,9 @@ class LgLaundryCardEditor extends LitElement {
     Object.keys(next).forEach((key) => {
       const typedKey = key as keyof LgLaundryCardConfig;
       if (next[typedKey] === '') {
+        delete next[typedKey];
+      }
+      if (Array.isArray(next[typedKey]) && next[typedKey].length === 0) {
         delete next[typedKey];
       }
     });
@@ -1379,9 +1580,18 @@ class LgLaundryCardEditor extends LitElement {
         name: 'remote_start_entity',
         selector: { entity: { domain: 'binary_sensor' } },
       },
+      {
+        name: 'delayed_start_entity',
+        selector: { entity: { domain: ['number', 'sensor'] } },
+      },
       { name: 'notification_entity', selector: { entity: { domain: 'event' } } },
       { name: 'error_entity', selector: { entity: { domain: 'event' } } },
       { name: 'energy_entity', selector: { entity: { domain: 'sensor' } } },
+      { name: 'cycles_entity', selector: { entity: { domain: 'sensor' } } },
+      {
+        name: 'detail_entities',
+        selector: { entity: { multiple: true } },
+      },
     ];
     const labels: Record<string, string> = {
       entity: 'Status Sensor',
@@ -1390,9 +1600,12 @@ class LgLaundryCardEditor extends LitElement {
       remaining_time_entity: 'Remaining Time',
       total_time_entity: 'Total Time',
       remote_start_entity: 'Remote Start',
+      delayed_start_entity: 'Delayed Start',
       notification_entity: 'Notification Event',
       error_entity: 'Error Event',
       energy_entity: 'Energy Sensor',
+      cycles_entity: 'Cycles Sensor',
+      detail_entities: 'Extra Detail Entities',
     };
 
     return html`
@@ -1405,9 +1618,12 @@ class LgLaundryCardEditor extends LitElement {
           remaining_time_entity: this.config.remaining_time_entity,
           total_time_entity: this.config.total_time_entity,
           remote_start_entity: this.config.remote_start_entity,
+          delayed_start_entity: this.config.delayed_start_entity,
           notification_entity: this.config.notification_entity,
           error_entity: this.config.error_entity,
           energy_entity: this.config.energy_entity,
+          cycles_entity: this.config.cycles_entity,
+          detail_entities: this.config.detail_entities,
         }}
         .schema=${schema}
         .computeLabel=${(schemaItem: { name: string }) =>
@@ -1434,11 +1650,11 @@ class LgLaundryCardEditor extends LitElement {
           <h3>Style</h3>
           <div class="grid">
             ${this.renderTextInput('Width', 'width', '100%')}
-            ${this.renderTextInput('Radius', 'border_radius', '24px')}
+            ${this.renderTextInput('Radius', 'border_radius', '18px')}
             ${this.renderTextInput('Background', 'background', '#101722')}
-            ${this.renderTextInput('Running Color', 'running_color', '#39c6ff')}
-            ${this.renderTextInput('Complete Color', 'complete_color', '#45d158')}
-            ${this.renderTextInput('Paused Color', 'paused_color', '#ffb020')}
+            ${this.renderTextInput('Running Color', 'running_color', 'washer #2f8cff, dryer #ff5a2f')}
+            ${this.renderTextInput('Complete Color', 'complete_color', 'washer #2f8cff, dryer #ff5a2f')}
+            ${this.renderTextInput('Paused Color', 'paused_color', '#ff8a1c')}
             ${this.renderTextInput('Error Color', 'error_color', '#ff3b5c')}
             ${this.renderTextInput('Off Color', 'off_color', '#697382')}
           </div>

@@ -452,10 +452,10 @@
         },
         'sensor.washer_remaining_time': {
           entity_id: 'sensor.washer_remaining_time',
-          state: new Date(Date.now() + 32 * 60000).toISOString(),
+          state: '00:32:00',
           attributes: {
             friendly_name: 'Washer Remaining time',
-            device_class: 'timestamp',
+            device_class: 'duration',
           },
         },
         'sensor.washer_total_time': {
