@@ -10,6 +10,7 @@ A fast Home Assistant Lovelace card collection for compact, animated dashboard c
 - `custom:glow-thermostat-card` - a dial-style thermostat card with instant setpoint controls.
 - `custom:dual-outlet-card` - one duplex socket card for two switch entities, with independent tap toggles and a red on-state outline glow.
 - `custom:speed-fan-card` - a compact fan card with Off, 1, 2, and 3 speed controls.
+- `custom:lg-laundry-card` - a modern LG ThinQ washer/dryer card with power, start, stop, estimated time left, progress, appliance artwork, and an expandable settings drawer.
 
 ## Installation
 
@@ -274,6 +275,103 @@ Tap the pill to cycle through Off, 1, 2, and 3. Tap a speed button to jump strai
 | `tap_action`         | `string`  | `cycle`   | `cycle`, `more-info`, or `none`.  |
 | `hold_action`        | `string`  | `more-info` | `more-info` or `none`.          |
 | `animated`           | `boolean` | `true`    | Enable glow and fan animation.    |
+
+## LG Laundry Card
+
+Washer example:
+
+```yaml
+type: custom:lg-laundry-card
+entity: sensor.washer_current_status
+kind: washer
+name: Washer
+image: /hacsfiles/gamma-ha-cards/assets/laundry-washer.svg
+power_entity: switch.washer_power
+operation_entity: select.washer_operation
+remaining_time_entity: sensor.washer_remaining_time
+total_time_entity: sensor.washer_total_time
+remote_start_entity: binary_sensor.washer_remote_start
+delayed_start_entity: number.washer_delayed_start
+notification_entity: event.washer_notification
+error_entity: event.washer_error
+energy_entity: sensor.washer_energy_this_month
+cycles_entity: sensor.washer_cycles
+fill_container: true
+detail_entities:
+  - switch.washer_power
+  - select.washer_operation
+  - binary_sensor.washer_remote_start
+  - number.washer_delayed_start
+  - sensor.washer_remaining_time
+  - sensor.washer_total_time
+  - sensor.washer_cycles
+  - sensor.washer_energy_this_month
+  - sensor.washer_energy_yesterday
+  - sensor.washer_energy_last_month
+  - event.washer_notification
+  - event.washer_error
+```
+
+Dryer example:
+
+```yaml
+type: custom:lg-laundry-card
+entity: sensor.dryer_current_status
+kind: dryer
+name: Dryer
+image: /hacsfiles/gamma-ha-cards/assets/laundry-dryer.svg
+power_entity: switch.dryer_power
+operation_entity: select.dryer_operation
+remaining_time_entity: sensor.dryer_remaining_time
+total_time_entity: sensor.dryer_total_time
+remote_start_entity: binary_sensor.dryer_remote_start
+notification_entity: event.dryer_notification
+error_entity: event.dryer_error
+energy_entity: sensor.dryer_energy_this_month
+fill_container: true
+detail_entities:
+  - switch.dryer_power
+  - select.dryer_operation
+  - binary_sensor.dryer_remote_start
+  - sensor.dryer_remaining_time
+  - sensor.dryer_total_time
+  - sensor.dryer_energy_this_month
+  - sensor.dryer_energy_yesterday
+  - sensor.dryer_energy_last_month
+  - event.dryer_notification
+  - event.dryer_error
+```
+
+### LG Laundry Options
+
+| Name                    | Type      | Default             | Description                       |
+| ----------------------- | --------- | ------------------- | --------------------------------- |
+| `entity`                | `string`  | Required            | Main LG ThinQ current-status sensor. |
+| `kind`                  | `string`  | `washer`            | `washer` or `dryer`; adjusts artwork and accent color. |
+| `name`                  | `string`  | Entity friendly name | Display name.                    |
+| `image`                 | `string`  | Optional            | Appliance image URL.              |
+| `power_entity`          | `string`  | Optional            | LG ThinQ power switch.            |
+| `operation_entity`      | `string`  | Optional            | LG ThinQ operation select with `start`, `stop`, `power_on`, and `power_off` options. |
+| `remaining_time_entity` | `string`  | Optional            | Timestamp sensor for estimated finish time. |
+| `total_time_entity`     | `string`  | Optional            | Total cycle duration sensor.      |
+| `remote_start_entity`   | `string`  | Optional            | Remote-start binary sensor; Start is disabled when this is off. |
+| `delayed_start_entity`  | `string`  | Optional            | Delayed-start entity shown in details. |
+| `notification_entity`   | `string`  | Optional            | LG notification event entity.     |
+| `error_entity`          | `string`  | Optional            | LG error event entity.            |
+| `energy_entity`         | `string`  | Optional            | Energy sensor shown in the summary. |
+| `cycles_entity`         | `string`  | Optional            | Washer cycle count sensor shown in details. |
+| `detail_entities`       | `array`   | Built from config   | Extra entities shown in the expandable settings drawer. |
+| `width`                 | `string`  | `100%`              | CSS width of the card.            |
+| `fill_container`        | `boolean` | `true`              | Stretch the card to the full dashboard column width. |
+| `border_radius`         | `string`  | `24px`              | CSS border radius.                |
+| `background`            | `string`  | `#101722`           | Base card background.             |
+| `running_color`         | `string`  | `#39c6ff`           | Glow color while running.         |
+| `complete_color`        | `string`  | `#45d158`           | Glow color when complete.         |
+| `paused_color`          | `string`  | `#ffb020`           | Glow color when paused/reserved.  |
+| `error_color`           | `string`  | `#ff3b5c`           | Glow color for errors.            |
+| `off_color`             | `string`  | `#697382`           | Muted color when idle/off.        |
+| `show_details`          | `boolean` | `false`             | Open the settings drawer by default. |
+| `animated`              | `boolean` | `true`              | Enable glow animation.            |
 
 ## Local Development
 

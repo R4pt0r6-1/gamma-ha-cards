@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 620" role="img" aria-label="Front load washer">
+  <defs>
+    <linearGradient id="washerBody" x1="108" y1="58" x2="421" y2="558" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f7fbff"/>
+      <stop offset=".34" stop-color="#cfd8e4"/>
+      <stop offset=".68" stop-color="#6f7a88"/>
+      <stop offset="1" stop-color="#222932"/>
+    </linearGradient>
+    <linearGradient id="washerDoor" x1="158" y1="178" x2="373" y2="430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#cfe8fa"/>
+      <stop offset=".42" stop-color="#253747"/>
+      <stop offset=".76" stop-color="#111720"/>
+      <stop offset="1" stop-color="#030507"/>
+    </linearGradient>
+    <radialGradient id="washerGlass" cx="46%" cy="36%" r="64%">
+      <stop stop-color="#f4fbff" stop-opacity=".75"/>
+      <stop offset=".28" stop-color="#8fc7e7" stop-opacity=".24"/>
+      <stop offset=".68" stop-color="#182635" stop-opacity=".88"/>
+      <stop offset="1" stop-color="#05070a"/>
+    </radialGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="26" stdDeviation="22" flood-color="#000" flood-opacity=".34"/>
+    </filter>
+  </defs>
+  <path fill="#05070b" fill-opacity=".22" d="M93 570c28 22 88 34 166 34 82 0 146-14 174-37 16-13 6-34-16-32-48 5-99 7-153 7-61 0-113-2-157-6-24-2-32 20-14 34Z"/>
+  <g filter="url(#softShadow)">
+    <rect x="112" y="42" width="296" height="520" rx="44" fill="url(#washerBody)"/>
+    <rect x="132" y="64" width="256" height="76" rx="20" fill="#eef4fa" fill-opacity=".48"/>
+    <rect x="153" y="86" width="82" height="24" rx="12" fill="#202733" fill-opacity=".72"/>
+    <circle cx="348" cy="98" r="21" fill="#202733" fill-opacity=".78"/>
+    <circle cx="348" cy="98" r="11" fill="#8dd7ff" fill-opacity=".58"/>
+    <circle cx="260" cy="320" r="154" fill="#151c25" fill-opacity=".54"/>
+    <circle cx="260" cy="320" r="132" fill="#b7c4d2"/>
+    <circle cx="260" cy="320" r="109" fill="url(#washerDoor)"/>
+    <circle cx="260" cy="320" r="89" fill="url(#washerGlass)"/>
+    <path fill="#ffffff" fill-opacity=".24" d="M184 262c34-62 132-78 190-24-41-20-88-23-130-8-29 10-48 25-60 32Z"/>
+    <path fill="#5ed7ff" fill-opacity=".18" d="M175 362c48 43 119 55 180 29-44 59-139 55-180-29Z"/>
+    <rect x="159" y="490" width="202" height="13" rx="7" fill="#111820" fill-opacity=".34"/>
+    <rect x="178" y="514" width="164" height="9" rx="5" fill="#ffffff" fill-opacity=".16"/>
+  </g>
+</svg>

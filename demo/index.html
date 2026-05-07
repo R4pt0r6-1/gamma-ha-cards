@@ -110,6 +110,14 @@
           <speed-fan-card id="office-fan"></speed-fan-card>
         </div>
       </section>
+
+      <section class="demo-section">
+        <h2 class="group-title">Laundry</h2>
+        <div class="grid">
+          <lg-laundry-card id="washer-card"></lg-laundry-card>
+          <lg-laundry-card id="dryer-card"></lg-laundry-card>
+        </div>
+      </section>
     </main>
 
     <script type="module">
@@ -434,6 +442,151 @@
             icon: 'mdi:fan',
           },
         },
+        'sensor.washer_current_status': {
+          entity_id: 'sensor.washer_current_status',
+          state: 'running',
+          attributes: {
+            friendly_name: 'Washer Current status',
+            options: ['power_off', 'initial', 'pause', 'error', 'end', 'running'],
+          },
+        },
+        'sensor.washer_remaining_time': {
+          entity_id: 'sensor.washer_remaining_time',
+          state: new Date(Date.now() + 32 * 60000).toISOString(),
+          attributes: {
+            friendly_name: 'Washer Remaining time',
+            device_class: 'timestamp',
+          },
+        },
+        'sensor.washer_total_time': {
+          entity_id: 'sensor.washer_total_time',
+          state: '48',
+          attributes: {
+            friendly_name: 'Washer Total time',
+            unit_of_measurement: 'min',
+          },
+        },
+        'sensor.washer_energy_this_month': {
+          entity_id: 'sensor.washer_energy_this_month',
+          state: '885',
+          attributes: {
+            friendly_name: 'Washer Energy this month',
+            unit_of_measurement: 'Wh',
+          },
+        },
+        'sensor.washer_cycles': {
+          entity_id: 'sensor.washer_cycles',
+          state: '39',
+          attributes: { friendly_name: 'Washer Cycles' },
+        },
+        'switch.washer_power': {
+          entity_id: 'switch.washer_power',
+          state: 'on',
+          attributes: { friendly_name: 'Washer Power' },
+        },
+        'select.washer_operation': {
+          entity_id: 'select.washer_operation',
+          state: 'unknown',
+          attributes: {
+            friendly_name: 'Washer Operation',
+            options: ['start', 'stop', 'power_off', 'power_on'],
+          },
+        },
+        'binary_sensor.washer_remote_start': {
+          entity_id: 'binary_sensor.washer_remote_start',
+          state: 'on',
+          attributes: { friendly_name: 'Washer Remote start' },
+        },
+        'number.washer_delayed_start': {
+          entity_id: 'number.washer_delayed_start',
+          state: '0',
+          attributes: {
+            friendly_name: 'Washer Delayed start',
+            unit_of_measurement: 'h',
+          },
+        },
+        'event.washer_notification': {
+          entity_id: 'event.washer_notification',
+          state: new Date().toISOString(),
+          attributes: {
+            friendly_name: 'Washer Notification',
+            event_type: 'washing_is_complete',
+          },
+        },
+        'event.washer_error': {
+          entity_id: 'event.washer_error',
+          state: 'unknown',
+          attributes: {
+            friendly_name: 'Washer Error',
+            event_type: null,
+          },
+        },
+        'sensor.dryer_current_status': {
+          entity_id: 'sensor.dryer_current_status',
+          state: 'end',
+          attributes: {
+            friendly_name: 'Dryer Current status',
+            options: ['power_off', 'initial', 'cooling', 'pause', 'error', 'end', 'running'],
+          },
+        },
+        'sensor.dryer_remaining_time': {
+          entity_id: 'sensor.dryer_remaining_time',
+          state: 'unknown',
+          attributes: {
+            friendly_name: 'Dryer Remaining time',
+            device_class: 'timestamp',
+          },
+        },
+        'sensor.dryer_total_time': {
+          entity_id: 'sensor.dryer_total_time',
+          state: '41',
+          attributes: {
+            friendly_name: 'Dryer Total time',
+            unit_of_measurement: 'min',
+          },
+        },
+        'sensor.dryer_energy_this_month': {
+          entity_id: 'sensor.dryer_energy_this_month',
+          state: '35921',
+          attributes: {
+            friendly_name: 'Dryer Energy this month',
+            unit_of_measurement: 'Wh',
+          },
+        },
+        'switch.dryer_power': {
+          entity_id: 'switch.dryer_power',
+          state: 'off',
+          attributes: { friendly_name: 'Dryer Power' },
+        },
+        'select.dryer_operation': {
+          entity_id: 'select.dryer_operation',
+          state: 'unknown',
+          attributes: {
+            friendly_name: 'Dryer Operation',
+            options: ['start', 'stop', 'power_off', 'power_on'],
+          },
+        },
+        'binary_sensor.dryer_remote_start': {
+          entity_id: 'binary_sensor.dryer_remote_start',
+          state: 'on',
+          attributes: { friendly_name: 'Dryer Remote start' },
+        },
+        'event.dryer_notification': {
+          entity_id: 'event.dryer_notification',
+          state: new Date().toISOString(),
+          attributes: {
+            friendly_name: 'Dryer Notification',
+            event_type: 'drying_is_complete',
+          },
+        },
+        'event.dryer_error': {
+          entity_id: 'event.dryer_error',
+          state: 'unknown',
+          attributes: {
+            friendly_name: 'Dryer Error',
+            event_type: null,
+          },
+        },
       };
 
       const hass = {
@@ -505,7 +658,7 @@
 
           document
             .querySelectorAll(
-              'glow-light-card, glow-switch-card, glow-lock-card, glow-thermostat-card, dual-outlet-card, speed-fan-card',
+              'glow-light-card, glow-switch-card, glow-lock-card, glow-thermostat-card, dual-outlet-card, speed-fan-card, lg-laundry-card',
             )
             .forEach((card) => {
               card.hass = { ...hass, states: { ...states } };
@@ -620,6 +773,64 @@
         width: '100%',
       });
       officeFan.hass = hass;
+
+      const washerCard = document.querySelector('#washer-card');
+      washerCard.setConfig({
+        entity: 'sensor.washer_current_status',
+        kind: 'washer',
+        name: 'Washer',
+        image: '/assets/laundry-washer.svg',
+        power_entity: 'switch.washer_power',
+        operation_entity: 'select.washer_operation',
+        remaining_time_entity: 'sensor.washer_remaining_time',
+        total_time_entity: 'sensor.washer_total_time',
+        remote_start_entity: 'binary_sensor.washer_remote_start',
+        delayed_start_entity: 'number.washer_delayed_start',
+        notification_entity: 'event.washer_notification',
+        error_entity: 'event.washer_error',
+        energy_entity: 'sensor.washer_energy_this_month',
+        cycles_entity: 'sensor.washer_cycles',
+        detail_entities: [
+          'switch.washer_power',
+          'select.washer_operation',
+          'binary_sensor.washer_remote_start',
+          'number.washer_delayed_start',
+          'sensor.washer_remaining_time',
+          'sensor.washer_total_time',
+          'sensor.washer_cycles',
+          'sensor.washer_energy_this_month',
+          'event.washer_notification',
+          'event.washer_error',
+        ],
+      });
+      washerCard.hass = hass;
+
+      const dryerCard = document.querySelector('#dryer-card');
+      dryerCard.setConfig({
+        entity: 'sensor.dryer_current_status',
+        kind: 'dryer',
+        name: 'Dryer',
+        image: '/assets/laundry-dryer.svg',
+        power_entity: 'switch.dryer_power',
+        operation_entity: 'select.dryer_operation',
+        remaining_time_entity: 'sensor.dryer_remaining_time',
+        total_time_entity: 'sensor.dryer_total_time',
+        remote_start_entity: 'binary_sensor.dryer_remote_start',
+        notification_entity: 'event.dryer_notification',
+        error_entity: 'event.dryer_error',
+        energy_entity: 'sensor.dryer_energy_this_month',
+        detail_entities: [
+          'switch.dryer_power',
+          'select.dryer_operation',
+          'binary_sensor.dryer_remote_start',
+          'sensor.dryer_remaining_time',
+          'sensor.dryer_total_time',
+          'sensor.dryer_energy_this_month',
+          'event.dryer_notification',
+          'event.dryer_error',
+        ],
+      });
+      dryerCard.hass = hass;
     </script>
   </body>
 </html>
