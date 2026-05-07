@@ -6735,9 +6735,9 @@ const $t = class $t extends u {
         color: var(--primary-text-color, #f4f7fb);
         container-type: inline-size;
         display: grid;
-        gap: 16px;
+        gap: 14px;
         overflow: hidden;
-        padding: 16px;
+        padding: 14px;
         position: relative;
       }
 
@@ -6759,8 +6759,8 @@ const $t = class $t extends u {
 
       .top {
         display: grid;
-        gap: 16px;
-        grid-template-columns: minmax(116px, 34%) minmax(0, 1fr);
+        gap: 14px;
+        grid-template-columns: minmax(116px, 30%) minmax(0, 1fr);
         position: relative;
         z-index: 1;
       }
@@ -7002,6 +7002,15 @@ const $t = class $t extends u {
       .details-toggle ha-icon {
         --mdc-icon-size: 19px;
         color: currentColor;
+        flex: 0 0 auto;
+      }
+
+      .control span,
+      .details-toggle span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .control.primary {
@@ -7137,17 +7146,47 @@ const $t = class $t extends u {
         color: var(--primary-text-color, #f4f7fb);
       }
 
-      @media (max-width: 560px) {
+      @container (max-width: 430px) {
         .top {
           grid-template-columns: 1fr;
         }
 
         .image-wrap {
-          aspect-ratio: 16 / 8;
+          aspect-ratio: 16 / 7;
+          max-height: 142px;
+          padding: 7px;
+        }
+
+        .appliance-image {
+          max-height: 126px;
+        }
+
+        .fallback-machine {
+          width: min(46%, 118px);
+        }
+
+        .name {
+          font-size: 22px;
+        }
+
+        .timer {
+          padding: 12px;
         }
 
         .controls {
           grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .stats {
+          gap: 6px;
+        }
+
+        .stat {
+          padding: 8px;
+        }
+
+        .stat-label {
+          font-size: 9px;
         }
       }
     `;
