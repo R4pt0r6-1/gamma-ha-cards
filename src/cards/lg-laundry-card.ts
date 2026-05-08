@@ -451,7 +451,7 @@ export class LgLaundryCard extends LitElement {
         display: grid;
         gap: 4px;
         grid-area: header;
-        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-columns: minmax(0, 1fr);
       }
 
       .title {
@@ -596,7 +596,7 @@ export class LgLaundryCard extends LitElement {
       }
 
       .control,
-      .details-toggle {
+      .details-close {
         align-items: center;
         background:
           linear-gradient(145deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 4%));
@@ -620,14 +620,14 @@ export class LgLaundryCard extends LitElement {
       }
 
       .control ha-icon,
-      .details-toggle ha-icon {
+      .details-close ha-icon {
         --mdc-icon-size: 15px;
         color: currentColor;
         flex: 0 0 auto;
       }
 
       .control span,
-      .details-toggle span {
+      .details-close span {
         display: none;
       }
 
@@ -647,26 +647,19 @@ export class LgLaundryCard extends LitElement {
       }
 
       .control:focus-visible,
-      .details-toggle:focus-visible {
+      .details-close:focus-visible {
         outline: 2px solid var(--laundry-state-color);
         outline-offset: 2px;
       }
 
       .control:not(:disabled):active,
-      .details-toggle:not(:disabled):active {
+      .details-close:not(:disabled):active {
         transform: scale(0.98);
       }
 
       .control:disabled {
         cursor: default;
         opacity: 0.38;
-      }
-
-      .details-toggle {
-        border-radius: 999px;
-        justify-self: end;
-        min-height: 26px;
-        width: 28px;
       }
 
       .details {
@@ -681,6 +674,7 @@ export class LgLaundryCard extends LitElement {
       .detail-header {
         align-items: center;
         display: flex;
+        gap: 10px;
         justify-content: space-between;
       }
 
@@ -688,6 +682,12 @@ export class LgLaundryCard extends LitElement {
         color: var(--primary-text-color, #f4f7fb);
         font-size: 13px;
         font-weight: 700;
+      }
+
+      .details-close {
+        border-radius: 8px;
+        min-height: 24px;
+        width: 26px;
       }
 
       .detail-grid {
@@ -1318,18 +1318,6 @@ export class LgLaundryCard extends LitElement {
                     <span class="status-text">${this.statusLabel}</span>
                   </span>
                 </div>
-                <button
-                  type="button"
-                  class="details-toggle"
-                  aria-label=${this.detailsOpen ? 'Close settings' : 'Open settings'}
-                  title=${this.detailsOpen ? 'Close settings' : 'Open settings'}
-                  @click=${this.toggleDetails}
-                >
-                  <ha-icon
-                    icon=${this.detailsOpen ? 'mdi:chevron-up' : 'mdi:tune-variant'}
-                  ></ha-icon>
-                  <span>Settings</span>
-                </button>
               </div>
 
               <div class="timer">
@@ -1383,6 +1371,16 @@ export class LgLaundryCard extends LitElement {
                 <section class="details">
                   <div class="detail-header">
                     <span class="detail-title">Available settings</span>
+                    <button
+                      type="button"
+                      class="details-close"
+                      aria-label="Close settings"
+                      title="Close settings"
+                      @click=${this.toggleDetails}
+                    >
+                      <ha-icon icon="mdi:chevron-up"></ha-icon>
+                      <span>Close</span>
+                    </button>
                   </div>
                   <div class="detail-grid">
                     ${this.configuredDetailEntities().map((entityId) =>
