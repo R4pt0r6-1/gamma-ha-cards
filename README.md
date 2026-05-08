@@ -370,10 +370,12 @@ washer:
   detail_entities:
     - sensor.washer_energy_yesterday
   control_buttons:
-    - power_on
+    - power_toggle
     - start
     - stop
-    - power_off
+  metric_entities:
+    - sensor.washer_energy_this_month
+    - sensor.washer_cycles
 dryer:
   entity: sensor.dryer_current_status
   name: Dryer
@@ -389,10 +391,11 @@ dryer:
   detail_entities:
     - sensor.dryer_energy_yesterday
   control_buttons:
-    - power_on
+    - power_toggle
     - start
     - stop
-    - power_off
+  metric_entities:
+    - sensor.dryer_energy_this_month
 ```
 
 ### LG Laundry Pair Options
@@ -410,7 +413,7 @@ dryer:
 | `show_stats`     | `boolean` | `false`   | Show Total, Remote, and Energy stats for each machine. |
 | `animated`       | `boolean` | `true`    | Reserved for visual animation support. |
 
-Machine `control_buttons` accepts `power_on`, `start`, `stop`, `power_off`, `settings`, `more_info`, `toggle`, `press`, `select_option`, and `service`. Use a comma list in the visual editor for simple reorder/hide changes, or YAML objects for custom icons, labels, entities, and services.
+Machine `control_buttons` accepts `power_toggle`, `power_on`, `start`, `stop`, `power_off`, `settings`, `more_info`, `toggle`, `press`, `select_option`, and `service`. Use a comma list in the visual editor for simple reorder/hide changes, or YAML objects for custom icons, labels, entities, and services. Machine `metric_entities` controls the compact metric line shown when `show_stats` is false.
 
 ### LG Laundry Options
 

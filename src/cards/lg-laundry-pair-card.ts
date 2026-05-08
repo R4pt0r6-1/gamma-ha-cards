@@ -16,6 +16,7 @@ import type {
 } from './lg-laundry-card';
 
 type LaundryPairControlAction =
+  | 'power_toggle'
   | 'power_on'
   | 'start'
   | 'stop'
@@ -66,6 +67,7 @@ type LaundryPairMachineConfig = Pick<
   | 'off_color'
 > & {
   control_buttons?: LaundryPairControlButton[];
+  metric_entities?: string[];
 };
 
 interface LgLaundryPairCardConfig {
@@ -101,21 +103,16 @@ const DEFAULT_PAIR_CONFIG: Omit<LgLaundryPairCardConfig, 'washer' | 'dryer'> = {
 };
 
 const DEFAULT_CONTROL_BUTTONS: LaundryPairControlButtonConfig[] = [
-  { action: 'power_on', label: 'Power', icon: 'mdi:power' },
+  { action: 'power_toggle', label: 'Power', icon: 'mdi:power' },
   { action: 'start', label: 'Start', icon: 'mdi:play', className: 'primary' },
   { action: 'stop', label: 'Stop', icon: 'mdi:stop' },
-  {
-    action: 'power_off',
-    label: 'Off',
-    icon: 'mdi:power-standby',
-    className: 'warning',
-  },
 ];
 
 const CONTROL_PRESETS: Record<
   LaundryPairControlAction,
   Required<Pick<LaundryPairControlButtonConfig, 'label' | 'icon'>>
 > = {
+  power_toggle: { label: 'Power', icon: 'mdi:power' },
   power_on: { label: 'Power', icon: 'mdi:power' },
   start: { label: 'Start', icon: 'mdi:play' },
   stop: { label: 'Stop', icon: 'mdi:stop' },
@@ -339,6 +336,7 @@ export class LgLaundryPairCard extends LitElement {
 
       .machine-head,
       .progress,
+      .machine-metrics,
       .stats,
       .controls {
         position: relative;
@@ -468,6 +466,37 @@ export class LgLaundryPairCard extends LitElement {
         height: 100%;
         transition: width 240ms ease;
         width: var(--machine-progress);
+      }
+
+      .machine-metrics {
+        color: var(--secondary-text-color, #aeb8c6);
+        display: flex;
+        flex-wrap: wrap;
+        font-size: 10.5px;
+        gap: 5px 10px;
+        line-height: 1.25;
+        min-width: 0;
+      }
+
+      .metric {
+        align-items: baseline;
+        display: inline-flex;
+        gap: 4px;
+        min-width: 0;
+      }
+
+      .metric-label {
+        color: var(--secondary-text-color, #8f9aaa);
+        font-weight: 600;
+      }
+
+      .metric-value {
+        color: var(--primary-text-color, #f4f7fb);
+        font-weight: 650;
+        max-width: 112px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .stats {
@@ -1380,6 +1409,11 @@ export class LgLaundryPairCard extends LitElement {
     const operationOption = button.option ?? action;
 
     switch (action) {
+      case 'power_toggle':
+        return hasPowerSwitch
+          ? isUnavailable(powerEntity)
+          : !this.canCallOperation(machine, 'power_on') &&
+              !this.canCallOperation(machine, 'power_off');
       case 'power_on':
         return hasPowerSwitch
           ? isUnavailable(powerEntity) || powerEntity?.state === 'on'
@@ -1432,6 +1466,14 @@ export class LgLaundryPairCard extends LitElement {
     const action = button.action ?? 'more_info';
 
     switch (action) {
+      case 'power_toggle': {
+        const powerEntity = this.entity(machine.power_entity);
+        const shouldPowerOn = powerEntity
+          ? powerEntity.state !== 'on'
+          : this.stateGroup(kind, machine) === 'off';
+        this.setPower(kind, machine, shouldPowerOn);
+        break;
+      }
       case 'power_on':
         this.setPower(kind, machine, true);
         break;
@@ -1512,6 +1554,48 @@ export class LgLaundryPairCard extends LitElement {
     return [...new Set(entities)].filter(
       (entityId) => !isUnavailable(this.entity(entityId)),
     );
+  }
+
+  private configuredMetricEntities(machine: LaundryPairMachineConfig): string[] {
+    const entities = Array.isArray(machine.metric_entities) && machine.metric_entities.length
+      ? machine.metric_entities
+      : [machine.energy_entity, machine.cycles_entity];
+
+    return [...new Set(entities.filter((entityId): entityId is string => Boolean(entityId)))]
+      .filter((entityId) => !isUnavailable(this.entity(entityId)));
+  }
+
+  private metricLabel(
+    kind: ApplianceKind,
+    entityId: string,
+    machine: LaundryPairMachineConfig,
+  ): string {
+    const entity = this.entity(entityId);
+    const raw =
+      entity?.attributes.friendly_name ??
+      entityId.split('.').slice(1).join(' ');
+    const name = this.displayName(kind, machine).toLowerCase();
+    const cleaned = raw
+      .replace(new RegExp(`^${name}\\s+`, 'i'), '')
+      .replace(/^dryer\s+/i, '')
+      .replace(/^washer\s+/i, '')
+      .replace(/\s+this month$/i, '')
+      .trim();
+
+    return humanize(cleaned || raw);
+  }
+
+  private renderMetric(
+    kind: ApplianceKind,
+    entityId: string,
+    machine: LaundryPairMachineConfig,
+  ): TemplateResult {
+    return html`
+      <span class="metric">
+        <span class="metric-label">${this.metricLabel(kind, entityId, machine)}</span>
+        <span class="metric-value">${formatEntityState(this.entity(entityId))}</span>
+      </span>
+    `;
   }
 
   private toggleSwitch(entityId: string): void {
@@ -1683,6 +1767,9 @@ export class LgLaundryPairCard extends LitElement {
   ): TemplateResult {
     const stateGroup = this.stateGroup(kind, machine);
     const controlButtons = this.configuredControlButtons(machine);
+    const metricEntities = this.config.show_stats === false
+      ? this.configuredMetricEntities(machine)
+      : [];
 
     return html`
       <section
@@ -1732,6 +1819,16 @@ export class LgLaundryPairCard extends LitElement {
         <div class="progress" aria-hidden="true">
           <div class="progress-bar"></div>
         </div>
+
+        ${metricEntities.length
+          ? html`
+              <div class="machine-metrics">
+                ${metricEntities.map((entityId) =>
+                  this.renderMetric(kind, entityId, machine),
+                )}
+              </div>
+            `
+          : nothing}
 
         ${this.config.show_stats === false
           ? nothing
@@ -1932,6 +2029,12 @@ class LgLaundryPairCardEditor extends LitElement {
       .join(', ');
   }
 
+  private commaListValue(kind: ApplianceKind, key: keyof LaundryPairMachineConfig): string {
+    const value = this.valueFor(`${kind}.${key}`);
+
+    return Array.isArray(value) ? value.join(', ') : '';
+  }
+
   private controlButtonsChanged(event: Event): void {
     const target = event.target as PairConfigElement;
 
@@ -1953,11 +2056,41 @@ class LgLaundryPairCardEditor extends LitElement {
     return html`
       <ha-textfield
         .label=${`${title} Bottom Buttons`}
-        .helper=${'Comma list: power_on, start, stop, power_off, settings, more_info'}
-        .placeholder=${'power_on, start, stop, power_off'}
+        .helper=${'Comma list: power_toggle, start, stop, settings, more_info'}
+        .placeholder=${'power_toggle, start, stop'}
         .value=${this.controlButtonsValue(kind)}
         .configPath=${`${kind}.control_buttons`}
         @input=${this.controlButtonsChanged}
+      ></ha-textfield>
+    `;
+  }
+
+  private metricEntitiesChanged(event: Event): void {
+    const target = event.target as PairConfigElement;
+
+    if (!target.configPath) {
+      return;
+    }
+
+    const entities = String(target.value ?? '')
+      .split(',')
+      .map((entityId) => entityId.trim())
+      .filter(Boolean);
+
+    this.updatePath(target.configPath, entities.length ? entities : undefined);
+  }
+
+  private renderMetricEntitiesInput(kind: ApplianceKind): TemplateResult {
+    const title = kind === 'dryer' ? 'Dryer' : 'Washer';
+
+    return html`
+      <ha-textfield
+        .label=${`${title} Compact Metrics`}
+        .helper=${'Comma-separated entity ids shown as small text when stats are hidden'}
+        .placeholder=${`sensor.${kind}_energy_this_month`}
+        .value=${this.commaListValue(kind, 'metric_entities')}
+        .configPath=${`${kind}.metric_entities`}
+        @input=${this.metricEntitiesChanged}
       ></ha-textfield>
     `;
   }
@@ -1998,6 +2131,7 @@ class LgLaundryPairCardEditor extends LitElement {
           ${this.renderTextInput(`${title} Cycles`, `${kind}.cycles_entity`, `sensor.${kind}_cycles`)}
           ${this.renderTextInput(`${title} Notification Event`, `${kind}.notification_entity`, `event.${kind}_notification`)}
           ${this.renderTextInput(`${title} Error Event`, `${kind}.error_entity`, `event.${kind}_error`)}
+          ${this.renderMetricEntitiesInput(kind)}
           ${this.renderControlButtonsInput(kind)}
         </div>
       </section>
