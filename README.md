@@ -279,6 +279,8 @@ Tap the pill to cycle through Off, 1, 2, and 3. Tap a speed button to jump strai
 
 ## LG Laundry Card
 
+The header gear opens a settings and details popup without expanding the dashboard tile.
+
 Washer example:
 
 ```yaml

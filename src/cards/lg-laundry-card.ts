@@ -289,12 +289,14 @@ export class LgLaundryCard extends LitElement {
     hass: { attribute: false },
     config: { state: true },
     detailsOpen: { state: true },
+    settingsOpen: { state: true },
     optimisticOperation: { state: true },
   };
 
   public hass?: HomeAssistant;
   private config!: LgLaundryCardConfig;
   private detailsOpen = false;
+  private settingsOpen = false;
   private optimisticOperation?: string;
   private optimisticTimer?: number;
 
@@ -465,12 +467,19 @@ export class LgLaundryCard extends LitElement {
       .time-block {
         align-items: end;
         display: grid;
-        flex: 0 1 auto;
         gap: 1px;
         justify-items: end;
-        max-width: 55%;
         min-width: 0;
         text-align: right;
+      }
+
+      .head-actions {
+        align-items: center;
+        display: inline-flex;
+        flex: 0 1 auto;
+        gap: 7px;
+        max-width: 58%;
+        min-width: 0;
       }
 
       .time-value {
@@ -493,6 +502,46 @@ export class LgLaundryCard extends LitElement {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+      }
+
+      .settings-toggle {
+        align-items: center;
+        background: rgb(255 255 255 / 5%);
+        border: 1px solid rgb(255 255 255 / 9%);
+        border-radius: 8px;
+        color: var(--secondary-text-color, #c2ccd9);
+        cursor: pointer;
+        display: inline-flex;
+        flex: 0 0 auto;
+        height: 28px;
+        justify-content: center;
+        padding: 0;
+        transition:
+          background 160ms ease,
+          border-color 160ms ease,
+          color 160ms ease,
+          transform 160ms ease;
+        width: 28px;
+      }
+
+      .settings-toggle ha-icon {
+        --mdc-icon-size: 16px;
+        color: currentColor;
+      }
+
+      .settings-toggle:hover {
+        background: rgb(255 255 255 / 9%);
+        border-color: rgb(255 255 255 / 14%);
+        color: var(--primary-text-color, #f4f7fb);
+      }
+
+      .settings-toggle:focus-visible {
+        outline: 2px solid var(--laundry-state-color);
+        outline-offset: 2px;
+      }
+
+      .settings-toggle:active {
+        transform: scale(0.96);
       }
 
       .progress {
@@ -673,6 +722,7 @@ export class LgLaundryCard extends LitElement {
         border-radius: 10px;
         display: grid;
         gap: 6px;
+        grid-template-columns: minmax(0, 1fr) auto;
         min-width: 0;
         padding: 8px;
       }
@@ -693,6 +743,27 @@ export class LgLaundryCard extends LitElement {
       .detail-main ha-icon {
         --mdc-icon-size: 16px;
         color: var(--laundry-state-color);
+      }
+
+      .detail-action {
+        align-items: center;
+        background: rgb(255 255 255 / 6%);
+        border: 1px solid rgb(255 255 255 / 9%);
+        border-radius: 7px;
+        color: var(--primary-text-color, #f4f7fb);
+        cursor: pointer;
+        display: inline-flex;
+        font: inherit;
+        font-size: 11px;
+        font-weight: 650;
+        justify-content: center;
+        letter-spacing: 0;
+        min-height: 26px;
+        padding: 0 10px;
+      }
+
+      .detail-action:hover {
+        background: rgb(255 255 255 / 10%);
       }
 
       .detail-name,
@@ -718,6 +789,7 @@ export class LgLaundryCard extends LitElement {
         display: flex;
         flex-wrap: wrap;
         gap: 5px;
+        grid-column: 1 / -1;
       }
 
       .chip {
@@ -735,6 +807,107 @@ export class LgLaundryCard extends LitElement {
         background: color-mix(in srgb, var(--laundry-state-color) 20%, transparent);
         border-color: color-mix(in srgb, var(--laundry-state-color) 38%, transparent);
         color: var(--primary-text-color, #f4f7fb);
+      }
+
+      .settings-overlay {
+        align-items: center;
+        background: rgb(0 0 0 / 48%);
+        display: grid;
+        inset: 0;
+        justify-items: center;
+        padding: 16px;
+        position: fixed;
+        z-index: 2147483647;
+      }
+
+      .settings-dialog {
+        background:
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--laundry-background) 90%, #ffffff 5%),
+            color-mix(in srgb, var(--laundry-background) 96%, #000000 12%)
+          );
+        border: 1px solid rgb(255 255 255 / 10%);
+        border-radius: 16px;
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 7%),
+          0 20px 60px rgb(0 0 0 / 38%);
+        color: var(--primary-text-color, #f4f7fb);
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        max-height: min(680px, calc(100vh - 32px));
+        overflow: hidden;
+        width: min(480px, calc(100vw - 28px));
+      }
+
+      .settings-dialog-header {
+        align-items: center;
+        border-bottom: 1px solid rgb(255 255 255 / 8%);
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+        padding: 15px 16px 13px;
+      }
+
+      .settings-dialog-title {
+        display: grid;
+        gap: 3px;
+        min-width: 0;
+      }
+
+      .settings-dialog-title span {
+        color: var(--secondary-text-color, #9aa3b1);
+        font-size: 10px;
+        font-weight: 650;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .settings-dialog-title h2 {
+        color: var(--primary-text-color, #f4f7fb);
+        font-size: 18px;
+        font-weight: 750;
+        letter-spacing: 0;
+        line-height: 1.1;
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .settings-dialog-close {
+        align-items: center;
+        background: rgb(255 255 255 / 6%);
+        border: 1px solid rgb(255 255 255 / 10%);
+        border-radius: 9px;
+        color: var(--primary-text-color, #f4f7fb);
+        cursor: pointer;
+        display: inline-flex;
+        flex: 0 0 auto;
+        height: 32px;
+        justify-content: center;
+        padding: 0;
+        width: 32px;
+      }
+
+      .settings-dialog-close ha-icon {
+        --mdc-icon-size: 17px;
+      }
+
+      .settings-panel {
+        display: grid;
+        gap: 10px;
+        overflow: auto;
+        padding: 12px;
+      }
+
+      .settings-panel .detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-row ha-switch {
+        --switch-checked-color: var(--laundry-state-color);
+        --switch-checked-button-color: var(--laundry-state-color);
       }
 
       @container (max-width: 360px) {
@@ -771,6 +944,16 @@ export class LgLaundryCard extends LitElement {
 
         .time-subtext {
           font-size: 9.5px;
+        }
+
+        .head-actions {
+          gap: 6px;
+          max-width: 60%;
+        }
+
+        .settings-toggle {
+          height: 30px;
+          width: 30px;
         }
 
         .stats {
@@ -844,6 +1027,7 @@ export class LgLaundryCard extends LitElement {
       ...config,
     };
     this.detailsOpen = Boolean(this.config.show_details);
+    this.settingsOpen = false;
 
     this.style.setProperty(
       '--laundry-card-width',
@@ -1112,6 +1296,49 @@ export class LgLaundryCard extends LitElement {
     this.detailsOpen = !this.detailsOpen;
   }
 
+  private toggleSettings(event: Event): void {
+    event.stopPropagation();
+    this.settingsOpen = !this.settingsOpen;
+  }
+
+  private closeSettings(event?: Event): void {
+    event?.stopPropagation();
+    this.settingsOpen = false;
+  }
+
+  private isEditorPreview(): boolean {
+    return this.isInEditorPreviewTree(this);
+  }
+
+  private isInEditorPreviewTree(current: Node | null): boolean {
+    while (current) {
+      if (
+        current instanceof Element &&
+        current.matches(
+          [
+            'hui-card-preview',
+            'hui-card-element-editor',
+            'hui-dialog-edit-card',
+            'hui-card-options',
+          ].join(','),
+        )
+      ) {
+        return true;
+      }
+
+      const root = current.getRootNode();
+
+      if (root instanceof ShadowRoot) {
+        current = root.host;
+        continue;
+      }
+
+      current = current instanceof Element ? current.parentElement : null;
+    }
+
+    return false;
+  }
+
   public disconnectedCallback(): void {
     super.disconnectedCallback();
     window.clearTimeout(this.optimisticTimer);
@@ -1129,6 +1356,14 @@ export class LgLaundryCard extends LitElement {
         composed: true,
       }),
     );
+  }
+
+  private toggleSwitch(entityId: string): void {
+    this.hass?.callService('switch', 'toggle', { entity_id: entityId });
+  }
+
+  private pressButton(entityId: string): void {
+    this.hass?.callService('button', 'press', { entity_id: entityId });
   }
 
   private configuredDetailEntities(): string[] {
@@ -1200,6 +1435,8 @@ export class LgLaundryCard extends LitElement {
     const entity = this.entity(entityId);
     const options = entity?.attributes.options ?? [];
     const isSelect = entityId.startsWith('select.');
+    const isSwitch = entityId.startsWith('switch.');
+    const isButton = entityId.startsWith('button.');
 
     return html`
       <div class="detail-row">
@@ -1216,6 +1453,29 @@ export class LgLaundryCard extends LitElement {
             <span class="detail-state">${formatEntityState(entity)}</span>
           </span>
         </button>
+        ${isSwitch && entity
+          ? html`
+              <ha-switch
+                .checked=${entity.state === 'on'}
+                @click=${(event: Event) => event.stopPropagation()}
+                @change=${() => this.toggleSwitch(entityId)}
+              ></ha-switch>
+            `
+          : nothing}
+        ${isButton
+          ? html`
+              <button
+                type="button"
+                class="detail-action"
+                @click=${(event: Event) => {
+                  event.stopPropagation();
+                  this.pressButton(entityId);
+                }}
+              >
+                Press
+              </button>
+            `
+          : nothing}
         ${options.length
           ? html`
               <div class="chips">
@@ -1241,6 +1501,46 @@ export class LgLaundryCard extends LitElement {
               </div>
             `
           : nothing}
+      </div>
+    `;
+  }
+
+  private renderSettingsDialog(): TemplateResult | typeof nothing {
+    if (!this.settingsOpen || this.isEditorPreview()) {
+      return nothing;
+    }
+
+    return html`
+      <div class="settings-overlay" @click=${this.closeSettings}>
+        <section
+          class="settings-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Laundry settings"
+          @click=${(event: Event) => event.stopPropagation()}
+        >
+          <div class="settings-dialog-header">
+            <div class="settings-dialog-title">
+              <span>${this.displayName}</span>
+              <h2>Settings & Details</h2>
+            </div>
+            <button
+              type="button"
+              class="settings-dialog-close"
+              aria-label="Close settings"
+              @click=${this.closeSettings}
+            >
+              <ha-icon icon="mdi:close"></ha-icon>
+            </button>
+          </div>
+          <div class="settings-panel">
+            <div class="detail-grid">
+              ${this.configuredDetailEntities().map((entityId) =>
+                this.renderDetailEntity(entityId),
+              )}
+            </div>
+          </div>
+        </section>
       </div>
     `;
   }
@@ -1295,9 +1595,20 @@ export class LgLaundryCard extends LitElement {
                 <span class="status-text">${this.statusLabel}</span>
               </span>
             </div>
-            <div class="time-block">
-              <span class="time-value">${this.timeDisplay}</span>
-              <span class="time-subtext">${this.timeSubtext}</span>
+            <div class="head-actions">
+              <div class="time-block">
+                <span class="time-value">${this.timeDisplay}</span>
+                <span class="time-subtext">${this.timeSubtext}</span>
+              </div>
+              <button
+                type="button"
+                class="settings-toggle"
+                aria-label="Open laundry settings"
+                title="Settings"
+                @click=${this.toggleSettings}
+              >
+                <ha-icon icon="mdi:cog-outline"></ha-icon>
+              </button>
             </div>
           </header>
 
@@ -1364,6 +1675,7 @@ export class LgLaundryCard extends LitElement {
                 </section>
               `
             : nothing}
+          ${this.renderSettingsDialog()}
         </article>
       </ha-card>
     `;
