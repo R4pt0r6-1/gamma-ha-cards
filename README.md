@@ -396,6 +396,7 @@ dryer:
     - stop
   metric_entities:
     - sensor.dryer_energy_this_month
+    - sensor.dryer_total_time
 ```
 
 ### LG Laundry Pair Options
