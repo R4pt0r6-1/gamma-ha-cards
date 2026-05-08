@@ -38,6 +38,13 @@ interface VoiceSettingsCardConfig {
   background?: string;
 }
 
+type ConfigElement = HTMLInputElement & {
+  checked?: boolean;
+  configValue?: keyof VoiceSettingsCardConfig;
+  rowIndex?: number;
+  rowKey?: keyof VoiceSettingsRowConfig;
+};
+
 const DEFAULT_CONFIG: Omit<VoiceSettingsCardConfig, 'type'> = {
   name: 'Atom Echo Voice',
   width: '360px',
@@ -68,6 +75,19 @@ const DEFAULT_ROWS: VoiceSettingsRowConfig[] = [
     icon: 'mdi:format-list-bulleted',
   },
 ];
+
+function fireConfigChanged(
+  element: HTMLElement,
+  config: Partial<VoiceSettingsCardConfig>,
+): void {
+  element.dispatchEvent(
+    new CustomEvent('config-changed', {
+      detail: { config },
+      bubbles: true,
+      composed: true,
+    }),
+  );
+}
 
 function humanize(value: string | undefined): string {
   if (!value || ['unknown', 'unavailable'].includes(value)) {
@@ -320,6 +340,10 @@ export class VoiceSettingsCard extends LitElement {
     };
   }
 
+  public static async getConfigElement(): Promise<HTMLElement> {
+    return document.createElement('voice-settings-card-editor');
+  }
+
   public setConfig(config: VoiceSettingsCardConfig): void {
     this.config = {
       ...DEFAULT_CONFIG,
@@ -394,6 +418,9 @@ export class VoiceSettingsCard extends LitElement {
               this.selectOption(row.entity, target.value);
             }}
           >
+            ${!options.length
+              ? html`<option value="">Entity unavailable</option>`
+              : nothing}
             ${!hasCurrentOption && value
               ? html`<option .value=${value}>${this.optionLabel(value)}</option>`
               : nothing}
@@ -435,9 +462,252 @@ if (!customElements.get('voice-settings-card')) {
   customElements.define('voice-settings-card', VoiceSettingsCard);
 }
 
+class VoiceSettingsCardEditor extends LitElement {
+  static properties = {
+    hass: { attribute: false },
+    config: { state: true },
+  };
+
+  public hass?: HomeAssistant;
+  private config: Partial<VoiceSettingsCardConfig> = {};
+
+  static get styles(): CSSResultGroup {
+    return css`
+      .editor {
+        display: grid;
+        gap: 14px;
+      }
+
+      .section {
+        background: color-mix(in srgb, var(--primary-text-color) 4%, transparent);
+        border: 1px solid color-mix(in srgb, var(--divider-color) 72%, transparent);
+        border-radius: 10px;
+        display: grid;
+        gap: 10px;
+        padding: 14px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      }
+
+      .rows {
+        display: grid;
+        gap: 10px;
+      }
+
+      .row {
+        border-top: 1px solid color-mix(in srgb, var(--divider-color) 72%, transparent);
+        display: grid;
+        gap: 10px;
+        padding-top: 10px;
+      }
+
+      .row:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .row-title {
+        color: var(--secondary-text-color);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .switch-row {
+        align-items: center;
+        color: var(--primary-text-color);
+        display: inline-flex;
+        gap: 8px;
+        min-height: 34px;
+      }
+
+      ha-textfield {
+        width: 100%;
+      }
+
+      h3 {
+        color: var(--primary-text-color);
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0;
+        margin: 0;
+      }
+    `;
+  }
+
+  public setConfig(config: VoiceSettingsCardConfig): void {
+    this.config = {
+      ...config,
+      rows: config.rows?.length ? config.rows : DEFAULT_ROWS,
+    };
+  }
+
+  private updateConfig(patch: Partial<VoiceSettingsCardConfig>): void {
+    const next = { ...this.config, ...patch };
+    Object.keys(next).forEach((key) => {
+      const typedKey = key as keyof VoiceSettingsCardConfig;
+      if (next[typedKey] === '') {
+        delete next[typedKey];
+      }
+    });
+    this.config = next;
+    fireConfigChanged(this, next);
+  }
+
+  private valueChanged(event: Event): void {
+    const target = event.target as ConfigElement;
+    const customEvent = event as CustomEvent<{ value?: string }>;
+
+    if (!target.configValue) {
+      return;
+    }
+
+    this.updateConfig({
+      [target.configValue]:
+        target.checked !== undefined
+          ? target.checked
+          : customEvent.detail?.value ?? target.value,
+    } as Partial<VoiceSettingsCardConfig>);
+  }
+
+  private rowValueChanged(event: Event): void {
+    const target = event.target as ConfigElement;
+    const customEvent = event as CustomEvent<{ value?: string }>;
+
+    const rowIndex = target.rowIndex;
+    const rowKey = target.rowKey;
+
+    if (rowIndex === undefined || !rowKey) {
+      return;
+    }
+
+    const rows = [...(this.config.rows?.length ? this.config.rows : DEFAULT_ROWS)];
+    rows[rowIndex] = {
+      ...rows[rowIndex],
+      [rowKey]: customEvent.detail?.value ?? target.value,
+    };
+
+    Object.keys(rows[rowIndex]).forEach((key) => {
+      const typedKey = key as keyof VoiceSettingsRowConfig;
+      if (rows[rowIndex][typedKey] === '') {
+        delete rows[rowIndex][typedKey];
+      }
+    });
+
+    this.updateConfig({ rows });
+  }
+
+  private renderTextInput(
+    label: string,
+    key: keyof VoiceSettingsCardConfig,
+    placeholder = '',
+  ): TemplateResult {
+    return html`
+      <ha-textfield
+        .label=${label}
+        .placeholder=${placeholder}
+        .value=${this.config[key] ?? ''}
+        .configValue=${key}
+        @input=${this.valueChanged}
+      ></ha-textfield>
+    `;
+  }
+
+  private renderSwitch(
+    label: string,
+    key: keyof VoiceSettingsCardConfig,
+    defaultValue: boolean,
+  ): TemplateResult {
+    return html`
+      <label class="switch-row">
+        <ha-switch
+          .checked=${Boolean(this.config[key] ?? defaultValue)}
+          .configValue=${key}
+          @change=${this.valueChanged}
+        ></ha-switch>
+        <span>${label}</span>
+      </label>
+    `;
+  }
+
+  private renderRowInput(
+    row: VoiceSettingsRowConfig,
+    index: number,
+    key: keyof VoiceSettingsRowConfig,
+    label: string,
+    placeholder = '',
+  ): TemplateResult {
+    return html`
+      <ha-textfield
+        .label=${label}
+        .placeholder=${placeholder}
+        .value=${row[key] ?? ''}
+        .rowIndex=${index}
+        .rowKey=${key}
+        @input=${this.rowValueChanged}
+      ></ha-textfield>
+    `;
+  }
+
+  private renderRows(): TemplateResult {
+    const rows = this.config.rows?.length ? this.config.rows : DEFAULT_ROWS;
+
+    return html`
+      <div class="rows">
+        ${rows.map(
+          (row, index) => html`
+            <div class="row">
+              <span class="row-title">${row.name ?? `Row ${index + 1}`}</span>
+              <div class="grid">
+                ${this.renderRowInput(row, index, 'name', 'Name', 'Pipeline')}
+                ${this.renderRowInput(row, index, 'icon', 'Icon', 'mdi:microphone-outline')}
+                ${this.renderRowInput(row, index, 'entity', 'Entity', 'select.example')}
+              </div>
+            </div>
+          `,
+        )}
+      </div>
+    `;
+  }
+
+  protected render(): TemplateResult {
+    return html`
+      <div class="editor">
+        <section class="section">
+          <h3>Main</h3>
+          <div class="grid">
+            ${this.renderTextInput('Card Name', 'name', 'Atom Echo Voice')}
+            ${this.renderTextInput('Width', 'width', '360px')}
+            ${this.renderTextInput('Radius', 'border_radius', '16px')}
+            ${this.renderTextInput('Background', 'background', '#101722')}
+          </div>
+          <div class="grid">
+            ${this.renderSwitch('Fill Container', 'fill_container', false)}
+          </div>
+        </section>
+
+        <section class="section">
+          <h3>Rows</h3>
+          ${this.renderRows()}
+        </section>
+      </div>
+    `;
+  }
+}
+
+if (!customElements.get('voice-settings-card-editor')) {
+  customElements.define('voice-settings-card-editor', VoiceSettingsCardEditor);
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'voice-settings-card': VoiceSettingsCard;
+    'voice-settings-card-editor': VoiceSettingsCardEditor;
   }
 
   interface Window {
