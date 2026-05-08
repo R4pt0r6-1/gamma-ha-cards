@@ -1,7 +1,7 @@
 import { LitElement, css, html, nothing } from 'lit';
 import type { CSSResultGroup, TemplateResult } from 'lit';
 
-type HassEntity = {
+export type HassEntity = {
   entity_id: string;
   state: string;
   attributes: {
@@ -15,7 +15,7 @@ type HassEntity = {
   };
 };
 
-type HomeAssistant = {
+export type HomeAssistant = {
   states: Record<string, HassEntity | undefined>;
   callService: (
     domain: string,
@@ -25,9 +25,9 @@ type HomeAssistant = {
   ) => Promise<unknown> | void;
 };
 
-type ApplianceKind = 'washer' | 'dryer';
+export type ApplianceKind = 'washer' | 'dryer';
 
-interface LgLaundryCardConfig {
+export interface LgLaundryCardConfig {
   type?: string;
   entity: string;
   kind?: ApplianceKind;
@@ -113,11 +113,11 @@ function fireConfigChanged(
   );
 }
 
-function isUnavailable(entity?: HassEntity): boolean {
+export function isUnavailable(entity?: HassEntity): boolean {
   return !entity || ['unavailable', 'unknown'].includes(entity.state);
 }
 
-function humanize(value: string | undefined): string {
+export function humanize(value: string | undefined): string {
   if (!value || value === 'unknown' || value === 'unavailable') {
     return 'Unknown';
   }
@@ -127,7 +127,7 @@ function humanize(value: string | undefined): string {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-function formatDuration(minutes: number | undefined): string {
+export function formatDuration(minutes: number | undefined): string {
   if (minutes === undefined || minutes < 0) {
     return '--';
   }
@@ -147,7 +147,7 @@ function formatDuration(minutes: number | undefined): string {
   return `${hours}h ${mins}m`;
 }
 
-function formatEntityState(entity: HassEntity | undefined): string {
+export function formatEntityState(entity: HassEntity | undefined): string {
   if (isUnavailable(entity)) {
     return 'Unknown';
   }
@@ -175,7 +175,7 @@ function formatEntityState(entity: HassEntity | undefined): string {
   return unit ? `${value} ${unit}` : value;
 }
 
-function parseTimestamp(value: string): Date | undefined {
+export function parseTimestamp(value: string): Date | undefined {
   const trimmed = value.trim();
   if (!/^\d{4}-\d{2}-\d{2}(T|\s)/.test(trimmed)) {
     return undefined;
@@ -190,7 +190,7 @@ function parseTimestamp(value: string): Date | undefined {
   return date;
 }
 
-function minutesUntil(timestamp: string): number | undefined {
+export function minutesUntil(timestamp: string): number | undefined {
   const date = parseTimestamp(timestamp);
   if (!date) {
     return undefined;
@@ -217,7 +217,7 @@ function numericMinutes(value: number, unit?: string): number {
   return value;
 }
 
-function parseDurationMinutes(value: unknown, unit?: string): number | undefined {
+export function parseDurationMinutes(value: unknown, unit?: string): number | undefined {
   const raw = String(value ?? '').trim();
 
   if (!raw || ['unknown', 'unavailable'].includes(raw)) {
@@ -265,7 +265,7 @@ function parseDurationMinutes(value: unknown, unit?: string): number | undefined
   return undefined;
 }
 
-function entityDurationMinutes(entity: HassEntity | undefined): number | undefined {
+export function entityDurationMinutes(entity: HassEntity | undefined): number | undefined {
   if (isUnavailable(entity)) {
     return undefined;
   }
@@ -273,7 +273,7 @@ function entityDurationMinutes(entity: HassEntity | undefined): number | undefin
   return parseDurationMinutes(entity?.state, entity?.attributes.unit_of_measurement);
 }
 
-function remainingEntityMinutes(entity: HassEntity | undefined): number | undefined {
+export function remainingEntityMinutes(entity: HassEntity | undefined): number | undefined {
   if (isUnavailable(entity)) {
     return undefined;
   }
@@ -357,9 +357,8 @@ export class LgLaundryCard extends LitElement {
 
       .head {
         align-items: center;
-        display: grid;
+        display: flex;
         gap: 10px;
-        grid-template-columns: 36px minmax(0, 1fr);
         position: relative;
         z-index: 1;
       }
@@ -370,6 +369,7 @@ export class LgLaundryCard extends LitElement {
         border: 1px solid rgb(255 255 255 / 7%);
         border-radius: 9px;
         display: grid;
+        flex: 0 0 36px;
         height: 36px;
         justify-items: center;
         min-width: 0;
@@ -420,6 +420,7 @@ export class LgLaundryCard extends LitElement {
 
       .title {
         display: grid;
+        flex: 1 1 0;
         gap: 2px;
         min-width: 0;
         position: relative;
@@ -461,56 +462,53 @@ export class LgLaundryCard extends LitElement {
         white-space: nowrap;
       }
 
-      .timer {
-        align-items: baseline;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px 8px;
+      .time-block {
+        align-items: end;
+        display: grid;
+        flex: 0 1 auto;
+        gap: 1px;
+        justify-items: end;
+        max-width: 55%;
         min-width: 0;
-        position: relative;
-        z-index: 1;
+        text-align: right;
       }
 
-      .timer-label {
-        display: none;
-      }
-
-      .timer-value {
+      .time-value {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 22px;
+        font-size: 18px;
         font-weight: 700;
         letter-spacing: 0;
         line-height: 1;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
-      .timer-subtext {
-        color: var(--secondary-text-color, #b7c0ce);
-        flex: 1 1 auto;
-        font-size: 10.5px;
+      .time-subtext {
+        color: var(--secondary-text-color, #9aa3b1);
+        font-size: 10px;
         line-height: 1.2;
-        min-width: 0;
+        max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
 
       .progress {
-        background: rgb(255 255 255 / 8%);
+        background: rgb(255 255 255 / 7%);
         border-radius: 999px;
-        height: 3px;
+        height: 2px;
         overflow: hidden;
         position: relative;
         z-index: 1;
       }
 
       .progress-bar {
-        background: linear-gradient(
-          90deg,
-          var(--laundry-state-color),
-          var(--laundry-contrast-color)
-        );
+        background: var(--laundry-state-color);
         border-radius: inherit;
         height: 100%;
+        opacity: 0.85;
         transition: width 240ms ease;
         width: var(--laundry-progress);
       }
@@ -767,8 +765,12 @@ export class LgLaundryCard extends LitElement {
           font-size: 13.5px;
         }
 
-        .timer-value {
-          font-size: 20px;
+        .time-value {
+          font-size: 16px;
+        }
+
+        .time-subtext {
+          font-size: 9.5px;
         }
 
         .stats {
@@ -1293,12 +1295,11 @@ export class LgLaundryCard extends LitElement {
                 <span class="status-text">${this.statusLabel}</span>
               </span>
             </div>
+            <div class="time-block">
+              <span class="time-value">${this.timeDisplay}</span>
+              <span class="time-subtext">${this.timeSubtext}</span>
+            </div>
           </header>
-
-          <div class="timer">
-            <span class="timer-value">${this.timeDisplay}</span>
-            <span class="timer-subtext">${this.timeSubtext}</span>
-          </div>
 
           <div class="progress" aria-hidden="true">
             <div class="progress-bar"></div>
@@ -1621,7 +1622,7 @@ class LgLaundryCardEditor extends LitElement {
           <h3>Style</h3>
           <div class="grid">
             ${this.renderTextInput('Width', 'width', '100%')}
-            ${this.renderTextInput('Radius', 'border_radius', '18px')}
+            ${this.renderTextInput('Radius', 'border_radius', '14px')}
             ${this.renderTextInput('Background', 'background', '#101722')}
             ${this.renderTextInput('Running Color', 'running_color', 'washer #2f8cff, dryer #ff5a2f')}
             ${this.renderTextInput('Complete Color', 'complete_color', 'washer #2f8cff, dryer #ff5a2f')}

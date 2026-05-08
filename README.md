@@ -11,6 +11,7 @@ A fast Home Assistant Lovelace card collection for compact, animated dashboard c
 - `custom:dual-outlet-card` - one duplex socket card for two switch entities, with independent tap toggles and a red on-state outline glow.
 - `custom:speed-fan-card` - a compact fan card with Off, 1, 2, and 3 speed controls.
 - `custom:lg-laundry-card` - a modern LG ThinQ washer/dryer card with power, start, stop, estimated time left, progress, appliance artwork, and an expandable settings drawer.
+- `custom:lg-laundry-pair-card` - one named dashboard card that combines a washer and dryer into two compact rows.
 
 ## Installation
 
@@ -342,6 +343,53 @@ detail_entities:
   - event.dryer_error
 ```
 
+## LG Laundry Pair Card
+
+Use this when a room has both machines and you want one named card on dashboards around the house.
+
+```yaml
+type: custom:lg-laundry-pair-card
+name: Laundry Room
+washer:
+  entity: sensor.washer_current_status
+  name: Washer
+  image: /hacsfiles/gamma-ha-cards/assets/laundry-washer.svg
+  power_entity: switch.washer_power
+  operation_entity: select.washer_operation
+  remaining_time_entity: sensor.washer_remaining_time
+  total_time_entity: sensor.washer_total_time
+  remote_start_entity: binary_sensor.washer_remote_start
+  energy_entity: sensor.washer_energy_this_month
+  error_entity: event.washer_error
+dryer:
+  entity: sensor.dryer_current_status
+  name: Dryer
+  image: /hacsfiles/gamma-ha-cards/assets/laundry-dryer.svg
+  power_entity: switch.dryer_power
+  operation_entity: select.dryer_operation
+  remaining_time_entity: sensor.dryer_remaining_time
+  total_time_entity: sensor.dryer_total_time
+  remote_start_entity: binary_sensor.dryer_remote_start
+  energy_entity: sensor.dryer_energy_this_month
+  error_entity: event.dryer_error
+fill_container: true
+```
+
+### LG Laundry Pair Options
+
+| Name             | Type      | Default   | Description                       |
+| ---------------- | --------- | --------- | --------------------------------- |
+| `name`           | `string`  | `Laundry` | Card title, for example `Laundry Room`. |
+| `washer`         | `object`  | Required  | Washer entity config using the same core fields as `lg-laundry-card`. |
+| `dryer`          | `object`  | Required  | Dryer entity config using the same core fields as `lg-laundry-card`. |
+| `width`          | `string`  | `100%`    | CSS width of the card.            |
+| `fill_container` | `boolean` | `true`    | Stretch the card to the full dashboard column width. |
+| `border_radius`  | `string`  | `14px`    | CSS border radius.                |
+| `background`     | `string`  | `#101722` | Base card background.             |
+| `show_controls`  | `boolean` | `true`    | Show Power, Start, Stop, and Off controls for each machine. |
+| `show_stats`     | `boolean` | `true`    | Show Total, Remote, and Energy stats for each machine. |
+| `animated`       | `boolean` | `true`    | Reserved for visual animation support. |
+
 ### LG Laundry Options
 
 | Name                    | Type      | Default             | Description                       |
@@ -363,7 +411,7 @@ detail_entities:
 | `detail_entities`       | `array`   | Built from config   | Extra entities shown in the expandable settings drawer. |
 | `width`                 | `string`  | `100%`              | CSS width of the card.            |
 | `fill_container`        | `boolean` | `true`              | Stretch the card to the full dashboard column width. |
-| `border_radius`         | `string`  | `18px`              | CSS border radius.                |
+| `border_radius`         | `string`  | `14px`              | CSS border radius.                |
 | `background`            | `string`  | `#101722`           | Base card background.             |
 | `running_color`         | `string`  | Kind accent         | Glow color while running; washer defaults blue, dryer defaults orange-red. |
 | `complete_color`        | `string`  | Kind accent         | Glow color when complete; washer defaults blue, dryer defaults orange-red. |
