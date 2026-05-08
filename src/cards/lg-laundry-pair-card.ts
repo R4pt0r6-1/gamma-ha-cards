@@ -96,7 +96,7 @@ const DEFAULT_PAIR_CONFIG: Omit<LgLaundryPairCardConfig, 'washer' | 'dryer'> = {
   border_radius: '14px',
   background: '#101722',
   show_controls: true,
-  show_stats: true,
+  show_stats: false,
   animated: true,
 };
 
@@ -948,14 +948,14 @@ export class LgLaundryPairCard extends LitElement {
   }
 
   public getCardSize(): number {
-    return this.config.show_stats === false ? 5 : 6;
+    return this.config.show_stats === false ? 4 : 6;
   }
 
   public getGridOptions() {
     return {
       rows: 'auto',
       columns: 5,
-      min_rows: 5,
+      min_rows: 4,
       max_rows: 10,
       min_columns: 3,
       max_columns: 8,
@@ -2018,7 +2018,7 @@ class LgLaundryPairCardEditor extends LitElement {
           <div class="grid">
             ${this.renderSwitch('Fill Container', 'fill_container', false)}
             ${this.renderSwitch('Show Controls', 'show_controls', true)}
-            ${this.renderSwitch('Show Stats', 'show_stats', true)}
+            ${this.renderSwitch('Show Stats', 'show_stats', false)}
             ${this.renderSwitch('Animated', 'animated', true)}
           </div>
         </section>

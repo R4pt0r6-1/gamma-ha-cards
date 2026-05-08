@@ -407,7 +407,7 @@ dryer:
 | `border_radius`  | `string`  | `14px`    | CSS border radius.                |
 | `background`     | `string`  | `#101722` | Base card background.             |
 | `show_controls`  | `boolean` | `true`    | Show Power, Start, Stop, and Off controls for each machine. |
-| `show_stats`     | `boolean` | `true`    | Show Total, Remote, and Energy stats for each machine. |
+| `show_stats`     | `boolean` | `false`   | Show Total, Remote, and Energy stats for each machine. |
 | `animated`       | `boolean` | `true`    | Reserved for visual animation support. |
 
 Machine `control_buttons` accepts `power_on`, `start`, `stop`, `power_off`, `settings`, `more_info`, `toggle`, `press`, `select_option`, and `service`. Use a comma list in the visual editor for simple reorder/hide changes, or YAML objects for custom icons, labels, entities, and services.

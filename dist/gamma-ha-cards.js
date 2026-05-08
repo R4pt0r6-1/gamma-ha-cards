@@ -8165,7 +8165,7 @@ const de = {
   border_radius: "14px",
   background: "#101722",
   show_controls: !0,
-  show_stats: !0,
+  show_stats: !1,
   animated: !0
 }, ri = [
   { action: "power_on", label: "Power", icon: "mdi:power" },
@@ -8973,13 +8973,13 @@ const Mt = class Mt extends f {
     );
   }
   getCardSize() {
-    return this.config.show_stats === !1 ? 5 : 6;
+    return this.config.show_stats === !1 ? 4 : 6;
   }
   getGridOptions() {
     return {
       rows: "auto",
       columns: 5,
-      min_rows: 5,
+      min_rows: 4,
       max_rows: 10,
       min_columns: 3,
       max_columns: 8
@@ -9715,7 +9715,7 @@ const zt = class zt extends f {
           <div class="grid">
             ${this.renderSwitch("Fill Container", "fill_container", !1)}
             ${this.renderSwitch("Show Controls", "show_controls", !0)}
-            ${this.renderSwitch("Show Stats", "show_stats", !0)}
+            ${this.renderSwitch("Show Stats", "show_stats", !1)}
             ${this.renderSwitch("Animated", "animated", !0)}
           </div>
         </section>
