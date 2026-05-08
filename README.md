@@ -12,6 +12,7 @@ A fast Home Assistant Lovelace card collection for compact, animated dashboard c
 - `custom:speed-fan-card` - a compact fan card with Off, 1, 2, and 3 speed controls.
 - `custom:lg-laundry-card` - a modern LG ThinQ washer/dryer card with power, start, stop, estimated time left, progress, appliance artwork, and an expandable settings drawer.
 - `custom:lg-laundry-pair-card` - one named dashboard card that combines a washer and dryer into two compact rows.
+- `custom:lg-laundry-usage-card` - a glassy usage card for laundry energy, cost, cycles, and comparison bars.
 
 ## Installation
 
@@ -425,6 +426,45 @@ dryer:
 | `animated`       | `boolean` | `true`    | Reserved for visual animation support. |
 
 Machine `control_buttons` accepts `power_toggle`, `power_on`, `start`, `stop`, `power_off`, `settings`, `more_info`, `toggle`, `press`, `select_option`, and `service`. Use a comma list in the visual editor for simple reorder/hide changes, or YAML objects for custom icons, labels, entities, and services. Machine `metric_entities` controls the compact metric line shown when `show_stats` is false.
+
+## LG Laundry Usage Card
+
+```yaml
+type: custom:lg-laundry-usage-card
+name: Laundry usage
+energy_price_cents_per_kwh: 11
+washer_energy_entity: sensor.washer_energy_this_month
+dryer_energy_entity: sensor.dryer_energy_this_month
+washer_energy_yesterday_entity: sensor.washer_energy_yesterday
+dryer_energy_yesterday_entity: sensor.dryer_energy_yesterday
+washer_energy_last_month_entity: sensor.washer_energy_last_month
+dryer_energy_last_month_entity: sensor.dryer_energy_last_month
+washer_cycles_entity: sensor.washer_cycles
+washer_total_time_entity: sensor.washer_total_time
+dryer_total_time_entity: sensor.dryer_total_time
+fill_container: true
+```
+
+### LG Laundry Usage Options
+
+| Name                              | Type      | Default          | Description                       |
+| --------------------------------- | --------- | ---------------- | --------------------------------- |
+| `name`                            | `string`  | `Laundry usage`  | Display title.                    |
+| `energy_price_cents_per_kwh`      | `number`  | Optional         | Electricity rate used to calculate cost from Wh/kWh sensors. |
+| `washer_energy_entity`            | `string`  | Optional         | Washer energy this month.         |
+| `dryer_energy_entity`             | `string`  | Optional         | Dryer energy this month.          |
+| `washer_energy_yesterday_entity`  | `string`  | Optional         | Washer energy yesterday.          |
+| `dryer_energy_yesterday_entity`   | `string`  | Optional         | Dryer energy yesterday.           |
+| `washer_energy_last_month_entity` | `string`  | Optional         | Washer energy last month.         |
+| `dryer_energy_last_month_entity`  | `string`  | Optional         | Dryer energy last month.          |
+| `washer_cycles_entity`            | `string`  | Optional         | Washer cycle count.               |
+| `dryer_cycles_entity`             | `string`  | Optional         | Dryer cycle count when available. |
+| `washer_total_time_entity`        | `string`  | Optional         | Washer cycle time sensor.         |
+| `dryer_total_time_entity`         | `string`  | Optional         | Dryer cycle time sensor.          |
+| `width`                           | `string`  | `500px`          | CSS width of the card.            |
+| `fill_container`                  | `boolean` | `true`           | Stretch the card to the full dashboard column width. |
+| `border_radius`                   | `string`  | `16px`           | CSS border radius.                |
+| `background`                      | `string`  | `#101722`        | Base card background.             |
 
 ### LG Laundry Options
 
