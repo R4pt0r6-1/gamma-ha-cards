@@ -30,12 +30,6 @@ interface LgLaundryUsageCardConfig {
   background?: string;
 }
 
-type ChartSeries = {
-  label: string;
-  washerEntity?: string;
-  dryerEntity?: string;
-};
-
 const DEFAULT_CONFIG: Omit<LgLaundryUsageCardConfig, 'type'> = {
   name: 'Laundry usage',
   width: '500px',
@@ -151,7 +145,8 @@ export class LgLaundryUsageCard extends LitElement {
       .header,
       .hero,
       .summary-grid,
-      .chart {
+      .report-grid,
+      .footer-strip {
         position: relative;
         z-index: 1;
       }
@@ -307,69 +302,112 @@ export class LgLaundryUsageCard extends LitElement {
         white-space: nowrap;
       }
 
-      .chart {
+      .report-grid {
         display: grid;
-        gap: 9px;
+        gap: 8px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .chart-row {
+      .machine-report {
+        background:
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--machine-color) 11%, rgb(255 255 255 / 6%)),
+            rgb(255 255 255 / 4%)
+          );
+        border: 1px solid rgb(255 255 255 / 9%);
+        border-left: 3px solid var(--machine-color);
+        border-radius: 11px;
         display: grid;
-        gap: 5px;
+        gap: 8px;
+        min-width: 0;
+        padding: 9px 10px;
       }
 
-      .chart-head {
+      .machine-report-head {
         align-items: center;
-        color: var(--secondary-text-color, #b7c0ce);
         display: flex;
-        font-size: 10.5px;
-        font-weight: 650;
         justify-content: space-between;
-      }
-
-      .chart-head strong {
-        color: var(--primary-text-color, #f4f7fb);
-        font-weight: 760;
-      }
-
-      .bar-line {
-        align-items: center;
-        display: grid;
-        gap: 7px;
-        grid-template-columns: 48px minmax(0, 1fr) 54px;
         min-width: 0;
       }
 
-      .bar-label,
-      .bar-value {
-        color: var(--secondary-text-color, #c3ccd8);
+      .machine-report-name {
+        color: var(--primary-text-color, #f4f7fb);
+        font-size: 12px;
+        font-weight: 760;
+      }
+
+      .machine-report-share {
+        color: var(--secondary-text-color, #aeb8c6);
+        font-size: 10px;
+        font-weight: 650;
+      }
+
+      .machine-report-main {
+        display: grid;
+        gap: 2px;
+      }
+
+      .machine-report-cost {
+        color: var(--primary-text-color, #ffffff);
+        font-size: 18px;
+        font-weight: 780;
+        letter-spacing: 0;
+        line-height: 1;
+      }
+
+      .machine-report-kwh {
+        color: var(--secondary-text-color, #aeb8c6);
         font-size: 10.5px;
         font-weight: 650;
+      }
+
+      .machine-report-meta {
+        border-top: 1px solid rgb(255 255 255 / 7%);
+        display: grid;
+        gap: 6px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding-top: 7px;
+      }
+
+      .meta-item {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+      }
+
+      .meta-item span,
+      .footer-item span {
+        color: var(--secondary-text-color, #9aa3b1);
+        font-size: 9.5px;
+        font-weight: 650;
+        text-transform: uppercase;
+      }
+
+      .meta-item strong,
+      .footer-item strong {
+        color: var(--primary-text-color, #f4f7fb);
+        font-size: 11px;
+        font-weight: 740;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
 
-      .bar-value {
-        color: var(--primary-text-color, #f4f7fb);
-        text-align: right;
+      .footer-strip {
+        background: rgb(255 255 255 / 4%);
+        border: 1px solid rgb(255 255 255 / 7%);
+        border-radius: 10px;
+        display: grid;
+        gap: 8px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        padding: 8px 10px;
       }
 
-      .bar-track {
-        background: rgb(255 255 255 / 7%);
-        border-radius: 999px;
-        height: 8px;
-        overflow: hidden;
-        position: relative;
-      }
-
-      .bar-fill {
-        background: var(--bar-color);
-        border-radius: inherit;
-        box-shadow: 0 0 12px color-mix(in srgb, var(--bar-color) 40%, transparent);
-        display: block;
-        height: 100%;
-        min-width: var(--bar-min-width);
-        width: var(--bar-width);
+      .footer-item {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
       }
 
       @container (max-width: 390px) {
@@ -390,6 +428,11 @@ export class LgLaundryUsageCard extends LitElement {
         .summary-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
+
+        .report-grid,
+        .footer-strip {
+          grid-template-columns: 1fr;
+        }
       }
 
       @container (max-width: 280px) {
@@ -401,8 +444,8 @@ export class LgLaundryUsageCard extends LitElement {
           font-size: 24px;
         }
 
-        .bar-line {
-          grid-template-columns: 42px minmax(0, 1fr) 46px;
+        .machine-report-meta {
+          grid-template-columns: 1fr;
         }
       }
     `;
@@ -474,6 +517,13 @@ export class LgLaundryUsageCard extends LitElement {
     const entity = this.entity(entityId);
     const cost = formatEnergyCost(entity, this.config.energy_price_cents_per_kwh);
     return cost ?? formatKwh(parseEnergyKwh(entity));
+  }
+
+  private monthLabel(): string {
+    return new Intl.DateTimeFormat(undefined, {
+      month: 'long',
+      year: 'numeric',
+    }).format(new Date());
   }
 
   private displayTotal(washerEntity?: string, dryerEntity?: string): string {
@@ -557,55 +607,64 @@ export class LgLaundryUsageCard extends LitElement {
     return `${Math.round((dryer / total) * 100)}% dryer`;
   }
 
-  private chartValue(entityId?: string): number | undefined {
-    return this.cost(entityId) ?? this.energy(entityId);
-  }
+  private machineShare(entityId?: string): string {
+    const value = this.energy(entityId);
+    const total = this.totalMonthEnergy();
 
-  private barStyle(value: number | undefined, max: number, color: string): string {
-    const percent = value && max > 0 ? Math.max(4, Math.min(100, (value / max) * 100)) : 0;
-    const minWidth = value && max > 0 ? '5px' : '0px';
-    return `--bar-color: ${color}; --bar-width: ${percent}%; --bar-min-width: ${minWidth};`;
-  }
-
-  private renderBar(
-    label: string,
-    entityId: string | undefined,
-    max: number,
-    color: string,
-  ): TemplateResult {
-    const value = this.chartValue(entityId);
-
-    return html`
-      <div class="bar-line">
-        <span class="bar-label">${label}</span>
-        <span class="bar-track">
-          <span
-            class="bar-fill"
-            style=${this.barStyle(value, max, color)}
-          ></span>
-        </span>
-        <span class="bar-value">${this.displayEnergy(entityId)}</span>
-      </div>
-    `;
-  }
-
-  private renderChartRow(series: ChartSeries): TemplateResult | typeof nothing {
-    const washerValue = this.chartValue(series.washerEntity);
-    const dryerValue = this.chartValue(series.dryerEntity);
-    const max = Math.max(washerValue ?? 0, dryerValue ?? 0);
-
-    if (!max) {
-      return nothing;
+    if (value === undefined || !total) {
+      return '--';
     }
 
+    return `${Math.round((value / total) * 100)}%`;
+  }
+
+  private averageDailyCost(): string {
+    const cost = this.totalMonthCost();
+    if (cost === undefined) {
+      return '--';
+    }
+
+    return formatMoney(cost / new Date().getDate());
+  }
+
+  private projectedCost(): string {
+    const cost = this.totalMonthCost();
+    if (cost === undefined) {
+      return '--';
+    }
+
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    return formatMoney((cost / now.getDate()) * daysInMonth);
+  }
+
+  private renderMachineReport(
+    name: string,
+    energyEntity: string | undefined,
+    yesterdayEntity: string | undefined,
+    lastMonthEntity: string | undefined,
+    color: string,
+  ): TemplateResult {
     return html`
-      <div class="chart-row">
-        <div class="chart-head">
-          <span>${series.label}</span>
-          <strong>${this.displayTotal(series.washerEntity, series.dryerEntity)}</strong>
+      <div class="machine-report" style="--machine-color: ${color};">
+        <div class="machine-report-head">
+          <span class="machine-report-name">${name}</span>
+          <span class="machine-report-share">${this.machineShare(energyEntity)}</span>
         </div>
-        ${this.renderBar('Washer', series.washerEntity, max, 'var(--washer-color)')}
-        ${this.renderBar('Dryer', series.dryerEntity, max, 'var(--dryer-color)')}
+        <div class="machine-report-main">
+          <span class="machine-report-cost">${this.displayEnergy(energyEntity)}</span>
+          <span class="machine-report-kwh">${formatKwh(this.energy(energyEntity))}</span>
+        </div>
+        <div class="machine-report-meta">
+          <span class="meta-item">
+            <span>Yesterday</span>
+            <strong>${this.displayEnergy(yesterdayEntity)}</strong>
+          </span>
+          <span class="meta-item">
+            <span>Last month</span>
+            <strong>${this.displayEnergy(lastMonthEntity)}</strong>
+          </span>
+        </div>
       </div>
     `;
   }
@@ -615,23 +674,6 @@ export class LgLaundryUsageCard extends LitElement {
       return html``;
     }
 
-    const series: ChartSeries[] = [
-      {
-        label: 'This month',
-        washerEntity: this.config.washer_energy_entity,
-        dryerEntity: this.config.dryer_energy_entity,
-      },
-      {
-        label: 'Yesterday',
-        washerEntity: this.config.washer_energy_yesterday_entity,
-        dryerEntity: this.config.dryer_energy_yesterday_entity,
-      },
-      {
-        label: 'Last month',
-        washerEntity: this.config.washer_energy_last_month_entity,
-        dryerEntity: this.config.dryer_energy_last_month_entity,
-      },
-    ];
     const monthCost = this.totalMonthCost();
     const monthEnergy = this.totalMonthEnergy();
     const cents = parseCentsPerKwh(this.config.energy_price_cents_per_kwh);
@@ -642,7 +684,7 @@ export class LgLaundryUsageCard extends LitElement {
           <header class="header">
             <div class="title">
               <span class="eyebrow">Laundry</span>
-              <h2>${this.config.name ?? 'Laundry usage'}</h2>
+              <h2>${this.monthLabel()}</h2>
             </div>
             ${cents
               ? html`
@@ -656,7 +698,7 @@ export class LgLaundryUsageCard extends LitElement {
 
           <section class="hero">
             <div class="hero-main">
-              <span class="hero-label">This month</span>
+              <span class="hero-label">Monthly spend</span>
               <span class="hero-value">
                 ${monthCost !== undefined ? formatMoney(monthCost) : formatKwh(monthEnergy)}
               </span>
@@ -674,6 +716,23 @@ export class LgLaundryUsageCard extends LitElement {
             </div>
           </section>
 
+          <section class="report-grid">
+            ${this.renderMachineReport(
+              'Washer',
+              this.config.washer_energy_entity,
+              this.config.washer_energy_yesterday_entity,
+              this.config.washer_energy_last_month_entity,
+              'var(--washer-color)',
+            )}
+            ${this.renderMachineReport(
+              'Dryer',
+              this.config.dryer_energy_entity,
+              this.config.dryer_energy_yesterday_entity,
+              this.config.dryer_energy_last_month_entity,
+              'var(--dryer-color)',
+            )}
+          </section>
+
           <section class="summary-grid">
             <div class="summary">
               <span>Energy</span>
@@ -688,6 +747,18 @@ export class LgLaundryUsageCard extends LitElement {
               <strong>${this.totalTime()}</strong>
             </div>
             <div class="summary">
+              <span>Last month</span>
+              <strong>
+                ${this.displayTotal(
+                  this.config.washer_energy_last_month_entity,
+                  this.config.dryer_energy_last_month_entity,
+                )}
+              </strong>
+            </div>
+          </section>
+
+          <section class="footer-strip">
+            <span class="footer-item">
               <span>Yesterday</span>
               <strong>
                 ${this.displayTotal(
@@ -695,11 +766,15 @@ export class LgLaundryUsageCard extends LitElement {
                   this.config.dryer_energy_yesterday_entity,
                 )}
               </strong>
-            </div>
-          </section>
-
-          <section class="chart">
-            ${series.map((item) => this.renderChartRow(item))}
+            </span>
+            <span class="footer-item">
+              <span>Avg/day</span>
+              <strong>${this.averageDailyCost()}</strong>
+            </span>
+            <span class="footer-item">
+              <span>Projected</span>
+              <strong>${this.projectedCost()}</strong>
+            </span>
           </section>
         </article>
       </ha-card>
