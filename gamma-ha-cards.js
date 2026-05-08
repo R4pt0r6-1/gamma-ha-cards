@@ -7874,8 +7874,8 @@ window.customCards.push({
 });
 const he = {
   name: "Laundry",
-  width: "100%",
-  fill_container: !0,
+  width: "420px",
+  fill_container: !1,
   border_radius: "14px",
   background: "#101722",
   show_controls: !0,
@@ -8355,11 +8355,11 @@ const At = class At extends g {
   getGridOptions() {
     return {
       rows: "auto",
-      columns: 6,
+      columns: 5,
       min_rows: 5,
       max_rows: 10,
-      min_columns: 4,
-      max_columns: 12
+      min_columns: 3,
+      max_columns: 8
     };
   }
   disconnectedCallback() {
@@ -8755,12 +8755,12 @@ const Mt = class Mt extends g {
           <h3>Main</h3>
           <div class="grid">
             ${this.renderTextInput("Card Name", "name", "Laundry Room")}
-            ${this.renderTextInput("Width", "width", "100%")}
+            ${this.renderTextInput("Width", "width", "420px")}
             ${this.renderTextInput("Radius", "border_radius", "14px")}
             ${this.renderTextInput("Background", "background", "#101722")}
           </div>
           <div class="grid">
-            ${this.renderSwitch("Fill Container", "fill_container", !0)}
+            ${this.renderSwitch("Fill Container", "fill_container", !1)}
             ${this.renderSwitch("Show Controls", "show_controls", !0)}
             ${this.renderSwitch("Show Stats", "show_stats", !0)}
             ${this.renderSwitch("Animated", "animated", !0)}

@@ -58,8 +58,8 @@ type LaundryStateGroup = 'running' | 'complete' | 'paused' | 'error' | 'off';
 
 const DEFAULT_PAIR_CONFIG: Omit<LgLaundryPairCardConfig, 'washer' | 'dryer'> = {
   name: 'Laundry',
-  width: '100%',
-  fill_container: true,
+  width: '420px',
+  fill_container: false,
   border_radius: '14px',
   background: '#101722',
   show_controls: true,
@@ -574,11 +574,11 @@ export class LgLaundryPairCard extends LitElement {
   public getGridOptions() {
     return {
       rows: 'auto',
-      columns: 6,
+      columns: 5,
       min_rows: 5,
       max_rows: 10,
-      min_columns: 4,
-      max_columns: 12,
+      min_columns: 3,
+      max_columns: 8,
     };
   }
 
@@ -1163,12 +1163,12 @@ class LgLaundryPairCardEditor extends LitElement {
           <h3>Main</h3>
           <div class="grid">
             ${this.renderTextInput('Card Name', 'name', 'Laundry Room')}
-            ${this.renderTextInput('Width', 'width', '100%')}
+            ${this.renderTextInput('Width', 'width', '420px')}
             ${this.renderTextInput('Radius', 'border_radius', '14px')}
             ${this.renderTextInput('Background', 'background', '#101722')}
           </div>
           <div class="grid">
-            ${this.renderSwitch('Fill Container', 'fill_container', true)}
+            ${this.renderSwitch('Fill Container', 'fill_container', false)}
             ${this.renderSwitch('Show Controls', 'show_controls', true)}
             ${this.renderSwitch('Show Stats', 'show_stats', true)}
             ${this.renderSwitch('Animated', 'animated', true)}

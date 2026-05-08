@@ -372,7 +372,6 @@ dryer:
   remote_start_entity: binary_sensor.dryer_remote_start
   energy_entity: sensor.dryer_energy_this_month
   error_entity: event.dryer_error
-fill_container: true
 ```
 
 ### LG Laundry Pair Options
@@ -382,8 +381,8 @@ fill_container: true
 | `name`           | `string`  | `Laundry` | Card title, for example `Laundry Room`. |
 | `washer`         | `object`  | Required  | Washer entity config using the same core fields as `lg-laundry-card`. |
 | `dryer`          | `object`  | Required  | Dryer entity config using the same core fields as `lg-laundry-card`. |
-| `width`          | `string`  | `100%`    | CSS width of the card.            |
-| `fill_container` | `boolean` | `true`    | Stretch the card to the full dashboard column width. |
+| `width`          | `string`  | `420px`   | CSS max width of the card when `fill_container` is false. |
+| `fill_container` | `boolean` | `false`   | Stretch the card to the full dashboard column width. |
 | `border_radius`  | `string`  | `14px`    | CSS border radius.                |
 | `background`     | `string`  | `#101722` | Base card background.             |
 | `show_controls`  | `boolean` | `true`    | Show Power, Start, Stop, and Off controls for each machine. |
