@@ -299,7 +299,11 @@ notification_entity: event.washer_notification
 error_entity: event.washer_error
 energy_entity: sensor.washer_energy_this_month
 cycles_entity: sensor.washer_cycles
+energy_price_cents_per_kwh: 16.5
 fill_container: true
+metric_entities:
+  - sensor.washer_energy_this_month
+  - sensor.washer_cycles
 detail_entities:
   - switch.washer_power
   - select.washer_operation
@@ -331,7 +335,11 @@ remote_start_entity: binary_sensor.dryer_remote_start
 notification_entity: event.dryer_notification
 error_entity: event.dryer_error
 energy_entity: sensor.dryer_energy_this_month
+energy_price_cents_per_kwh: 16.5
 fill_container: true
+metric_entities:
+  - sensor.dryer_energy_this_month
+  - sensor.dryer_total_time
 detail_entities:
   - switch.dryer_power
   - select.dryer_operation
@@ -436,6 +444,7 @@ Machine `control_buttons` accepts `power_toggle`, `power_on`, `start`, `stop`, `
 | `error_entity`          | `string`  | Optional            | LG error event entity.            |
 | `energy_entity`         | `string`  | Optional            | Energy sensor shown in the summary. |
 | `cycles_entity`         | `string`  | Optional            | Washer cycle count sensor shown in details. |
+| `metric_entities`       | `array`   | Energy + cycles     | Compact metric line shown when `show_stats` is false. |
 | `detail_entities`       | `array`   | Built from config   | Extra entities shown in the expandable settings drawer. |
 | `width`                 | `string`  | `100%`              | CSS width of the card.            |
 | `fill_container`        | `boolean` | `true`              | Stretch the card to the full dashboard column width. |
@@ -447,6 +456,7 @@ Machine `control_buttons` accepts `power_toggle`, `power_on`, `start`, `stop`, `
 | `paused_color`          | `string`  | `#ff8a1c`           | Glow color when paused/reserved.  |
 | `error_color`           | `string`  | `#ff3b5c`           | Glow color for errors.            |
 | `off_color`             | `string`  | `#697382`           | Muted color when idle/off.        |
+| `show_stats`            | `boolean` | `false`             | Show the larger Total, Remote, and Energy stat chips instead of compact metrics. |
 | `show_details`          | `boolean` | `false`             | Open the settings drawer by default. |
 | `animated`              | `boolean` | `true`              | Enable glow animation.            |
 

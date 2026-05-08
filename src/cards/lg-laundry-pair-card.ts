@@ -212,17 +212,21 @@ export class LgLaundryPairCard extends LitElement {
       }
 
       .pair-card {
+        backdrop-filter: blur(18px) saturate(1.35);
+        -webkit-backdrop-filter: blur(18px) saturate(1.35);
         background:
           linear-gradient(
             180deg,
-            color-mix(in srgb, var(--laundry-pair-background) 94%, #ffffff 4%),
-            var(--laundry-pair-background)
-          );
-        border: 1px solid rgb(255 255 255 / 7%);
+            color-mix(in srgb, var(--laundry-pair-background) 72%, transparent),
+            color-mix(in srgb, var(--laundry-pair-background) 84%, transparent)
+          ),
+          linear-gradient(135deg, rgb(255 255 255 / 11%), rgb(255 255 255 / 3%));
+        border: 1px solid rgb(255 255 255 / 13%);
         border-radius: var(--laundry-pair-radius);
         box-shadow:
-          inset 0 1px 0 rgb(255 255 255 / 5%),
-          0 3px 10px rgb(0 0 0 / 16%);
+          inset 0 1px 0 rgb(255 255 255 / 14%),
+          inset 0 -1px 0 rgb(255 255 255 / 4%),
+          0 8px 24px rgb(0 0 0 / 22%);
         box-sizing: border-box;
         color: var(--primary-text-color, #f4f7fb);
         container-type: inline-size;
@@ -324,16 +328,21 @@ export class LgLaundryPairCard extends LitElement {
       }
 
       .machine {
+        backdrop-filter: blur(12px) saturate(1.25);
+        -webkit-backdrop-filter: blur(12px) saturate(1.25);
         background:
           linear-gradient(
             180deg,
-            color-mix(in srgb, var(--machine-accent-color) 7%, rgb(255 255 255 / 4%)),
-            rgb(255 255 255 / 3%)
+            color-mix(in srgb, var(--machine-accent-color) 11%, rgb(255 255 255 / 8%)),
+            rgb(255 255 255 / 4%)
           );
-        border: 1px solid rgb(255 255 255 / 7%);
+        border: 1px solid rgb(255 255 255 / 10%);
         border-left: 3px solid
           color-mix(in srgb, var(--machine-accent-color) 78%, transparent);
         border-radius: 11px;
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 9%),
+          0 1px 8px rgb(0 0 0 / 10%);
         display: grid;
         gap: 7px;
         min-width: 0;
@@ -1222,7 +1231,7 @@ export class LgLaundryPairCard extends LitElement {
     stateGroup: LaundryStateGroup,
   ): string {
     if (stateGroup === 'complete') {
-      return 'Cycle complete';
+      return 'Complete';
     }
 
     if (stateGroup === 'off') {
@@ -1557,6 +1566,14 @@ export class LgLaundryPairCard extends LitElement {
     );
   }
 
+  private isActionableUnknown(entityId: string): boolean {
+    const entity = this.entity(entityId);
+    return Boolean(
+      this.entityDomain(entityId) === 'select' &&
+        entity?.attributes.options?.length,
+    );
+  }
+
   private configuredSettingEntities(machine: LaundryPairMachineConfig): string[] {
     const entities = [
       machine.entity,
@@ -1573,9 +1590,10 @@ export class LgLaundryPairCard extends LitElement {
       ...(machine.detail_entities ?? []),
     ].filter((entityId): entityId is string => Boolean(entityId));
 
-    return [...new Set(entities)].filter(
-      (entityId) => !isUnavailable(this.entity(entityId)),
-    );
+    return [...new Set(entities)].filter((entityId) => {
+      const entity = this.entity(entityId);
+      return !isUnavailable(entity) || this.isActionableUnknown(entityId);
+    });
   }
 
   private configuredMetricEntities(machine: LaundryPairMachineConfig): string[] {

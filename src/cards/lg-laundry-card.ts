@@ -43,6 +43,7 @@ export interface LgLaundryCardConfig {
   error_entity?: string;
   energy_entity?: string;
   cycles_entity?: string;
+  metric_entities?: string[];
   detail_entities?: string[];
   width?: string;
   fill_container?: boolean;
@@ -54,6 +55,7 @@ export interface LgLaundryCardConfig {
   paused_color?: string;
   error_color?: string;
   off_color?: string;
+  show_stats?: boolean;
   show_details?: boolean;
   animated?: boolean;
 }
@@ -73,6 +75,7 @@ const DEFAULT_CONFIG: Omit<LgLaundryCardConfig, 'entity'> = {
   paused_color: '#ff8a1c',
   error_color: '#ff3b5c',
   off_color: '#697382',
+  show_stats: false,
   show_details: false,
   animated: true,
 };
@@ -374,19 +377,27 @@ export class LgLaundryCard extends LitElement {
       }
 
       .laundry-card {
+        backdrop-filter: blur(16px) saturate(1.32);
+        -webkit-backdrop-filter: blur(16px) saturate(1.32);
         background:
           linear-gradient(
             180deg,
-            color-mix(in srgb, var(--laundry-background) 94%, #ffffff 4%),
-            var(--laundry-background)
+            color-mix(in srgb, var(--laundry-background) 70%, transparent),
+            color-mix(in srgb, var(--laundry-background) 84%, transparent)
+          ),
+          linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--laundry-accent-color) 12%, rgb(255 255 255 / 8%)),
+            rgb(255 255 255 / 3%)
           );
-        border: 1px solid rgb(255 255 255 / 6%);
+        border: 1px solid rgb(255 255 255 / 12%);
         border-left: 3px solid
           color-mix(in srgb, var(--laundry-accent-color) 78%, transparent);
         border-radius: var(--laundry-card-radius);
         box-shadow:
-          inset 0 1px 0 rgb(255 255 255 / 4%),
-          0 2px 6px rgb(0 0 0 / 16%);
+          inset 0 1px 0 rgb(255 255 255 / 13%),
+          inset 0 -1px 0 rgb(255 255 255 / 4%),
+          0 8px 22px rgb(0 0 0 / 20%);
         box-sizing: border-box;
         color: var(--primary-text-color, #f4f7fb);
         container-type: inline-size;
@@ -650,10 +661,47 @@ export class LgLaundryCard extends LitElement {
         white-space: nowrap;
       }
 
+      .machine-metrics {
+        align-items: center;
+        color: var(--primary-text-color, #f4f7fb);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 12px;
+        min-height: 14px;
+        min-width: 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      .metric {
+        align-items: baseline;
+        display: inline-flex;
+        gap: 4px;
+        min-width: 0;
+      }
+
+      .metric-label {
+        color: var(--secondary-text-color, #b7c0ce);
+        font-size: 10.5px;
+        font-weight: 600;
+        line-height: 1.1;
+      }
+
+      .metric-value {
+        color: var(--primary-text-color, #f4f7fb);
+        font-size: 10.5px;
+        font-weight: 700;
+        line-height: 1.1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
       .controls {
         display: grid;
         gap: 5px;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         position: relative;
         z-index: 1;
       }
@@ -1094,7 +1142,7 @@ export class LgLaundryCard extends LitElement {
   }
 
   public getCardSize(): number {
-    return this.detailsOpen ? 6 : 4;
+    return this.detailsOpen ? 6 : this.config.show_stats === false ? 3 : 4;
   }
 
   public getGridOptions() {
@@ -1237,12 +1285,12 @@ export class LgLaundryCard extends LitElement {
     const remaining = this.entity(this.config.remaining_time_entity);
 
     if (this.stateGroup === 'complete') {
-      return 'Cycle complete';
+      return 'Complete';
     }
 
     if (this.stateGroup === 'off') {
       const total = formatDuration(this.totalMinutes);
-      return total === '--' ? 'Ready for next cycle' : `${total} default cycle`;
+      return total === '--' ? 'Ready' : `${total} cycle`;
     }
 
     if (!isUnavailable(remaining) && remaining) {
@@ -1260,7 +1308,7 @@ export class LgLaundryCard extends LitElement {
       }
     }
 
-    return 'Waiting for LG update';
+    return 'Waiting for LG';
   }
 
   private hasOperation(option: string): boolean {
@@ -1419,6 +1467,14 @@ export class LgLaundryCard extends LitElement {
     this.hass?.callService('button', 'press', { entity_id: entityId });
   }
 
+  private isActionableUnknown(entityId: string): boolean {
+    const entity = this.entity(entityId);
+    return Boolean(
+      entityId.startsWith('select.') &&
+        entity?.attributes.options?.length,
+    );
+  }
+
   private configuredDetailEntities(): string[] {
     const entities = [
       ...(this.config.detail_entities ?? []),
@@ -1434,9 +1490,10 @@ export class LgLaundryCard extends LitElement {
       this.config.error_entity,
     ].filter((entityId): entityId is string => Boolean(entityId));
 
-    return [...new Set(entities)].filter(
-      (entityId) => !isUnavailable(this.entity(entityId)),
-    );
+    return [...new Set(entities)].filter((entityId) => {
+      const entity = this.entity(entityId);
+      return !isUnavailable(entity) || this.isActionableUnknown(entityId);
+    });
   }
 
   private renderImage(): TemplateResult {
@@ -1466,6 +1523,57 @@ export class LgLaundryCard extends LitElement {
         <span class="stat-label">${cost ? 'Cost' : label}</span>
         <span class="stat-value">${cost ?? (isUnavailable(entity) ? '--' : formatEntityState(entity))}</span>
       </div>
+    `;
+  }
+
+  private configuredMetricEntities(): string[] {
+    const entities = Array.isArray(this.config.metric_entities) && this.config.metric_entities.length
+      ? this.config.metric_entities
+      : [this.config.energy_entity, this.config.cycles_entity];
+
+    return [...new Set(entities.filter((entityId): entityId is string => Boolean(entityId)))]
+      .filter((entityId) => !isUnavailable(this.entity(entityId)));
+  }
+
+  private energyCostForMetric(entityId: string): string | undefined {
+    if (
+      entityId !== this.config.energy_entity ||
+      parseCentsPerKwh(this.config.energy_price_cents_per_kwh) === undefined
+    ) {
+      return undefined;
+    }
+
+    return formatEnergyCost(
+      this.entity(entityId),
+      this.config.energy_price_cents_per_kwh,
+    );
+  }
+
+  private metricLabel(entityId: string): string {
+    const entity = this.entity(entityId);
+    const cost = this.energyCostForMetric(entityId);
+    const raw =
+      entity?.attributes.friendly_name ??
+      entityId.split('.').slice(1).join(' ');
+    const name = this.displayName.toLowerCase();
+    const cleaned = raw
+      .replace(new RegExp(`^${name}\\s+`, 'i'), '')
+      .replace(/^dryer\s+/i, '')
+      .replace(/^washer\s+/i, '')
+      .replace(/\s+this month$/i, '')
+      .trim();
+
+    return cost ? 'Cost' : humanize(cleaned || raw);
+  }
+
+  private renderMetric(entityId: string): TemplateResult {
+    return html`
+      <span class="metric">
+        <span class="metric-label">${this.metricLabel(entityId)}</span>
+        <span class="metric-value">
+          ${this.energyCostForMetric(entityId) ?? formatEntityState(this.entity(entityId))}
+        </span>
+      </span>
     `;
   }
 
@@ -1623,15 +1731,17 @@ export class LgLaundryCard extends LitElement {
       isRunning;
     const stopDisabled =
       operationUnavailable || !this.canCallOperation('stop') || !isPausable;
-    const powerOnDisabled =
+    const powerToggleDisabled =
       hasPowerSwitch
-        ? isUnavailable(powerEntity) || powerEntity?.state === 'on'
-        : !this.canCallOperation('power_on');
-    const powerOffDisabled =
-      hasPowerSwitch
-        ? isUnavailable(powerEntity) || powerEntity?.state === 'off'
-        : !this.canCallOperation('power_off');
+        ? isUnavailable(powerEntity)
+        : !this.canCallOperation('power_on') && !this.canCallOperation('power_off');
+    const shouldPowerOn = powerEntity
+      ? powerEntity.state !== 'on'
+      : this.stateGroup === 'off';
     const contrastColor = this.kindContrastColor;
+    const metricEntities = this.config.show_stats === false
+      ? this.configuredMetricEntities()
+      : [];
 
     return html`
       <ha-card>
@@ -1676,18 +1786,30 @@ export class LgLaundryCard extends LitElement {
             <div class="progress-bar"></div>
           </div>
 
-          <div class="stats">
-            ${this.renderStat('Total', this.config.total_time_entity)}
-            ${this.renderStat('Remote', this.config.remote_start_entity)}
-            ${this.renderStat('Energy', this.config.energy_entity)}
-          </div>
+          ${metricEntities.length
+            ? html`
+                <div class="machine-metrics">
+                  ${metricEntities.map((entityId) => this.renderMetric(entityId))}
+                </div>
+              `
+            : nothing}
+
+          ${this.config.show_stats === false
+            ? nothing
+            : html`
+                <div class="stats">
+                  ${this.renderStat('Total', this.config.total_time_entity)}
+                  ${this.renderStat('Remote', this.config.remote_start_entity)}
+                  ${this.renderStat('Energy', this.config.energy_entity)}
+                </div>
+              `}
 
           <div class="controls">
             ${this.renderControl(
               'Power',
               'mdi:power',
-              () => this.setPower(true),
-              powerOnDisabled,
+              () => this.setPower(shouldPowerOn),
+              powerToggleDisabled,
             )}
             ${this.renderControl(
               'Start',
@@ -1701,13 +1823,6 @@ export class LgLaundryCard extends LitElement {
               'mdi:stop',
               () => this.callOperation('stop'),
               stopDisabled,
-            )}
-            ${this.renderControl(
-              'Off',
-              'mdi:power-standby',
-              () => this.setPower(false),
-              powerOffDisabled,
-              'warning',
             )}
           </div>
 
@@ -1933,6 +2048,10 @@ class LgLaundryCardEditor extends LitElement {
       { name: 'energy_entity', selector: { entity: { domain: 'sensor' } } },
       { name: 'cycles_entity', selector: { entity: { domain: 'sensor' } } },
       {
+        name: 'metric_entities',
+        selector: { entity: { multiple: true } },
+      },
+      {
         name: 'detail_entities',
         selector: { entity: { multiple: true } },
       },
@@ -1949,6 +2068,7 @@ class LgLaundryCardEditor extends LitElement {
       error_entity: 'Error Event',
       energy_entity: 'Energy Sensor',
       cycles_entity: 'Cycles Sensor',
+      metric_entities: 'Compact Metrics',
       detail_entities: 'Extra Detail Entities',
     };
 
@@ -1967,6 +2087,7 @@ class LgLaundryCardEditor extends LitElement {
           error_entity: this.config.error_entity,
           energy_entity: this.config.energy_entity,
           cycles_entity: this.config.cycles_entity,
+          metric_entities: this.config.metric_entities,
           detail_entities: this.config.detail_entities,
         }}
         .schema=${schema}
@@ -2005,6 +2126,7 @@ class LgLaundryCardEditor extends LitElement {
           </div>
           <div class="grid">
             ${this.renderSwitch('Fill Container', 'fill_container', true)}
+            ${this.renderSwitch('Show Stats', 'show_stats', false)}
             ${this.renderSwitch('Show Details Open', 'show_details', false)}
             ${this.renderSwitch('Animated Glow', 'animated', true)}
           </div>
