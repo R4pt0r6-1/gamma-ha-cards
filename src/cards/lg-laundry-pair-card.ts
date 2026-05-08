@@ -1505,7 +1505,9 @@ export class LgLaundryPairCard extends LitElement {
       ...(machine.detail_entities ?? []),
     ].filter((entityId): entityId is string => Boolean(entityId));
 
-    return [...new Set(entities)];
+    return [...new Set(entities)].filter(
+      (entityId) => !isUnavailable(this.entity(entityId)),
+    );
   }
 
   private toggleSwitch(entityId: string): void {

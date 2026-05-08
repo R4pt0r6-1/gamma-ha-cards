@@ -1381,7 +1381,9 @@ export class LgLaundryCard extends LitElement {
       this.config.error_entity,
     ].filter((entityId): entityId is string => Boolean(entityId));
 
-    return [...new Set(entities)];
+    return [...new Set(entities)].filter(
+      (entityId) => !isUnavailable(this.entity(entityId)),
+    );
   }
 
   private renderImage(): TemplateResult {

@@ -7678,7 +7678,9 @@ const Et = class Et extends g {
       this.config.notification_entity,
       this.config.error_entity
     ].filter((e) => !!e);
-    return [...new Set(t)];
+    return [...new Set(t)].filter(
+      (e) => !f(this.entity(e))
+    );
   }
   renderImage() {
     const t = this.config.image ?? `/hacsfiles/gamma-ha-cards/assets/laundry-${this.kind}.svg`;
@@ -9295,7 +9297,9 @@ const Mt = class Mt extends g {
       t.error_entity,
       ...t.detail_entities ?? []
     ].filter((i) => !!i);
-    return [...new Set(e)];
+    return [...new Set(e)].filter(
+      (i) => !f(this.entity(i))
+    );
   }
   toggleSwitch(t) {
     var e;
