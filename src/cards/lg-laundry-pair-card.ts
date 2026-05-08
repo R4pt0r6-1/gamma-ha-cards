@@ -15,6 +15,34 @@ import type {
   LgLaundryCardConfig,
 } from './lg-laundry-card';
 
+type LaundryPairControlAction =
+  | 'power_on'
+  | 'start'
+  | 'stop'
+  | 'power_off'
+  | 'settings'
+  | 'more_info'
+  | 'toggle'
+  | 'press'
+  | 'select_option'
+  | 'service';
+
+type LaundryPairControlButtonConfig = {
+  action?: LaundryPairControlAction;
+  label?: string;
+  icon?: string;
+  entity?: string;
+  option?: string;
+  service?: string;
+  service_data?: Record<string, unknown>;
+  target?: Record<string, unknown>;
+  className?: string;
+};
+
+type LaundryPairControlButton =
+  | LaundryPairControlAction
+  | LaundryPairControlButtonConfig;
+
 type LaundryPairMachineConfig = Pick<
   LgLaundryCardConfig,
   | 'entity'
@@ -36,7 +64,9 @@ type LaundryPairMachineConfig = Pick<
   | 'paused_color'
   | 'error_color'
   | 'off_color'
->;
+> & {
+  control_buttons?: LaundryPairControlButton[];
+};
 
 interface LgLaundryPairCardConfig {
   type?: string;
@@ -68,6 +98,34 @@ const DEFAULT_PAIR_CONFIG: Omit<LgLaundryPairCardConfig, 'washer' | 'dryer'> = {
   show_controls: true,
   show_stats: true,
   animated: true,
+};
+
+const DEFAULT_CONTROL_BUTTONS: LaundryPairControlButtonConfig[] = [
+  { action: 'power_on', label: 'Power', icon: 'mdi:power' },
+  { action: 'start', label: 'Start', icon: 'mdi:play', className: 'primary' },
+  { action: 'stop', label: 'Stop', icon: 'mdi:stop' },
+  {
+    action: 'power_off',
+    label: 'Off',
+    icon: 'mdi:power-standby',
+    className: 'warning',
+  },
+];
+
+const CONTROL_PRESETS: Record<
+  LaundryPairControlAction,
+  Required<Pick<LaundryPairControlButtonConfig, 'label' | 'icon'>>
+> = {
+  power_on: { label: 'Power', icon: 'mdi:power' },
+  start: { label: 'Start', icon: 'mdi:play' },
+  stop: { label: 'Stop', icon: 'mdi:stop' },
+  power_off: { label: 'Off', icon: 'mdi:power-standby' },
+  settings: { label: 'Settings', icon: 'mdi:cog-outline' },
+  more_info: { label: 'Info', icon: 'mdi:information-outline' },
+  toggle: { label: 'Toggle', icon: 'mdi:toggle-switch-outline' },
+  press: { label: 'Press', icon: 'mdi:gesture-tap-button' },
+  select_option: { label: 'Select', icon: 'mdi:format-list-bulleted' },
+  service: { label: 'Run', icon: 'mdi:flash' },
 };
 
 const RUNNING_STATES = new Set([
@@ -123,14 +181,14 @@ export class LgLaundryPairCard extends LitElement {
     hass: { attribute: false },
     config: { state: true },
     optimisticOperations: { state: true },
-    settingsOpen: { state: true },
+    settingsMachine: { state: true },
   };
 
   public hass?: HomeAssistant;
   private config!: LgLaundryPairCardConfig;
   private optimisticOperations: Partial<Record<ApplianceKind, string>> = {};
   private optimisticTimers: Partial<Record<ApplianceKind, number>> = {};
-  private settingsOpen = false;
+  private settingsMachine?: ApplianceKind;
 
   static get styles(): CSSResultGroup {
     return css`
@@ -192,13 +250,6 @@ export class LgLaundryPairCard extends LitElement {
         white-space: nowrap;
       }
 
-      .pair-actions {
-        align-items: center;
-        display: inline-flex;
-        flex: 0 0 auto;
-        gap: 7px;
-      }
-
       .pair-badge {
         color: var(--secondary-text-color, #9aa3b1);
         flex: 0 0 auto;
@@ -222,6 +273,11 @@ export class LgLaundryPairCard extends LitElement {
           color 160ms ease,
           transform 160ms ease;
         width: 28px;
+      }
+
+      .machine-settings-toggle {
+        height: 26px;
+        width: 26px;
       }
 
       .settings-toggle ha-icon {
@@ -293,7 +349,7 @@ export class LgLaundryPairCard extends LitElement {
         align-items: center;
         display: grid;
         gap: 8px;
-        grid-template-columns: 34px minmax(0, 1fr) minmax(58px, auto);
+        grid-template-columns: 34px minmax(0, 1fr) minmax(96px, auto);
         min-width: 0;
       }
 
@@ -367,6 +423,14 @@ export class LgLaundryPairCard extends LitElement {
         text-align: right;
       }
 
+      .machine-actions {
+        align-items: center;
+        display: inline-flex;
+        gap: 6px;
+        justify-content: end;
+        min-width: 0;
+      }
+
       .time-value {
         color: var(--primary-text-color, #f4f7fb);
         font-size: 19px;
@@ -379,7 +443,7 @@ export class LgLaundryPairCard extends LitElement {
         color: var(--secondary-text-color, #b7c0ce);
         font-size: 9.5px;
         line-height: 1.2;
-        max-width: 96px;
+        max-width: 76px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -440,7 +504,7 @@ export class LgLaundryPairCard extends LitElement {
       .controls {
         display: grid;
         gap: 5px;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
       }
 
       .control {
@@ -773,7 +837,7 @@ export class LgLaundryPairCard extends LitElement {
         }
 
         .machine-head {
-          grid-template-columns: 32px minmax(0, 1fr) minmax(52px, auto);
+          grid-template-columns: 32px minmax(0, 1fr) minmax(88px, auto);
         }
 
         .image-wrap {
@@ -786,7 +850,7 @@ export class LgLaundryPairCard extends LitElement {
         }
 
         .time-subtext {
-          max-width: 72px;
+          max-width: 66px;
         }
 
         .stat {
@@ -804,19 +868,21 @@ export class LgLaundryPairCard extends LitElement {
           display: none;
         }
 
-        .settings-toggle {
-          height: 30px;
-          width: 30px;
+        .machine-settings-toggle {
+          height: 28px;
+          width: 28px;
         }
 
         .machine-head {
-          grid-template-columns: 32px minmax(0, 1fr);
+          grid-template-columns: 32px minmax(0, 1fr) 28px;
+        }
+
+        .machine-actions {
+          align-self: start;
         }
 
         .time {
-          grid-column: 1 / -1;
-          justify-items: start;
-          text-align: left;
+          display: none;
         }
 
         .time-subtext {
@@ -862,7 +928,7 @@ export class LgLaundryPairCard extends LitElement {
         ...config.dryer,
       },
     };
-    this.settingsOpen = false;
+    this.settingsMachine = undefined;
 
     this.style.setProperty(
       '--laundry-pair-width',
@@ -945,14 +1011,14 @@ export class LgLaundryPairCard extends LitElement {
     );
   }
 
-  private toggleSettings(event: Event): void {
+  private openSettings(kind: ApplianceKind, event: Event): void {
     event.stopPropagation();
-    this.settingsOpen = !this.settingsOpen;
+    this.settingsMachine = kind;
   }
 
   private closeSettings(event?: Event): void {
     event?.stopPropagation();
-    this.settingsOpen = false;
+    this.settingsMachine = undefined;
   }
 
   private isEditorPreview(): boolean {
@@ -1229,7 +1295,7 @@ export class LgLaundryPairCard extends LitElement {
   private renderControl(
     label: string,
     icon: string,
-    handler: () => void,
+    handler: (event: Event) => void,
     disabled: boolean,
     className = '',
   ): TemplateResult {
@@ -1245,6 +1311,182 @@ export class LgLaundryPairCard extends LitElement {
         <ha-icon icon=${icon}></ha-icon>
       </button>
     `;
+  }
+
+  private configuredControlButtons(
+    machine: LaundryPairMachineConfig,
+  ): LaundryPairControlButtonConfig[] {
+    const buttons = Array.isArray(machine.control_buttons) && machine.control_buttons.length
+      ? machine.control_buttons
+      : DEFAULT_CONTROL_BUTTONS;
+
+    return buttons
+      .map((button) =>
+        typeof button === 'string' ? { action: button } : button,
+      )
+      .map((button) => {
+        const action =
+          button.action && button.action in CONTROL_PRESETS
+            ? button.action
+            : 'more_info';
+        const preset = CONTROL_PRESETS[action];
+        return {
+          ...button,
+          action,
+          label: button.label ?? preset.label,
+          icon: button.icon ?? preset.icon,
+        };
+      });
+  }
+
+  private callCustomService(
+    button: LaundryPairControlButtonConfig,
+    machine: LaundryPairMachineConfig,
+  ): void {
+    if (!button.service) {
+      return;
+    }
+
+    const [domain, service] = button.service.split('.');
+    if (!domain || !service) {
+      return;
+    }
+
+    this.hass?.callService(
+      domain,
+      service,
+      button.service_data ?? {},
+      button.target ?? (button.entity ? { entity_id: button.entity } : undefined),
+    );
+  }
+
+  private controlDisabled(
+    kind: ApplianceKind,
+    machine: LaundryPairMachineConfig,
+    stateGroup: LaundryStateGroup,
+    button: LaundryPairControlButtonConfig,
+  ): boolean {
+    const action = button.action ?? 'more_info';
+    const powerEntity = this.entity(machine.power_entity);
+    const operationEntity = this.entity(machine.operation_entity);
+    const hasPowerSwitch = Boolean(machine.power_entity && powerEntity);
+    const operationUnavailable = !operationEntity || operationEntity.state === 'unavailable';
+    const isRunning = stateGroup === 'running';
+    const isPausable = stateGroup === 'running' || stateGroup === 'paused';
+    const operationOption = button.option ?? action;
+
+    switch (action) {
+      case 'power_on':
+        return hasPowerSwitch
+          ? isUnavailable(powerEntity) || powerEntity?.state === 'on'
+          : !this.canCallOperation(machine, 'power_on');
+      case 'start':
+        return (
+          operationUnavailable ||
+          !this.canCallOperation(machine, operationOption) ||
+          !this.isRemoteStartReady(machine) ||
+          isRunning
+        );
+      case 'stop':
+        return (
+          operationUnavailable ||
+          !this.canCallOperation(machine, operationOption) ||
+          !isPausable
+        );
+      case 'power_off':
+        return hasPowerSwitch
+          ? isUnavailable(powerEntity) || powerEntity?.state === 'off'
+          : !this.canCallOperation(machine, 'power_off');
+      case 'toggle':
+        return !button.entity || isUnavailable(this.entity(button.entity));
+      case 'press':
+        return !button.entity || isUnavailable(this.entity(button.entity));
+      case 'select_option':
+        return (
+          !button.option ||
+          isUnavailable(this.entity(button.entity ?? machine.operation_entity)) ||
+          !this
+            .entity(button.entity ?? machine.operation_entity)
+            ?.attributes.options?.includes(button.option)
+        );
+      case 'service':
+        return !button.service;
+      case 'settings':
+      case 'more_info':
+      default:
+        return false;
+    }
+  }
+
+  private runControlButton(
+    kind: ApplianceKind,
+    machine: LaundryPairMachineConfig,
+    button: LaundryPairControlButtonConfig,
+    event: Event,
+  ): void {
+    event.stopPropagation();
+    const action = button.action ?? 'more_info';
+
+    switch (action) {
+      case 'power_on':
+        this.setPower(kind, machine, true);
+        break;
+      case 'start':
+        this.callOperation(kind, machine, button.option ?? 'start');
+        break;
+      case 'stop':
+        this.callOperation(kind, machine, button.option ?? 'stop');
+        break;
+      case 'power_off':
+        this.setPower(kind, machine, false);
+        break;
+      case 'settings':
+        this.openSettings(kind, event);
+        break;
+      case 'more_info':
+        this.dispatchMoreInfo(button.entity ?? machine.entity);
+        break;
+      case 'toggle':
+        if (button.entity) {
+          this.toggleSwitch(button.entity);
+        }
+        break;
+      case 'press':
+        if (button.entity) {
+          this.pressButton(button.entity);
+        }
+        break;
+      case 'select_option':
+        if (button.option) {
+          this.selectOption(button.entity ?? machine.operation_entity ?? '', button.option);
+        }
+        break;
+      case 'service':
+        this.callCustomService(button, machine);
+        break;
+      default:
+        break;
+    }
+  }
+
+  private renderControlButton(
+    kind: ApplianceKind,
+    machine: LaundryPairMachineConfig,
+    stateGroup: LaundryStateGroup,
+    button: LaundryPairControlButtonConfig,
+  ): TemplateResult {
+    const action = button.action ?? 'more_info';
+    const className =
+      button.className ??
+      (action === 'start' ? 'primary' : action === 'power_off' ? 'warning' : '');
+
+    return this.renderControl(
+      button.label ?? CONTROL_PRESETS[action].label,
+      button.icon ?? CONTROL_PRESETS[action].icon,
+      (event) => this.runControlButton(kind, machine, button, event),
+      this.controlDisabled(kind, machine, stateGroup, button),
+      className,
+    );
   }
 
   private configuredSettingEntities(machine: LaundryPairMachineConfig): string[] {
@@ -1391,9 +1633,12 @@ export class LgLaundryPairCard extends LitElement {
   }
 
   private renderSettingsDialog(): TemplateResult | typeof nothing {
-    if (!this.settingsOpen || this.isEditorPreview()) {
+    if (!this.settingsMachine || this.isEditorPreview()) {
       return nothing;
     }
+
+    const kind = this.settingsMachine;
+    const machine = this.config[kind];
 
     return html`
       <div class="settings-overlay" @click=${this.closeSettings}>
@@ -1401,13 +1646,13 @@ export class LgLaundryPairCard extends LitElement {
           class="settings-dialog"
           role="dialog"
           aria-modal="true"
-          aria-label="Laundry settings"
+          aria-label="${this.displayName(kind, machine)} settings"
           @click=${(event: Event) => event.stopPropagation()}
         >
           <div class="settings-dialog-header">
             <div class="settings-dialog-title">
               <span>${this.config.name ?? 'Laundry'}</span>
-              <h2>Settings & Details</h2>
+              <h2>${this.displayName(kind, machine)}</h2>
             </div>
             <button
               type="button"
@@ -1419,8 +1664,7 @@ export class LgLaundryPairCard extends LitElement {
             </button>
           </div>
           <div class="settings-panel">
-            ${this.renderSettingsSection('washer', this.config.washer)}
-            ${this.renderSettingsSection('dryer', this.config.dryer)}
+            ${this.renderSettingsSection(kind, machine)}
           </div>
         </section>
       </div>
@@ -1432,25 +1676,7 @@ export class LgLaundryPairCard extends LitElement {
     machine: LaundryPairMachineConfig,
   ): TemplateResult {
     const stateGroup = this.stateGroup(kind, machine);
-    const powerEntity = this.entity(machine.power_entity);
-    const operationEntity = this.entity(machine.operation_entity);
-    const hasPowerSwitch = Boolean(machine.power_entity && powerEntity);
-    const operationUnavailable = !operationEntity || operationEntity.state === 'unavailable';
-    const isRunning = stateGroup === 'running';
-    const isPausable = stateGroup === 'running' || stateGroup === 'paused';
-    const startDisabled =
-      operationUnavailable ||
-      !this.canCallOperation(machine, 'start') ||
-      !this.isRemoteStartReady(machine) ||
-      isRunning;
-    const stopDisabled =
-      operationUnavailable || !this.canCallOperation(machine, 'stop') || !isPausable;
-    const powerOnDisabled = hasPowerSwitch
-      ? isUnavailable(powerEntity) || powerEntity?.state === 'on'
-      : !this.canCallOperation(machine, 'power_on');
-    const powerOffDisabled = hasPowerSwitch
-      ? isUnavailable(powerEntity) || powerEntity?.state === 'off'
-      : !this.canCallOperation(machine, 'power_off');
+    const controlButtons = this.configuredControlButtons(machine);
 
     return html`
       <section
@@ -1480,9 +1706,20 @@ export class LgLaundryPairCard extends LitElement {
               <span class="status-text">${this.statusLabel(kind, machine)}</span>
             </span>
           </div>
-          <div class="time">
-            <span class="time-value">${this.timeDisplay(machine, stateGroup)}</span>
-            <span class="time-subtext">${this.timeSubtext(machine, stateGroup)}</span>
+          <div class="machine-actions">
+            <div class="time">
+              <span class="time-value">${this.timeDisplay(machine, stateGroup)}</span>
+              <span class="time-subtext">${this.timeSubtext(machine, stateGroup)}</span>
+            </div>
+            <button
+              type="button"
+              class="settings-toggle machine-settings-toggle"
+              aria-label="Open ${this.displayName(kind, machine)} settings"
+              title="Settings"
+              @click=${(event: Event) => this.openSettings(kind, event)}
+            >
+              <ha-icon icon="mdi:cog-outline"></ha-icon>
+            </button>
           </div>
         </div>
 
@@ -1504,31 +1741,8 @@ export class LgLaundryPairCard extends LitElement {
           ? nothing
           : html`
               <div class="controls">
-                ${this.renderControl(
-                  'Power',
-                  'mdi:power',
-                  () => this.setPower(kind, machine, true),
-                  powerOnDisabled,
-                )}
-                ${this.renderControl(
-                  'Start',
-                  'mdi:play',
-                  () => this.callOperation(kind, machine, 'start'),
-                  startDisabled,
-                  'primary',
-                )}
-                ${this.renderControl(
-                  'Stop',
-                  'mdi:stop',
-                  () => this.callOperation(kind, machine, 'stop'),
-                  stopDisabled,
-                )}
-                ${this.renderControl(
-                  'Off',
-                  'mdi:power-standby',
-                  () => this.setPower(kind, machine, false),
-                  powerOffDisabled,
-                  'warning',
+                ${controlButtons.map((button) =>
+                  this.renderControlButton(kind, machine, stateGroup, button),
                 )}
               </div>
             `}
@@ -1546,18 +1760,6 @@ export class LgLaundryPairCard extends LitElement {
         <article class="pair-card">
           <header class="pair-header">
             <span class="pair-title">${this.config.name ?? 'Laundry'}</span>
-            <span class="pair-actions">
-              <span class="pair-badge">Washer + Dryer</span>
-              <button
-                type="button"
-                class="settings-toggle"
-                aria-label="Open laundry settings"
-                title="Settings"
-                @click=${this.toggleSettings}
-              >
-                <ha-icon icon="mdi:cog-outline"></ha-icon>
-              </button>
-            </span>
           </header>
           <div class="machines">
             ${this.renderMachine('washer', this.config.washer)}
@@ -1707,6 +1909,53 @@ class LgLaundryPairCardEditor extends LitElement {
     `;
   }
 
+  private controlButtonsValue(kind: ApplianceKind): string {
+    const value = this.valueFor(`${kind}.control_buttons`);
+
+    if (!Array.isArray(value)) {
+      return '';
+    }
+
+    return value
+      .map((button) =>
+        typeof button === 'string'
+          ? button
+          : button?.action ?? button?.label ?? '',
+      )
+      .filter(Boolean)
+      .join(', ');
+  }
+
+  private controlButtonsChanged(event: Event): void {
+    const target = event.target as PairConfigElement;
+
+    if (!target.configPath) {
+      return;
+    }
+
+    const buttons = String(target.value ?? '')
+      .split(',')
+      .map((button) => button.trim())
+      .filter(Boolean) as LaundryPairControlButton[];
+
+    this.updatePath(target.configPath, buttons.length ? buttons : undefined);
+  }
+
+  private renderControlButtonsInput(kind: ApplianceKind): TemplateResult {
+    const title = kind === 'dryer' ? 'Dryer' : 'Washer';
+
+    return html`
+      <ha-textfield
+        .label=${`${title} Bottom Buttons`}
+        .helper=${'Comma list: power_on, start, stop, power_off, settings, more_info'}
+        .placeholder=${'power_on, start, stop, power_off'}
+        .value=${this.controlButtonsValue(kind)}
+        .configPath=${`${kind}.control_buttons`}
+        @input=${this.controlButtonsChanged}
+      ></ha-textfield>
+    `;
+  }
+
   private renderSwitch(
     label: string,
     path: keyof LgLaundryPairCardConfig,
@@ -1743,6 +1992,7 @@ class LgLaundryPairCardEditor extends LitElement {
           ${this.renderTextInput(`${title} Cycles`, `${kind}.cycles_entity`, `sensor.${kind}_cycles`)}
           ${this.renderTextInput(`${title} Notification Event`, `${kind}.notification_entity`, `event.${kind}_notification`)}
           ${this.renderTextInput(`${title} Error Event`, `${kind}.error_entity`, `event.${kind}_error`)}
+          ${this.renderControlButtonsInput(kind)}
         </div>
       </section>
     `;

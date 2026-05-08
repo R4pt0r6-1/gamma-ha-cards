@@ -348,7 +348,7 @@ detail_entities:
 ## LG Laundry Pair Card
 
 Use this when a room has both machines and you want one named card on dashboards around the house.
-The header gear opens a compact settings and details popup for both machines.
+Each machine row has its own gear for a compact settings and details popup.
 
 ```yaml
 type: custom:lg-laundry-pair-card
@@ -369,6 +369,11 @@ washer:
   error_entity: event.washer_error
   detail_entities:
     - sensor.washer_energy_yesterday
+  control_buttons:
+    - power_on
+    - start
+    - stop
+    - power_off
 dryer:
   entity: sensor.dryer_current_status
   name: Dryer
@@ -383,6 +388,11 @@ dryer:
   error_entity: event.dryer_error
   detail_entities:
     - sensor.dryer_energy_yesterday
+  control_buttons:
+    - power_on
+    - start
+    - stop
+    - power_off
 ```
 
 ### LG Laundry Pair Options
@@ -399,6 +409,8 @@ dryer:
 | `show_controls`  | `boolean` | `true`    | Show Power, Start, Stop, and Off controls for each machine. |
 | `show_stats`     | `boolean` | `true`    | Show Total, Remote, and Energy stats for each machine. |
 | `animated`       | `boolean` | `true`    | Reserved for visual animation support. |
+
+Machine `control_buttons` accepts `power_on`, `start`, `stop`, `power_off`, `settings`, `more_info`, `toggle`, `press`, `select_option`, and `service`. Use a comma list in the visual editor for simple reorder/hide changes, or YAML objects for custom icons, labels, entities, and services.
 
 ### LG Laundry Options
 
