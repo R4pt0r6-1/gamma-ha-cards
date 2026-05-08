@@ -7,3 +7,4 @@ import './cards/speed-fan-card';
 import './cards/lg-laundry-card';
 import './cards/lg-laundry-pair-card';
 import './cards/lg-laundry-usage-card';
+import './cards/voice-settings-card';

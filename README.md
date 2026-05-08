@@ -13,6 +13,7 @@ A fast Home Assistant Lovelace card collection for compact, animated dashboard c
 - `custom:lg-laundry-card` - a modern LG ThinQ washer/dryer card with power, start, stop, estimated time left, progress, appliance artwork, and an expandable settings drawer.
 - `custom:lg-laundry-pair-card` - one named dashboard card that combines a washer and dryer into two compact rows.
 - `custom:lg-laundry-usage-card` - a glassy usage card for laundry energy, cost, cycles, and comparison bars.
+- `custom:voice-settings-card` - a compact glass card for voice assistant select controls.
 
 ## Installation
 
