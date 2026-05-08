@@ -285,8 +285,8 @@ C.elementStyles = [], C.shadowRootOptions = { mode: "open" }, C[O("elementProper
  * SPDX-License-Identifier: BSD-3-Clause
  */
 const A = globalThis, At = (o) => o, R = A.trustedTypes, Mt = R ? R.createPolicy("lit-html", { createHTML: (o) => o }) : void 0, Qt = "$lit$", x = `lit$${Math.random().toFixed(9).slice(2)}$`, te = "?" + x, pe = `<${te}>`, k = document, M = () => k.createComment(""), I = (o) => o === null || typeof o != "object" && typeof o != "function", ht = Array.isArray, ue = (o) => ht(o) || typeof (o == null ? void 0 : o[Symbol.iterator]) == "function", j = `[ 	
-\f\r]`, P = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, It = /-->/g, Ut = />/g, y = RegExp(`>|${j}(?:([^\\s"'>=/]+)(${j}*=${j}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), zt = /'/g, Dt = /"/g, ee = /^(?:script|style|textarea|title)$/i, ge = (o) => (t, ...e) => ({ _$litType$: o, strings: t, values: e }), a = ge(1), S = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), Lt = /* @__PURE__ */ new WeakMap(), $ = k.createTreeWalker(k, 129);
+\f\r]`, P = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, It = /-->/g, zt = />/g, y = RegExp(`>|${j}(?:([^\\s"'>=/]+)(${j}*=${j}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), Ut = /'/g, Dt = /"/g, ee = /^(?:script|style|textarea|title)$/i, ge = (o) => (t, ...e) => ({ _$litType$: o, strings: t, values: e }), a = ge(1), S = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), Lt = /* @__PURE__ */ new WeakMap(), $ = k.createTreeWalker(k, 129);
 function ie(o, t) {
   if (!ht(o) || !o.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return Mt !== void 0 ? Mt.createHTML(t) : t;
@@ -297,19 +297,19 @@ const fe = (o, t) => {
   for (let l = 0; l < e; l++) {
     const c = o[l];
     let d, u, p = -1, m = 0;
-    for (; m < c.length && (s.lastIndex = m, u = s.exec(c), u !== null); ) m = s.lastIndex, s === P ? u[1] === "!--" ? s = It : u[1] !== void 0 ? s = Ut : u[2] !== void 0 ? (ee.test(u[2]) && (r = RegExp("</" + u[2], "g")), s = y) : u[3] !== void 0 && (s = y) : s === y ? u[0] === ">" ? (s = r ?? P, p = -1) : u[1] === void 0 ? p = -2 : (p = s.lastIndex - u[2].length, d = u[1], s = u[3] === void 0 ? y : u[3] === '"' ? Dt : zt) : s === Dt || s === zt ? s = y : s === It || s === Ut ? s = P : (s = y, r = void 0);
+    for (; m < c.length && (s.lastIndex = m, u = s.exec(c), u !== null); ) m = s.lastIndex, s === P ? u[1] === "!--" ? s = It : u[1] !== void 0 ? s = zt : u[2] !== void 0 ? (ee.test(u[2]) && (r = RegExp("</" + u[2], "g")), s = y) : u[3] !== void 0 && (s = y) : s === y ? u[0] === ">" ? (s = r ?? P, p = -1) : u[1] === void 0 ? p = -2 : (p = s.lastIndex - u[2].length, d = u[1], s = u[3] === void 0 ? y : u[3] === '"' ? Dt : Ut) : s === Dt || s === Ut ? s = y : s === It || s === zt ? s = P : (s = y, r = void 0);
     const b = s === y && o[l + 1].startsWith("/>") ? " " : "";
     n += s === P ? c + pe : p >= 0 ? (i.push(d), c.slice(0, p) + Qt + c.slice(p) + x + b) : c + x + (p === -2 ? l : b);
   }
   return [ie(o, n + (o[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
 };
-class U {
+class z {
   constructor({ strings: t, _$litType$: e }, i) {
     let r;
     this.parts = [];
     let n = 0, s = 0;
     const l = t.length - 1, c = this.parts, [d, u] = fe(t, e);
-    if (this.el = U.createElement(d, i), $.currentNode = this.el.content, e === 2 || e === 3) {
+    if (this.el = z.createElement(d, i), $.currentNode = this.el.content, e === 2 || e === 3) {
       const p = this.el.content.firstChild;
       p.replaceWith(...p.childNodes);
     }
@@ -364,7 +364,7 @@ class me {
     for (; c !== void 0; ) {
       if (s === c.index) {
         let d;
-        c.type === 2 ? d = new z(n, n.nextSibling, this, t) : c.type === 1 ? d = new c.ctor(n, c.name, c.strings, this, t) : c.type === 6 && (d = new we(n, this, t)), this._$AV.push(d), c = i[++l];
+        c.type === 2 ? d = new U(n, n.nextSibling, this, t) : c.type === 1 ? d = new c.ctor(n, c.name, c.strings, this, t) : c.type === 6 && (d = new we(n, this, t)), this._$AV.push(d), c = i[++l];
       }
       s !== (c == null ? void 0 : c.index) && (n = $.nextNode(), s++);
     }
@@ -375,7 +375,7 @@ class me {
     for (const i of this._$AV) i !== void 0 && (i.strings !== void 0 ? (i._$AI(t, i, e), e += i.strings.length - 2) : i._$AI(t[e])), e++;
   }
 }
-class z {
+class U {
   get _$AU() {
     var t;
     return ((t = this._$AM) == null ? void 0 : t._$AU) ?? this._$Cv;
@@ -408,7 +408,7 @@ class z {
   }
   $(t) {
     var n;
-    const { values: e, _$litType$: i } = t, r = typeof i == "number" ? this._$AC(t) : (i.el === void 0 && (i.el = U.createElement(ie(i.h, i.h[0]), this.options)), i);
+    const { values: e, _$litType$: i } = t, r = typeof i == "number" ? this._$AC(t) : (i.el === void 0 && (i.el = z.createElement(ie(i.h, i.h[0]), this.options)), i);
     if (((n = this._$AH) == null ? void 0 : n._$AD) === r) this._$AH.p(e);
     else {
       const s = new me(r, this), l = s.u(this.options);
@@ -417,13 +417,13 @@ class z {
   }
   _$AC(t) {
     let e = Lt.get(t.strings);
-    return e === void 0 && Lt.set(t.strings, e = new U(t)), e;
+    return e === void 0 && Lt.set(t.strings, e = new z(t)), e;
   }
   k(t) {
     ht(this._$AH) || (this._$AH = [], this._$AR());
     const e = this._$AH;
     let i, r = 0;
-    for (const n of t) r === e.length ? e.push(i = new z(this.O(M()), this.O(M()), this, this.options)) : i = e[r], i._$AI(n), r++;
+    for (const n of t) r === e.length ? e.push(i = new U(this.O(M()), this.O(M()), this, this.options)) : i = e[r], i._$AI(n), r++;
     r < e.length && (this._$AR(i && i._$AB.nextSibling, r), e.length = r);
   }
   _$AR(t = this._$AA.nextSibling, e) {
@@ -505,13 +505,13 @@ class we {
   }
 }
 const V = A.litHtmlPolyfillSupport;
-V == null || V(U, z), (A.litHtmlVersions ?? (A.litHtmlVersions = [])).push("3.3.2");
+V == null || V(z, U), (A.litHtmlVersions ?? (A.litHtmlVersions = [])).push("3.3.2");
 const ye = (o, t, e) => {
   const i = (e == null ? void 0 : e.renderBefore) ?? t;
   let r = i._$litPart$;
   if (r === void 0) {
     const n = (e == null ? void 0 : e.renderBefore) ?? null;
-    i._$litPart$ = r = new z(t.insertBefore(M(), n), n, void 0, e ?? {});
+    i._$litPart$ = r = new U(t.insertBefore(M(), n), n, void 0, e ?? {});
   }
   return r._$AI(o), r;
 };
@@ -5818,7 +5818,7 @@ const Kt = {
   tap_action: "cycle",
   hold_action: "more-info",
   animated: !0
-}, Ue = ["cycle", "more-info", "none"], ze = ["more-info", "none"];
+}, ze = ["cycle", "more-info", "none"], Ue = ["more-info", "none"];
 function De(o, t) {
   o.dispatchEvent(
     new CustomEvent("config-changed", {
@@ -6600,11 +6600,11 @@ const kt = class kt extends g {
         <section class="section">
           <h3>Actions</h3>
           <div class="grid">
-            ${this.renderSelect("Tap Action", "tap_action", Ue, "cycle")}
+            ${this.renderSelect("Tap Action", "tap_action", ze, "cycle")}
             ${this.renderSelect(
       "Hold Action",
       "hold_action",
-      ze,
+      Ue,
       "more-info"
     )}
           </div>
@@ -6630,7 +6630,7 @@ const Le = {
   kind: "washer",
   width: "100%",
   fill_container: !0,
-  border_radius: "18px",
+  border_radius: "14px",
   background: "#101722",
   paused_color: "#ff8a1c",
   error_color: "#ff3b5c",
@@ -6753,7 +6753,7 @@ const Ct = class Ct extends g {
     return f`
       :host {
         --laundry-card-width: 100%;
-        --laundry-card-radius: 18px;
+        --laundry-card-radius: 14px;
         --laundry-background: #101722;
 
         display: block;
@@ -6772,37 +6772,33 @@ const Ct = class Ct extends g {
       .laundry-card {
         background:
           linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--laundry-background) 90%, #ffffff 8%),
-            color-mix(in srgb, var(--laundry-background) 88%, #000000 18%)
+            180deg,
+            color-mix(in srgb, var(--laundry-background) 94%, #ffffff 4%),
+            var(--laundry-background)
           );
-        border: 1px solid color-mix(in srgb, var(--laundry-state-color) 24%, transparent);
+        border: 1px solid rgb(255 255 255 / 6%);
+        border-left: 3px solid
+          color-mix(in srgb, var(--laundry-accent-color) 78%, transparent);
         border-radius: var(--laundry-card-radius);
         box-shadow:
-          inset 0 1px 0 rgb(255 255 255 / 10%),
-          inset 0 0 0 1px rgb(255 255 255 / 3%),
-          0 10px 22px rgb(0 0 0 / 24%),
-          0 0 var(--laundry-glow-size)
-            color-mix(in srgb, var(--laundry-state-color) 10%, transparent);
+          inset 0 1px 0 rgb(255 255 255 / 4%),
+          0 2px 6px rgb(0 0 0 / 16%);
         box-sizing: border-box;
         color: var(--primary-text-color, #f4f7fb);
         container-type: inline-size;
         display: grid;
-        gap: 6px;
+        gap: 9px;
         overflow: hidden;
-        padding: 7px;
+        padding: 11px 13px 12px;
         position: relative;
       }
 
       .laundry-card::before {
-        background:
-          linear-gradient(120deg, rgb(255 255 255 / 12%), transparent 42%),
-          linear-gradient(
-            90deg,
-            color-mix(in srgb, var(--laundry-state-color) 10%, transparent),
-            transparent 48%,
-            color-mix(in srgb, var(--laundry-contrast-color) 10%, transparent)
-          );
+        background: linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--laundry-accent-color) 14%, transparent),
+          transparent 60%
+        );
         content: '';
         inset: 0;
         opacity: var(--laundry-active-opacity);
@@ -6810,35 +6806,33 @@ const Ct = class Ct extends g {
         position: absolute;
       }
 
-      .top {
-        align-items: start;
+      .head {
+        align-items: center;
         display: grid;
-        gap: 8px;
-        grid-template-columns: 52px minmax(0, 1fr);
+        gap: 10px;
+        grid-template-columns: 36px minmax(0, 1fr);
         position: relative;
         z-index: 1;
       }
 
       .image-wrap {
         align-items: center;
-        background:
-          linear-gradient(145deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 2%)),
-          color-mix(in srgb, var(--laundry-state-color) 7%, transparent);
-        border: 1px solid rgb(255 255 255 / 12%);
-        border-radius: 12px;
+        background: rgb(255 255 255 / 4%);
+        border: 1px solid rgb(255 255 255 / 7%);
+        border-radius: 9px;
         display: grid;
-        height: 60px;
+        height: 36px;
         justify-items: center;
         min-width: 0;
         overflow: hidden;
-        padding: 4px;
-        width: 52px;
+        padding: 3px;
+        width: 36px;
       }
 
       .appliance-image {
-        filter: drop-shadow(0 8px 7px rgb(0 0 0 / 28%));
+        filter: drop-shadow(0 1px 1px rgb(0 0 0 / 22%));
         height: 100%;
-        max-height: 52px;
+        max-height: 28px;
         object-fit: contain;
         width: 100%;
       }
@@ -6846,26 +6840,26 @@ const Ct = class Ct extends g {
       .fallback-machine {
         aspect-ratio: 0.86;
         background:
-          linear-gradient(145deg, #eff4f9, #6f7782 54%, #252a31),
+          linear-gradient(145deg, #d8dde4, #6f7782 56%, #2a313a),
           #8b94a0;
-        border: 1px solid rgb(255 255 255 / 38%);
-        border-radius: 14px;
+        border: 1px solid rgb(255 255 255 / 22%);
+        border-radius: 6px;
         box-shadow:
-          inset 0 2px 7px rgb(255 255 255 / 42%),
-          inset 0 -18px 26px rgb(0 0 0 / 28%),
-          0 18px 18px rgb(0 0 0 / 24%);
+          inset 0 1px 2px rgb(255 255 255 / 26%),
+          inset 0 -6px 12px rgb(0 0 0 / 22%);
         position: relative;
-        width: min(100%, 44px);
+        width: min(100%, 26px);
       }
 
       .fallback-machine::before {
-        background:
-          radial-gradient(circle, #10151d 0 36%, #9facbb 38% 42%, #26313d 44% 62%, #0b0f15 64%),
-          linear-gradient(145deg, rgb(255 255 255 / 18%), transparent);
+        background: radial-gradient(
+          circle,
+          #10151d 0 36%,
+          #9facbb 38% 42%,
+          #26313d 44% 62%,
+          #0b0f15 64%
+        );
         border-radius: 999px;
-        box-shadow:
-          inset 0 0 16px rgb(255 255 255 / 14%),
-          0 8px 16px rgb(0 0 0 / 30%);
         content: '';
         height: 52%;
         left: 50%;
@@ -6875,48 +6869,20 @@ const Ct = class Ct extends g {
         width: 72%;
       }
 
-      .fallback-machine::after {
-        background: rgb(12 17 23 / 66%);
-        border-radius: 999px;
-        content: '';
-        height: 8px;
-        position: absolute;
-        right: 17px;
-        top: 16px;
-        width: 34px;
-      }
-
-      .summary {
-        display: grid;
-        gap: 4px 7px;
-        grid-template-areas:
-          'header controls'
-          'timer controls'
-          'stats controls';
-        grid-template-columns: minmax(0, 1fr) auto;
-        min-width: 0;
-      }
-
-      .header {
-        align-items: center;
-        display: grid;
-        gap: 4px;
-        grid-area: header;
-        grid-template-columns: minmax(0, 1fr);
-      }
-
       .title {
         display: grid;
-        gap: 1px;
+        gap: 2px;
         min-width: 0;
+        position: relative;
+        z-index: 1;
       }
 
       .name {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 17px;
+        font-size: 14px;
         font-weight: 700;
         letter-spacing: 0;
-        line-height: 1.05;
+        line-height: 1.1;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -6934,10 +6900,10 @@ const Ct = class Ct extends g {
       .status-dot {
         background: var(--laundry-state-color);
         border-radius: 999px;
-        box-shadow: 0 0 10px color-mix(in srgb, var(--laundry-state-color) 42%, transparent);
-        height: 6px;
+        flex: 0 0 auto;
+        height: 5px;
         opacity: var(--laundry-status-opacity);
-        width: 6px;
+        width: 5px;
       }
 
       .status-text {
@@ -6947,15 +6913,13 @@ const Ct = class Ct extends g {
       }
 
       .timer {
-        align-items: center;
-        background: transparent;
-        border: 0;
-        border-radius: 0;
-        display: grid;
-        gap: 1px 6px;
-        grid-area: timer;
-        grid-template-columns: max-content minmax(0, 1fr);
-        padding: 0;
+        align-items: baseline;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 8px;
+        min-width: 0;
+        position: relative;
+        z-index: 1;
       }
 
       .timer-label {
@@ -6964,73 +6928,74 @@ const Ct = class Ct extends g {
 
       .timer-value {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 20px;
-        font-weight: 750;
-        grid-row: 2 / span 2;
+        font-size: 22px;
+        font-weight: 700;
         letter-spacing: 0;
         line-height: 1;
       }
 
       .timer-subtext {
         color: var(--secondary-text-color, #b7c0ce);
-        font-size: 10px;
-        grid-column: 2;
-        grid-row: 2;
-        line-height: 1.25;
+        flex: 1 1 auto;
+        font-size: 10.5px;
+        line-height: 1.2;
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
 
       .progress {
-        background: rgb(255 255 255 / 10%);
+        background: rgb(255 255 255 / 8%);
         border-radius: 999px;
-        grid-column: 2;
-        grid-row: 3;
-        height: 4px;
+        height: 3px;
         overflow: hidden;
+        position: relative;
+        z-index: 1;
       }
 
       .progress-bar {
-        background:
-          linear-gradient(90deg, var(--laundry-state-color), var(--laundry-contrast-color));
+        background: linear-gradient(
+          90deg,
+          var(--laundry-state-color),
+          var(--laundry-contrast-color)
+        );
         border-radius: inherit;
-        box-shadow: 0 0 10px color-mix(in srgb, var(--laundry-state-color) 34%, transparent);
         height: 100%;
         transition: width 240ms ease;
         width: var(--laundry-progress);
       }
 
       .stats {
-        display: flex;
-        gap: 4px;
-        grid-area: stats;
+        display: grid;
+        gap: 5px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         min-width: 0;
+        position: relative;
+        z-index: 1;
       }
 
       .stat {
-        background: rgb(255 255 255 / 6%);
-        border: 1px solid rgb(255 255 255 / 8%);
-        border-radius: 8px;
+        background: rgb(255 255 255 / 4%);
+        border-radius: 6px;
         display: grid;
-        flex: 1 1 0;
         gap: 1px;
         min-width: 0;
-        padding: 3px 5px;
+        padding: 4px 7px;
       }
 
       .stat-label {
-        color: var(--secondary-text-color, #b7c0ce);
-        font-size: 7px;
-        font-weight: 650;
-        letter-spacing: 0.04em;
+        color: var(--secondary-text-color, #9aa3b1);
+        font-size: 8.5px;
+        font-weight: 600;
+        letter-spacing: 0;
         text-transform: uppercase;
       }
 
       .stat-value {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 9.5px;
-        font-weight: 650;
+        font-size: 10.5px;
+        font-weight: 600;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -7038,10 +7003,8 @@ const Ct = class Ct extends g {
 
       .controls {
         display: grid;
-        align-self: end;
-        gap: 4px;
-        grid-area: controls;
-        grid-template-columns: repeat(2, 26px);
+        gap: 5px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         position: relative;
         z-index: 1;
       }
@@ -7049,10 +7012,9 @@ const Ct = class Ct extends g {
       .control,
       .details-close {
         align-items: center;
-        background:
-          linear-gradient(145deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 4%));
-        border: 1px solid rgb(255 255 255 / 11%);
-        border-radius: 9px;
+        background: rgb(255 255 255 / 5%);
+        border: 1px solid rgb(255 255 255 / 8%);
+        border-radius: 8px;
         color: var(--primary-text-color, #f4f7fb);
         cursor: pointer;
         display: inline-flex;
@@ -7060,7 +7022,7 @@ const Ct = class Ct extends g {
         font-size: 11px;
         gap: 5px;
         justify-content: center;
-        min-height: 26px;
+        min-height: 30px;
         min-width: 0;
         padding: 0;
         transition:
@@ -7072,7 +7034,7 @@ const Ct = class Ct extends g {
 
       .control ha-icon,
       .details-close ha-icon {
-        --mdc-icon-size: 15px;
+        --mdc-icon-size: 16px;
         color: currentColor;
         flex: 0 0 auto;
       }
@@ -7083,18 +7045,29 @@ const Ct = class Ct extends g {
       }
 
       .control.primary {
-        background:
-          linear-gradient(
-            145deg,
-            color-mix(in srgb, var(--laundry-state-color) 36%, rgb(255 255 255 / 10%)),
-            color-mix(in srgb, var(--laundry-state-color) 14%, rgb(255 255 255 / 4%))
-          );
-        border-color: color-mix(in srgb, var(--laundry-state-color) 44%, transparent);
-        box-shadow: 0 0 14px color-mix(in srgb, var(--laundry-state-color) 12%, transparent);
+        background: linear-gradient(
+          145deg,
+          color-mix(in srgb, var(--laundry-state-color) 34%, rgb(255 255 255 / 8%)),
+          color-mix(in srgb, var(--laundry-state-color) 12%, rgb(255 255 255 / 3%))
+        );
+        border-color: color-mix(in srgb, var(--laundry-state-color) 40%, transparent);
       }
 
       .control.warning {
         color: #ffccd4;
+      }
+
+      .control:hover:not(:disabled),
+      .details-close:hover:not(:disabled) {
+        background: rgb(255 255 255 / 9%);
+      }
+
+      .control.primary:hover:not(:disabled) {
+        background: linear-gradient(
+          145deg,
+          color-mix(in srgb, var(--laundry-state-color) 42%, rgb(255 255 255 / 10%)),
+          color-mix(in srgb, var(--laundry-state-color) 20%, rgb(255 255 255 / 4%))
+        );
       }
 
       .control:focus-visible,
@@ -7105,19 +7078,19 @@ const Ct = class Ct extends g {
 
       .control:not(:disabled):active,
       .details-close:not(:disabled):active {
-        transform: scale(0.98);
+        transform: scale(0.97);
       }
 
       .control:disabled {
         cursor: default;
-        opacity: 0.38;
+        opacity: 0.34;
       }
 
       .details {
-        border-top: 1px solid rgb(255 255 255 / 10%);
+        border-top: 1px solid rgb(255 255 255 / 8%);
         display: grid;
-        gap: 10px;
-        padding-top: 12px;
+        gap: 8px;
+        padding-top: 9px;
         position: relative;
         z-index: 1;
       }
@@ -7125,36 +7098,36 @@ const Ct = class Ct extends g {
       .detail-header {
         align-items: center;
         display: flex;
-        gap: 10px;
+        gap: 8px;
         justify-content: space-between;
       }
 
       .detail-title {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 700;
       }
 
       .details-close {
-        border-radius: 8px;
+        border-radius: 7px;
         min-height: 24px;
         width: 26px;
       }
 
       .detail-grid {
         display: grid;
-        gap: 8px;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 6px;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       }
 
       .detail-row {
-        background: rgb(255 255 255 / 5%);
-        border: 1px solid rgb(255 255 255 / 8%);
-        border-radius: 14px;
+        background: rgb(255 255 255 / 4%);
+        border: 1px solid rgb(255 255 255 / 7%);
+        border-radius: 10px;
         display: grid;
-        gap: 7px;
+        gap: 6px;
         min-width: 0;
-        padding: 10px;
+        padding: 8px;
       }
 
       .detail-main {
@@ -7165,13 +7138,13 @@ const Ct = class Ct extends g {
         cursor: pointer;
         display: grid;
         gap: 8px;
-        grid-template-columns: 24px minmax(0, 1fr);
+        grid-template-columns: 20px minmax(0, 1fr);
         padding: 0;
         text-align: left;
       }
 
       .detail-main ha-icon {
-        --mdc-icon-size: 18px;
+        --mdc-icon-size: 16px;
         color: var(--laundry-state-color);
       }
 
@@ -7184,81 +7157,95 @@ const Ct = class Ct extends g {
 
       .detail-name {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 12px;
-        font-weight: 650;
+        font-size: 11.5px;
+        font-weight: 600;
       }
 
       .detail-state {
         color: var(--secondary-text-color, #b7c0ce);
-        font-size: 11px;
+        font-size: 10.5px;
         margin-top: 2px;
       }
 
       .chips {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 5px;
       }
 
       .chip {
-        background: rgb(255 255 255 / 8%);
-        border: 1px solid rgb(255 255 255 / 10%);
+        background: rgb(255 255 255 / 6%);
+        border: 1px solid rgb(255 255 255 / 8%);
         border-radius: 999px;
         color: var(--secondary-text-color, #b7c0ce);
         cursor: pointer;
-        font-size: 11px;
+        font-size: 10.5px;
         line-height: 1;
-        padding: 6px 8px;
+        padding: 5px 7px;
       }
 
       .chip.active {
         background: color-mix(in srgb, var(--laundry-state-color) 20%, transparent);
-        border-color: color-mix(in srgb, var(--laundry-state-color) 42%, transparent);
+        border-color: color-mix(in srgb, var(--laundry-state-color) 38%, transparent);
         color: var(--primary-text-color, #f4f7fb);
       }
 
-      @container (max-width: 430px) {
-        .top {
-          gap: 7px;
-          grid-template-columns: 46px minmax(0, 1fr);
+      @container (max-width: 360px) {
+        .laundry-card {
+          gap: 8px;
+          padding: 10px 11px;
+        }
+
+        .head {
+          gap: 8px;
+          grid-template-columns: 32px minmax(0, 1fr);
         }
 
         .image-wrap {
-          height: 54px;
-          width: 46px;
+          height: 32px;
+          width: 32px;
         }
 
         .appliance-image {
-          max-height: 46px;
+          max-height: 26px;
         }
 
         .fallback-machine {
-          width: min(100%, 38px);
+          width: min(100%, 24px);
         }
 
         .name {
-          font-size: 16px;
+          font-size: 13.5px;
         }
 
         .timer-value {
-          font-size: 18px;
-        }
-
-        .controls {
-          gap: 3px;
-          grid-template-columns: repeat(2, 24px);
-        }
-
-        .control {
-          min-height: 24px;
+          font-size: 20px;
         }
 
         .stats {
-          gap: 3px;
+          gap: 4px;
         }
 
         .stat {
-          padding: 3px 4px;
+          padding: 3px 5px;
+        }
+
+        .stat-value {
+          font-size: 10px;
+        }
+
+        .controls {
+          gap: 4px;
+        }
+
+        .control {
+          min-height: 28px;
+        }
+      }
+
+      @container (max-width: 260px) {
+        .stats {
+          gap: 3px;
         }
 
         .stat-label {
@@ -7266,21 +7253,11 @@ const Ct = class Ct extends g {
         }
 
         .stat-value {
-          font-size: 9px;
-        }
-      }
-
-      @container (max-width: 360px) {
-        .summary {
-          grid-template-areas:
-            'header header'
-            'timer controls'
-            'stats stats';
+          font-size: 9.5px;
         }
 
-        .stats {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+        .control ha-icon {
+          --mdc-icon-size: 15px;
         }
       }
     `;
@@ -7308,7 +7285,7 @@ const Ct = class Ct extends g {
       this.config.fill_container ? "100%" : this.config.width ?? "100%"
     ), this.style.setProperty(
       "--laundry-card-radius",
-      this.config.border_radius ?? "18px"
+      this.config.border_radius ?? "14px"
     ), this.style.setProperty("--laundry-background", this.config.background ?? "#101722");
   }
   getCardSize() {
@@ -7570,69 +7547,65 @@ const Ct = class Ct extends g {
           style="
             --laundry-state-color: ${this.stateColor};
             --laundry-contrast-color: ${p};
+            --laundry-accent-color: ${this.kindColor};
             --laundry-progress: ${this.progress}%;
-            --laundry-active-opacity: ${this.stateGroup === "off" ? "0.2" : "0.72"};
+            --laundry-active-opacity: ${this.stateGroup === "off" ? "0.08" : "0.4"};
             --laundry-status-opacity: ${this.stateGroup === "off" ? "0.38" : "1"};
-            --laundry-glow-size: ${this.stateGroup === "off" ? "0" : "62px"};
           "
         >
-          <div class="top">
+          <header class="head">
             <div class="image-wrap">${this.renderImage()}</div>
-            <div class="summary">
-              <div class="header">
-                <div class="title">
-                  <span class="name">${this.displayName}</span>
-                  <span class="status-line">
-                    <span class="status-dot"></span>
-                    <span class="status-text">${this.statusLabel}</span>
-                  </span>
-                </div>
-              </div>
+            <div class="title">
+              <span class="name">${this.displayName}</span>
+              <span class="status-line">
+                <span class="status-dot"></span>
+                <span class="status-text">${this.statusLabel}</span>
+              </span>
+            </div>
+          </header>
 
-              <div class="timer">
-                <span class="timer-label">Est time left</span>
-                <span class="timer-value">${this.timeDisplay}</span>
-                <span class="timer-subtext">${this.timeSubtext}</span>
-                <div class="progress" aria-hidden="true">
-                  <div class="progress-bar"></div>
-                </div>
-              </div>
+          <div class="timer">
+            <span class="timer-value">${this.timeDisplay}</span>
+            <span class="timer-subtext">${this.timeSubtext}</span>
+          </div>
 
-              <div class="stats">
-                ${this.renderStat("Total", this.config.total_time_entity)}
-                ${this.renderStat("Remote", this.config.remote_start_entity)}
-                ${this.renderStat("Energy", this.config.energy_entity)}
-              </div>
+          <div class="progress" aria-hidden="true">
+            <div class="progress-bar"></div>
+          </div>
 
-              <div class="controls">
-                ${this.renderControl(
+          <div class="stats">
+            ${this.renderStat("Total", this.config.total_time_entity)}
+            ${this.renderStat("Remote", this.config.remote_start_entity)}
+            ${this.renderStat("Energy", this.config.energy_entity)}
+          </div>
+
+          <div class="controls">
+            ${this.renderControl(
       "Power",
       "mdi:power",
       () => this.setPower(!0),
       d
     )}
-                ${this.renderControl(
+            ${this.renderControl(
       "Start",
       "mdi:play",
       () => this.callOperation("start"),
       l,
       "primary"
     )}
-                ${this.renderControl(
+            ${this.renderControl(
       "Stop",
       "mdi:stop",
       () => this.callOperation("stop"),
       c
     )}
-                ${this.renderControl(
+            ${this.renderControl(
       "Off",
       "mdi:power-standby",
       () => this.setPower(!1),
       u,
       "warning"
     )}
-              </div>
-            </div>
           </div>
 
           ${this.detailsOpen ? a`

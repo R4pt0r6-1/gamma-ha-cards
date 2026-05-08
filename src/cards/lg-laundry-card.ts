@@ -66,7 +66,7 @@ const DEFAULT_CONFIG: Omit<LgLaundryCardConfig, 'entity'> = {
   kind: 'washer',
   width: '100%',
   fill_container: true,
-  border_radius: '18px',
+  border_radius: '14px',
   background: '#101722',
   paused_color: '#ff8a1c',
   error_color: '#ff3b5c',
@@ -302,7 +302,7 @@ export class LgLaundryCard extends LitElement {
     return css`
       :host {
         --laundry-card-width: 100%;
-        --laundry-card-radius: 18px;
+        --laundry-card-radius: 14px;
         --laundry-background: #101722;
 
         display: block;
@@ -321,37 +321,33 @@ export class LgLaundryCard extends LitElement {
       .laundry-card {
         background:
           linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--laundry-background) 90%, #ffffff 8%),
-            color-mix(in srgb, var(--laundry-background) 88%, #000000 18%)
+            180deg,
+            color-mix(in srgb, var(--laundry-background) 94%, #ffffff 4%),
+            var(--laundry-background)
           );
-        border: 1px solid color-mix(in srgb, var(--laundry-state-color) 24%, transparent);
+        border: 1px solid rgb(255 255 255 / 6%);
+        border-left: 3px solid
+          color-mix(in srgb, var(--laundry-accent-color) 78%, transparent);
         border-radius: var(--laundry-card-radius);
         box-shadow:
-          inset 0 1px 0 rgb(255 255 255 / 10%),
-          inset 0 0 0 1px rgb(255 255 255 / 3%),
-          0 10px 22px rgb(0 0 0 / 24%),
-          0 0 var(--laundry-glow-size)
-            color-mix(in srgb, var(--laundry-state-color) 10%, transparent);
+          inset 0 1px 0 rgb(255 255 255 / 4%),
+          0 2px 6px rgb(0 0 0 / 16%);
         box-sizing: border-box;
         color: var(--primary-text-color, #f4f7fb);
         container-type: inline-size;
         display: grid;
-        gap: 6px;
+        gap: 9px;
         overflow: hidden;
-        padding: 7px;
+        padding: 11px 13px 12px;
         position: relative;
       }
 
       .laundry-card::before {
-        background:
-          linear-gradient(120deg, rgb(255 255 255 / 12%), transparent 42%),
-          linear-gradient(
-            90deg,
-            color-mix(in srgb, var(--laundry-state-color) 10%, transparent),
-            transparent 48%,
-            color-mix(in srgb, var(--laundry-contrast-color) 10%, transparent)
-          );
+        background: linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--laundry-accent-color) 14%, transparent),
+          transparent 60%
+        );
         content: '';
         inset: 0;
         opacity: var(--laundry-active-opacity);
@@ -359,35 +355,33 @@ export class LgLaundryCard extends LitElement {
         position: absolute;
       }
 
-      .top {
-        align-items: start;
+      .head {
+        align-items: center;
         display: grid;
-        gap: 8px;
-        grid-template-columns: 52px minmax(0, 1fr);
+        gap: 10px;
+        grid-template-columns: 36px minmax(0, 1fr);
         position: relative;
         z-index: 1;
       }
 
       .image-wrap {
         align-items: center;
-        background:
-          linear-gradient(145deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 2%)),
-          color-mix(in srgb, var(--laundry-state-color) 7%, transparent);
-        border: 1px solid rgb(255 255 255 / 12%);
-        border-radius: 12px;
+        background: rgb(255 255 255 / 4%);
+        border: 1px solid rgb(255 255 255 / 7%);
+        border-radius: 9px;
         display: grid;
-        height: 60px;
+        height: 36px;
         justify-items: center;
         min-width: 0;
         overflow: hidden;
-        padding: 4px;
-        width: 52px;
+        padding: 3px;
+        width: 36px;
       }
 
       .appliance-image {
-        filter: drop-shadow(0 8px 7px rgb(0 0 0 / 28%));
+        filter: drop-shadow(0 1px 1px rgb(0 0 0 / 22%));
         height: 100%;
-        max-height: 52px;
+        max-height: 28px;
         object-fit: contain;
         width: 100%;
       }
@@ -395,26 +389,26 @@ export class LgLaundryCard extends LitElement {
       .fallback-machine {
         aspect-ratio: 0.86;
         background:
-          linear-gradient(145deg, #eff4f9, #6f7782 54%, #252a31),
+          linear-gradient(145deg, #d8dde4, #6f7782 56%, #2a313a),
           #8b94a0;
-        border: 1px solid rgb(255 255 255 / 38%);
-        border-radius: 14px;
+        border: 1px solid rgb(255 255 255 / 22%);
+        border-radius: 6px;
         box-shadow:
-          inset 0 2px 7px rgb(255 255 255 / 42%),
-          inset 0 -18px 26px rgb(0 0 0 / 28%),
-          0 18px 18px rgb(0 0 0 / 24%);
+          inset 0 1px 2px rgb(255 255 255 / 26%),
+          inset 0 -6px 12px rgb(0 0 0 / 22%);
         position: relative;
-        width: min(100%, 44px);
+        width: min(100%, 26px);
       }
 
       .fallback-machine::before {
-        background:
-          radial-gradient(circle, #10151d 0 36%, #9facbb 38% 42%, #26313d 44% 62%, #0b0f15 64%),
-          linear-gradient(145deg, rgb(255 255 255 / 18%), transparent);
+        background: radial-gradient(
+          circle,
+          #10151d 0 36%,
+          #9facbb 38% 42%,
+          #26313d 44% 62%,
+          #0b0f15 64%
+        );
         border-radius: 999px;
-        box-shadow:
-          inset 0 0 16px rgb(255 255 255 / 14%),
-          0 8px 16px rgb(0 0 0 / 30%);
         content: '';
         height: 52%;
         left: 50%;
@@ -424,48 +418,20 @@ export class LgLaundryCard extends LitElement {
         width: 72%;
       }
 
-      .fallback-machine::after {
-        background: rgb(12 17 23 / 66%);
-        border-radius: 999px;
-        content: '';
-        height: 8px;
-        position: absolute;
-        right: 17px;
-        top: 16px;
-        width: 34px;
-      }
-
-      .summary {
-        display: grid;
-        gap: 4px 7px;
-        grid-template-areas:
-          'header controls'
-          'timer controls'
-          'stats controls';
-        grid-template-columns: minmax(0, 1fr) auto;
-        min-width: 0;
-      }
-
-      .header {
-        align-items: center;
-        display: grid;
-        gap: 4px;
-        grid-area: header;
-        grid-template-columns: minmax(0, 1fr);
-      }
-
       .title {
         display: grid;
-        gap: 1px;
+        gap: 2px;
         min-width: 0;
+        position: relative;
+        z-index: 1;
       }
 
       .name {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 17px;
+        font-size: 14px;
         font-weight: 700;
         letter-spacing: 0;
-        line-height: 1.05;
+        line-height: 1.1;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -483,10 +449,10 @@ export class LgLaundryCard extends LitElement {
       .status-dot {
         background: var(--laundry-state-color);
         border-radius: 999px;
-        box-shadow: 0 0 10px color-mix(in srgb, var(--laundry-state-color) 42%, transparent);
-        height: 6px;
+        flex: 0 0 auto;
+        height: 5px;
         opacity: var(--laundry-status-opacity);
-        width: 6px;
+        width: 5px;
       }
 
       .status-text {
@@ -496,15 +462,13 @@ export class LgLaundryCard extends LitElement {
       }
 
       .timer {
-        align-items: center;
-        background: transparent;
-        border: 0;
-        border-radius: 0;
-        display: grid;
-        gap: 1px 6px;
-        grid-area: timer;
-        grid-template-columns: max-content minmax(0, 1fr);
-        padding: 0;
+        align-items: baseline;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 8px;
+        min-width: 0;
+        position: relative;
+        z-index: 1;
       }
 
       .timer-label {
@@ -513,73 +477,74 @@ export class LgLaundryCard extends LitElement {
 
       .timer-value {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 20px;
-        font-weight: 750;
-        grid-row: 2 / span 2;
+        font-size: 22px;
+        font-weight: 700;
         letter-spacing: 0;
         line-height: 1;
       }
 
       .timer-subtext {
         color: var(--secondary-text-color, #b7c0ce);
-        font-size: 10px;
-        grid-column: 2;
-        grid-row: 2;
-        line-height: 1.25;
+        flex: 1 1 auto;
+        font-size: 10.5px;
+        line-height: 1.2;
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
 
       .progress {
-        background: rgb(255 255 255 / 10%);
+        background: rgb(255 255 255 / 8%);
         border-radius: 999px;
-        grid-column: 2;
-        grid-row: 3;
-        height: 4px;
+        height: 3px;
         overflow: hidden;
+        position: relative;
+        z-index: 1;
       }
 
       .progress-bar {
-        background:
-          linear-gradient(90deg, var(--laundry-state-color), var(--laundry-contrast-color));
+        background: linear-gradient(
+          90deg,
+          var(--laundry-state-color),
+          var(--laundry-contrast-color)
+        );
         border-radius: inherit;
-        box-shadow: 0 0 10px color-mix(in srgb, var(--laundry-state-color) 34%, transparent);
         height: 100%;
         transition: width 240ms ease;
         width: var(--laundry-progress);
       }
 
       .stats {
-        display: flex;
-        gap: 4px;
-        grid-area: stats;
+        display: grid;
+        gap: 5px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         min-width: 0;
+        position: relative;
+        z-index: 1;
       }
 
       .stat {
-        background: rgb(255 255 255 / 6%);
-        border: 1px solid rgb(255 255 255 / 8%);
-        border-radius: 8px;
+        background: rgb(255 255 255 / 4%);
+        border-radius: 6px;
         display: grid;
-        flex: 1 1 0;
         gap: 1px;
         min-width: 0;
-        padding: 3px 5px;
+        padding: 4px 7px;
       }
 
       .stat-label {
-        color: var(--secondary-text-color, #b7c0ce);
-        font-size: 7px;
-        font-weight: 650;
-        letter-spacing: 0.04em;
+        color: var(--secondary-text-color, #9aa3b1);
+        font-size: 8.5px;
+        font-weight: 600;
+        letter-spacing: 0;
         text-transform: uppercase;
       }
 
       .stat-value {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 9.5px;
-        font-weight: 650;
+        font-size: 10.5px;
+        font-weight: 600;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -587,10 +552,8 @@ export class LgLaundryCard extends LitElement {
 
       .controls {
         display: grid;
-        align-self: end;
-        gap: 4px;
-        grid-area: controls;
-        grid-template-columns: repeat(2, 26px);
+        gap: 5px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         position: relative;
         z-index: 1;
       }
@@ -598,10 +561,9 @@ export class LgLaundryCard extends LitElement {
       .control,
       .details-close {
         align-items: center;
-        background:
-          linear-gradient(145deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 4%));
-        border: 1px solid rgb(255 255 255 / 11%);
-        border-radius: 9px;
+        background: rgb(255 255 255 / 5%);
+        border: 1px solid rgb(255 255 255 / 8%);
+        border-radius: 8px;
         color: var(--primary-text-color, #f4f7fb);
         cursor: pointer;
         display: inline-flex;
@@ -609,7 +571,7 @@ export class LgLaundryCard extends LitElement {
         font-size: 11px;
         gap: 5px;
         justify-content: center;
-        min-height: 26px;
+        min-height: 30px;
         min-width: 0;
         padding: 0;
         transition:
@@ -621,7 +583,7 @@ export class LgLaundryCard extends LitElement {
 
       .control ha-icon,
       .details-close ha-icon {
-        --mdc-icon-size: 15px;
+        --mdc-icon-size: 16px;
         color: currentColor;
         flex: 0 0 auto;
       }
@@ -632,18 +594,29 @@ export class LgLaundryCard extends LitElement {
       }
 
       .control.primary {
-        background:
-          linear-gradient(
-            145deg,
-            color-mix(in srgb, var(--laundry-state-color) 36%, rgb(255 255 255 / 10%)),
-            color-mix(in srgb, var(--laundry-state-color) 14%, rgb(255 255 255 / 4%))
-          );
-        border-color: color-mix(in srgb, var(--laundry-state-color) 44%, transparent);
-        box-shadow: 0 0 14px color-mix(in srgb, var(--laundry-state-color) 12%, transparent);
+        background: linear-gradient(
+          145deg,
+          color-mix(in srgb, var(--laundry-state-color) 34%, rgb(255 255 255 / 8%)),
+          color-mix(in srgb, var(--laundry-state-color) 12%, rgb(255 255 255 / 3%))
+        );
+        border-color: color-mix(in srgb, var(--laundry-state-color) 40%, transparent);
       }
 
       .control.warning {
         color: #ffccd4;
+      }
+
+      .control:hover:not(:disabled),
+      .details-close:hover:not(:disabled) {
+        background: rgb(255 255 255 / 9%);
+      }
+
+      .control.primary:hover:not(:disabled) {
+        background: linear-gradient(
+          145deg,
+          color-mix(in srgb, var(--laundry-state-color) 42%, rgb(255 255 255 / 10%)),
+          color-mix(in srgb, var(--laundry-state-color) 20%, rgb(255 255 255 / 4%))
+        );
       }
 
       .control:focus-visible,
@@ -654,19 +627,19 @@ export class LgLaundryCard extends LitElement {
 
       .control:not(:disabled):active,
       .details-close:not(:disabled):active {
-        transform: scale(0.98);
+        transform: scale(0.97);
       }
 
       .control:disabled {
         cursor: default;
-        opacity: 0.38;
+        opacity: 0.34;
       }
 
       .details {
-        border-top: 1px solid rgb(255 255 255 / 10%);
+        border-top: 1px solid rgb(255 255 255 / 8%);
         display: grid;
-        gap: 10px;
-        padding-top: 12px;
+        gap: 8px;
+        padding-top: 9px;
         position: relative;
         z-index: 1;
       }
@@ -674,36 +647,36 @@ export class LgLaundryCard extends LitElement {
       .detail-header {
         align-items: center;
         display: flex;
-        gap: 10px;
+        gap: 8px;
         justify-content: space-between;
       }
 
       .detail-title {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 700;
       }
 
       .details-close {
-        border-radius: 8px;
+        border-radius: 7px;
         min-height: 24px;
         width: 26px;
       }
 
       .detail-grid {
         display: grid;
-        gap: 8px;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 6px;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       }
 
       .detail-row {
-        background: rgb(255 255 255 / 5%);
-        border: 1px solid rgb(255 255 255 / 8%);
-        border-radius: 14px;
+        background: rgb(255 255 255 / 4%);
+        border: 1px solid rgb(255 255 255 / 7%);
+        border-radius: 10px;
         display: grid;
-        gap: 7px;
+        gap: 6px;
         min-width: 0;
-        padding: 10px;
+        padding: 8px;
       }
 
       .detail-main {
@@ -714,13 +687,13 @@ export class LgLaundryCard extends LitElement {
         cursor: pointer;
         display: grid;
         gap: 8px;
-        grid-template-columns: 24px minmax(0, 1fr);
+        grid-template-columns: 20px minmax(0, 1fr);
         padding: 0;
         text-align: left;
       }
 
       .detail-main ha-icon {
-        --mdc-icon-size: 18px;
+        --mdc-icon-size: 16px;
         color: var(--laundry-state-color);
       }
 
@@ -733,81 +706,95 @@ export class LgLaundryCard extends LitElement {
 
       .detail-name {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 12px;
-        font-weight: 650;
+        font-size: 11.5px;
+        font-weight: 600;
       }
 
       .detail-state {
         color: var(--secondary-text-color, #b7c0ce);
-        font-size: 11px;
+        font-size: 10.5px;
         margin-top: 2px;
       }
 
       .chips {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 5px;
       }
 
       .chip {
-        background: rgb(255 255 255 / 8%);
-        border: 1px solid rgb(255 255 255 / 10%);
+        background: rgb(255 255 255 / 6%);
+        border: 1px solid rgb(255 255 255 / 8%);
         border-radius: 999px;
         color: var(--secondary-text-color, #b7c0ce);
         cursor: pointer;
-        font-size: 11px;
+        font-size: 10.5px;
         line-height: 1;
-        padding: 6px 8px;
+        padding: 5px 7px;
       }
 
       .chip.active {
         background: color-mix(in srgb, var(--laundry-state-color) 20%, transparent);
-        border-color: color-mix(in srgb, var(--laundry-state-color) 42%, transparent);
+        border-color: color-mix(in srgb, var(--laundry-state-color) 38%, transparent);
         color: var(--primary-text-color, #f4f7fb);
       }
 
-      @container (max-width: 430px) {
-        .top {
-          gap: 7px;
-          grid-template-columns: 46px minmax(0, 1fr);
+      @container (max-width: 360px) {
+        .laundry-card {
+          gap: 8px;
+          padding: 10px 11px;
+        }
+
+        .head {
+          gap: 8px;
+          grid-template-columns: 32px minmax(0, 1fr);
         }
 
         .image-wrap {
-          height: 54px;
-          width: 46px;
+          height: 32px;
+          width: 32px;
         }
 
         .appliance-image {
-          max-height: 46px;
+          max-height: 26px;
         }
 
         .fallback-machine {
-          width: min(100%, 38px);
+          width: min(100%, 24px);
         }
 
         .name {
-          font-size: 16px;
+          font-size: 13.5px;
         }
 
         .timer-value {
-          font-size: 18px;
-        }
-
-        .controls {
-          gap: 3px;
-          grid-template-columns: repeat(2, 24px);
-        }
-
-        .control {
-          min-height: 24px;
+          font-size: 20px;
         }
 
         .stats {
-          gap: 3px;
+          gap: 4px;
         }
 
         .stat {
-          padding: 3px 4px;
+          padding: 3px 5px;
+        }
+
+        .stat-value {
+          font-size: 10px;
+        }
+
+        .controls {
+          gap: 4px;
+        }
+
+        .control {
+          min-height: 28px;
+        }
+      }
+
+      @container (max-width: 260px) {
+        .stats {
+          gap: 3px;
         }
 
         .stat-label {
@@ -815,21 +802,11 @@ export class LgLaundryCard extends LitElement {
         }
 
         .stat-value {
-          font-size: 9px;
-        }
-      }
-
-      @container (max-width: 360px) {
-        .summary {
-          grid-template-areas:
-            'header header'
-            'timer controls'
-            'stats stats';
+          font-size: 9.5px;
         }
 
-        .stats {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+        .control ha-icon {
+          --mdc-icon-size: 15px;
         }
       }
     `;
@@ -872,7 +849,7 @@ export class LgLaundryCard extends LitElement {
     );
     this.style.setProperty(
       '--laundry-card-radius',
-      this.config.border_radius ?? '18px',
+      this.config.border_radius ?? '14px',
     );
     this.style.setProperty('--laundry-background', this.config.background ?? '#101722');
   }
@@ -1301,69 +1278,65 @@ export class LgLaundryCard extends LitElement {
           style="
             --laundry-state-color: ${this.stateColor};
             --laundry-contrast-color: ${contrastColor};
+            --laundry-accent-color: ${this.kindColor};
             --laundry-progress: ${this.progress}%;
-            --laundry-active-opacity: ${this.stateGroup === 'off' ? '0.2' : '0.72'};
+            --laundry-active-opacity: ${this.stateGroup === 'off' ? '0.08' : '0.4'};
             --laundry-status-opacity: ${this.stateGroup === 'off' ? '0.38' : '1'};
-            --laundry-glow-size: ${this.stateGroup === 'off' ? '0' : '62px'};
           "
         >
-          <div class="top">
+          <header class="head">
             <div class="image-wrap">${this.renderImage()}</div>
-            <div class="summary">
-              <div class="header">
-                <div class="title">
-                  <span class="name">${this.displayName}</span>
-                  <span class="status-line">
-                    <span class="status-dot"></span>
-                    <span class="status-text">${this.statusLabel}</span>
-                  </span>
-                </div>
-              </div>
-
-              <div class="timer">
-                <span class="timer-label">Est time left</span>
-                <span class="timer-value">${this.timeDisplay}</span>
-                <span class="timer-subtext">${this.timeSubtext}</span>
-                <div class="progress" aria-hidden="true">
-                  <div class="progress-bar"></div>
-                </div>
-              </div>
-
-              <div class="stats">
-                ${this.renderStat('Total', this.config.total_time_entity)}
-                ${this.renderStat('Remote', this.config.remote_start_entity)}
-                ${this.renderStat('Energy', this.config.energy_entity)}
-              </div>
-
-              <div class="controls">
-                ${this.renderControl(
-                  'Power',
-                  'mdi:power',
-                  () => this.setPower(true),
-                  powerOnDisabled,
-                )}
-                ${this.renderControl(
-                  'Start',
-                  'mdi:play',
-                  () => this.callOperation('start'),
-                  startDisabled,
-                  'primary',
-                )}
-                ${this.renderControl(
-                  'Stop',
-                  'mdi:stop',
-                  () => this.callOperation('stop'),
-                  stopDisabled,
-                )}
-                ${this.renderControl(
-                  'Off',
-                  'mdi:power-standby',
-                  () => this.setPower(false),
-                  powerOffDisabled,
-                  'warning',
-                )}
-              </div>
+            <div class="title">
+              <span class="name">${this.displayName}</span>
+              <span class="status-line">
+                <span class="status-dot"></span>
+                <span class="status-text">${this.statusLabel}</span>
+              </span>
             </div>
+          </header>
+
+          <div class="timer">
+            <span class="timer-value">${this.timeDisplay}</span>
+            <span class="timer-subtext">${this.timeSubtext}</span>
+          </div>
+
+          <div class="progress" aria-hidden="true">
+            <div class="progress-bar"></div>
+          </div>
+
+          <div class="stats">
+            ${this.renderStat('Total', this.config.total_time_entity)}
+            ${this.renderStat('Remote', this.config.remote_start_entity)}
+            ${this.renderStat('Energy', this.config.energy_entity)}
+          </div>
+
+          <div class="controls">
+            ${this.renderControl(
+              'Power',
+              'mdi:power',
+              () => this.setPower(true),
+              powerOnDisabled,
+            )}
+            ${this.renderControl(
+              'Start',
+              'mdi:play',
+              () => this.callOperation('start'),
+              startDisabled,
+              'primary',
+            )}
+            ${this.renderControl(
+              'Stop',
+              'mdi:stop',
+              () => this.callOperation('stop'),
+              stopDisabled,
+            )}
+            ${this.renderControl(
+              'Off',
+              'mdi:power-standby',
+              () => this.setPower(false),
+              powerOffDisabled,
+              'warning',
+            )}
           </div>
 
           ${this.detailsOpen
