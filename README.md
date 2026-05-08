@@ -346,6 +346,7 @@ detail_entities:
 ## LG Laundry Pair Card
 
 Use this when a room has both machines and you want one named card on dashboards around the house.
+The header gear opens a compact settings and details popup for both machines.
 
 ```yaml
 type: custom:lg-laundry-pair-card
@@ -359,8 +360,13 @@ washer:
   remaining_time_entity: sensor.washer_remaining_time
   total_time_entity: sensor.washer_total_time
   remote_start_entity: binary_sensor.washer_remote_start
+  delayed_start_entity: number.washer_delayed_start
+  notification_entity: event.washer_notification
   energy_entity: sensor.washer_energy_this_month
+  cycles_entity: sensor.washer_cycles
   error_entity: event.washer_error
+  detail_entities:
+    - sensor.washer_energy_yesterday
 dryer:
   entity: sensor.dryer_current_status
   name: Dryer
@@ -370,8 +376,11 @@ dryer:
   remaining_time_entity: sensor.dryer_remaining_time
   total_time_entity: sensor.dryer_total_time
   remote_start_entity: binary_sensor.dryer_remote_start
+  notification_entity: event.dryer_notification
   energy_entity: sensor.dryer_energy_this_month
   error_entity: event.dryer_error
+  detail_entities:
+    - sensor.dryer_energy_yesterday
 ```
 
 ### LG Laundry Pair Options
@@ -379,8 +388,8 @@ dryer:
 | Name             | Type      | Default   | Description                       |
 | ---------------- | --------- | --------- | --------------------------------- |
 | `name`           | `string`  | `Laundry` | Card title, for example `Laundry Room`. |
-| `washer`         | `object`  | Required  | Washer entity config using the same core fields as `lg-laundry-card`. |
-| `dryer`          | `object`  | Required  | Dryer entity config using the same core fields as `lg-laundry-card`. |
+| `washer`         | `object`  | Required  | Washer entity config using the same core/detail fields as `lg-laundry-card`. |
+| `dryer`          | `object`  | Required  | Dryer entity config using the same core/detail fields as `lg-laundry-card`. |
 | `width`          | `string`  | `420px`   | CSS max width of the card when `fill_container` is false. |
 | `fill_container` | `boolean` | `false`   | Stretch the card to the full dashboard column width. |
 | `border_radius`  | `string`  | `14px`    | CSS border radius.                |

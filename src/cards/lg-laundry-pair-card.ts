@@ -25,10 +25,13 @@ type LaundryPairMachineConfig = Pick<
   | 'remaining_time_entity'
   | 'total_time_entity'
   | 'remote_start_entity'
+  | 'delayed_start_entity'
   | 'notification_entity'
   | 'error_entity'
   | 'energy_entity'
   | 'running_color'
+  | 'cycles_entity'
+  | 'detail_entities'
   | 'complete_color'
   | 'paused_color'
   | 'error_color'
@@ -120,12 +123,14 @@ export class LgLaundryPairCard extends LitElement {
     hass: { attribute: false },
     config: { state: true },
     optimisticOperations: { state: true },
+    settingsOpen: { state: true },
   };
 
   public hass?: HomeAssistant;
   private config!: LgLaundryPairCardConfig;
   private optimisticOperations: Partial<Record<ApplianceKind, string>> = {};
   private optimisticTimers: Partial<Record<ApplianceKind, number>> = {};
+  private settingsOpen = false;
 
   static get styles(): CSSResultGroup {
     return css`
@@ -187,10 +192,56 @@ export class LgLaundryPairCard extends LitElement {
         white-space: nowrap;
       }
 
+      .pair-actions {
+        align-items: center;
+        display: inline-flex;
+        flex: 0 0 auto;
+        gap: 7px;
+      }
+
       .pair-badge {
         color: var(--secondary-text-color, #9aa3b1);
         flex: 0 0 auto;
         font-size: 10px;
+      }
+
+      .settings-toggle {
+        align-items: center;
+        background: rgb(255 255 255 / 5%);
+        border: 1px solid rgb(255 255 255 / 9%);
+        border-radius: 8px;
+        color: var(--secondary-text-color, #c2ccd9);
+        cursor: pointer;
+        display: inline-flex;
+        height: 28px;
+        justify-content: center;
+        padding: 0;
+        transition:
+          background 160ms ease,
+          border-color 160ms ease,
+          color 160ms ease,
+          transform 160ms ease;
+        width: 28px;
+      }
+
+      .settings-toggle ha-icon {
+        --mdc-icon-size: 16px;
+        color: currentColor;
+      }
+
+      .settings-toggle:hover {
+        background: rgb(255 255 255 / 9%);
+        border-color: rgb(255 255 255 / 14%);
+        color: var(--primary-text-color, #f4f7fb);
+      }
+
+      .settings-toggle:focus-visible {
+        outline: 2px solid color-mix(in srgb, #2f8cff 70%, #ff5a2f 30%);
+        outline-offset: 2px;
+      }
+
+      .settings-toggle:active {
+        transform: scale(0.96);
       }
 
       .machines {
@@ -456,6 +507,260 @@ export class LgLaundryPairCard extends LitElement {
         opacity: 0.34;
       }
 
+      .settings-overlay {
+        align-items: center;
+        background: rgb(0 0 0 / 48%);
+        display: grid;
+        inset: 0;
+        justify-items: center;
+        padding: 16px;
+        position: fixed;
+        z-index: 2147483647;
+      }
+
+      .settings-dialog {
+        background:
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--laundry-pair-background) 90%, #ffffff 5%),
+            color-mix(in srgb, var(--laundry-pair-background) 96%, #000000 12%)
+          );
+        border: 1px solid rgb(255 255 255 / 10%);
+        border-radius: 16px;
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 7%),
+          0 20px 60px rgb(0 0 0 / 38%);
+        color: var(--primary-text-color, #f4f7fb);
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        max-height: min(720px, calc(100vh - 32px));
+        overflow: hidden;
+        width: min(520px, calc(100vw - 28px));
+      }
+
+      .settings-dialog-header {
+        align-items: center;
+        border-bottom: 1px solid rgb(255 255 255 / 8%);
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+        padding: 15px 16px 13px;
+      }
+
+      .settings-dialog-title {
+        display: grid;
+        gap: 3px;
+        min-width: 0;
+      }
+
+      .settings-dialog-title span {
+        color: var(--secondary-text-color, #9aa3b1);
+        font-size: 10px;
+        font-weight: 650;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .settings-dialog-title h2 {
+        color: var(--primary-text-color, #f4f7fb);
+        font-size: 18px;
+        font-weight: 750;
+        letter-spacing: 0;
+        line-height: 1.1;
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .settings-dialog-close {
+        align-items: center;
+        background: rgb(255 255 255 / 6%);
+        border: 1px solid rgb(255 255 255 / 10%);
+        border-radius: 9px;
+        color: var(--primary-text-color, #f4f7fb);
+        cursor: pointer;
+        display: inline-flex;
+        flex: 0 0 auto;
+        height: 32px;
+        justify-content: center;
+        padding: 0;
+        width: 32px;
+      }
+
+      .settings-dialog-close ha-icon {
+        --mdc-icon-size: 17px;
+      }
+
+      .settings-panel {
+        display: grid;
+        gap: 11px;
+        overflow: auto;
+        padding: 12px;
+      }
+
+      .settings-group {
+        background:
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--settings-accent) 8%, rgb(255 255 255 / 4%)),
+            rgb(255 255 255 / 3%)
+          );
+        border: 1px solid rgb(255 255 255 / 7%);
+        border-left: 3px solid color-mix(in srgb, var(--settings-accent) 82%, transparent);
+        border-radius: 12px;
+        display: grid;
+        gap: 8px;
+        padding: 10px;
+      }
+
+      .settings-group-title {
+        align-items: center;
+        color: var(--primary-text-color, #f4f7fb);
+        display: flex;
+        font-size: 13px;
+        font-weight: 750;
+        gap: 7px;
+        letter-spacing: 0;
+        line-height: 1.1;
+        margin: 0;
+      }
+
+      .settings-group-title::before {
+        background: var(--settings-accent);
+        border-radius: 999px;
+        content: '';
+        height: 7px;
+        width: 7px;
+      }
+
+      .settings-list {
+        display: grid;
+        gap: 6px;
+      }
+
+      .settings-row {
+        align-items: center;
+        background: rgb(0 0 0 / 11%);
+        border: 1px solid rgb(255 255 255 / 6%);
+        border-radius: 9px;
+        display: grid;
+        gap: 7px 9px;
+        grid-template-columns: minmax(0, 1fr) auto;
+        min-width: 0;
+        padding: 8px;
+      }
+
+      .settings-row-main {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        color: inherit;
+        cursor: pointer;
+        display: grid;
+        font: inherit;
+        gap: 9px;
+        grid-template-columns: 20px minmax(0, 1fr);
+        min-width: 0;
+        padding: 0;
+        text-align: left;
+      }
+
+      .settings-row-main ha-icon {
+        --mdc-icon-size: 17px;
+        color: color-mix(in srgb, var(--settings-accent) 72%, #ffffff 28%);
+      }
+
+      .settings-row-main:focus-visible {
+        border-radius: 6px;
+        outline: 2px solid var(--settings-accent);
+        outline-offset: 2px;
+      }
+
+      .settings-row-label {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+      }
+
+      .settings-row-name {
+        color: var(--primary-text-color, #f4f7fb);
+        font-size: 12px;
+        font-weight: 650;
+        letter-spacing: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .settings-row-state {
+        color: var(--secondary-text-color, #aeb8c6);
+        font-size: 10.5px;
+        letter-spacing: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .settings-state {
+        align-items: center;
+        color: var(--secondary-text-color, #b7c0ce);
+        display: inline-flex;
+        font-size: 11px;
+        gap: 2px;
+        letter-spacing: 0;
+        min-width: 0;
+        white-space: nowrap;
+      }
+
+      .settings-state ha-icon {
+        --mdc-icon-size: 16px;
+      }
+
+      .settings-row-button,
+      .settings-chip {
+        align-items: center;
+        background: rgb(255 255 255 / 6%);
+        border: 1px solid rgb(255 255 255 / 9%);
+        border-radius: 7px;
+        color: var(--primary-text-color, #f4f7fb);
+        cursor: pointer;
+        display: inline-flex;
+        font: inherit;
+        font-size: 11px;
+        font-weight: 650;
+        justify-content: center;
+        letter-spacing: 0;
+        min-height: 26px;
+        padding: 0 10px;
+      }
+
+      .settings-row-button:hover,
+      .settings-chip:hover {
+        background: rgb(255 255 255 / 10%);
+      }
+
+      .settings-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        grid-column: 1 / -1;
+      }
+
+      .settings-chip.active {
+        background: color-mix(in srgb, var(--settings-accent) 36%, rgb(255 255 255 / 8%));
+        border-color: color-mix(in srgb, var(--settings-accent) 50%, transparent);
+      }
+
+      .settings-row.unavailable {
+        opacity: 0.62;
+      }
+
+      .settings-row ha-switch {
+        --switch-checked-color: var(--settings-accent);
+        --switch-checked-button-color: var(--settings-accent);
+      }
+
       @container (max-width: 360px) {
         .pair-card {
           gap: 8px;
@@ -497,6 +802,11 @@ export class LgLaundryPairCard extends LitElement {
         .pair-badge,
         .stat-label {
           display: none;
+        }
+
+        .settings-toggle {
+          height: 30px;
+          width: 30px;
         }
 
         .machine-head {
@@ -552,6 +862,7 @@ export class LgLaundryPairCard extends LitElement {
         ...config.dryer,
       },
     };
+    this.settingsOpen = false;
 
     this.style.setProperty(
       '--laundry-pair-width',
@@ -589,6 +900,92 @@ export class LgLaundryPairCard extends LitElement {
 
   private entity(entityId?: string): HassEntity | undefined {
     return entityId ? this.hass?.states[entityId] : undefined;
+  }
+
+  private entityDomain(entityId: string): string {
+    return entityId.split('.')[0] ?? '';
+  }
+
+  private entityIcon(entityId: string, entity?: HassEntity): string {
+    if (entity?.attributes.icon) {
+      return entity.attributes.icon;
+    }
+
+    switch (this.entityDomain(entityId)) {
+      case 'binary_sensor':
+        return 'mdi:radiobox-marked';
+      case 'button':
+        return 'mdi:gesture-tap-button';
+      case 'event':
+        return 'mdi:bell-outline';
+      case 'number':
+        return 'mdi:numeric';
+      case 'select':
+        return 'mdi:format-list-bulleted';
+      case 'sensor':
+        return 'mdi:chart-line';
+      case 'switch':
+        return 'mdi:toggle-switch-outline';
+      default:
+        return 'mdi:cog-outline';
+    }
+  }
+
+  private dispatchMoreInfo(entityId?: string): void {
+    if (!entityId) {
+      return;
+    }
+
+    this.dispatchEvent(
+      new CustomEvent('hass-more-info', {
+        detail: { entityId },
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  private toggleSettings(event: Event): void {
+    event.stopPropagation();
+    this.settingsOpen = !this.settingsOpen;
+  }
+
+  private closeSettings(event?: Event): void {
+    event?.stopPropagation();
+    this.settingsOpen = false;
+  }
+
+  private isEditorPreview(): boolean {
+    return this.isInEditorPreviewTree(this);
+  }
+
+  private isInEditorPreviewTree(current: Node | null): boolean {
+    while (current) {
+      if (
+        current instanceof Element &&
+        current.matches(
+          [
+            'hui-card-preview',
+            'hui-card-element-editor',
+            'hui-dialog-edit-card',
+            'hui-card-options',
+          ].join(','),
+        )
+      ) {
+        return true;
+      }
+
+      const root = current.getRootNode();
+
+      if (root instanceof ShadowRoot) {
+        current = root.host;
+        continue;
+      }
+
+      current = current instanceof Element ? current.parentElement : null;
+    }
+
+    return false;
   }
 
   private rawStatus(kind: ApplianceKind, machine: LaundryPairMachineConfig): string {
@@ -850,6 +1247,186 @@ export class LgLaundryPairCard extends LitElement {
     `;
   }
 
+  private configuredSettingEntities(machine: LaundryPairMachineConfig): string[] {
+    const entities = [
+      machine.entity,
+      machine.power_entity,
+      machine.operation_entity,
+      machine.remote_start_entity,
+      machine.delayed_start_entity,
+      machine.remaining_time_entity,
+      machine.total_time_entity,
+      machine.cycles_entity,
+      machine.energy_entity,
+      machine.notification_entity,
+      machine.error_entity,
+      ...(machine.detail_entities ?? []),
+    ].filter((entityId): entityId is string => Boolean(entityId));
+
+    return [...new Set(entities)];
+  }
+
+  private toggleSwitch(entityId: string): void {
+    this.hass?.callService('switch', 'toggle', { entity_id: entityId });
+  }
+
+  private pressButton(entityId: string): void {
+    this.hass?.callService('button', 'press', { entity_id: entityId });
+  }
+
+  private selectOption(entityId: string, option: string): void {
+    this.hass?.callService('select', 'select_option', {
+      entity_id: entityId,
+      option,
+    });
+  }
+
+  private renderSettingControl(entityId: string, entity?: HassEntity): TemplateResult {
+    if (!entity || isUnavailable(entity)) {
+      return html`
+        <span class="settings-state">
+          Unknown
+          <ha-icon icon="mdi:chevron-right"></ha-icon>
+        </span>
+      `;
+    }
+
+    const domain = this.entityDomain(entityId);
+
+    if (domain === 'switch') {
+      return html`
+        <ha-switch
+          .checked=${entity.state === 'on'}
+          @click=${(event: Event) => event.stopPropagation()}
+          @change=${() => this.toggleSwitch(entityId)}
+        ></ha-switch>
+      `;
+    }
+
+    if (domain === 'button') {
+      return html`
+        <button
+          type="button"
+          class="settings-row-button"
+          @click=${(event: Event) => {
+            event.stopPropagation();
+            this.pressButton(entityId);
+          }}
+        >
+          Press
+        </button>
+      `;
+    }
+
+    return html`
+      <span class="settings-state">
+        ${formatEntityState(entity)}
+        <ha-icon icon="mdi:chevron-right"></ha-icon>
+      </span>
+    `;
+  }
+
+  private renderSettingEntity(entityId: string): TemplateResult {
+    const entity = this.entity(entityId);
+    const options = entity?.attributes.options ?? [];
+    const isSelect = this.entityDomain(entityId) === 'select';
+
+    return html`
+      <div class="settings-row ${!entity || isUnavailable(entity) ? 'unavailable' : ''}">
+        <button
+          type="button"
+          class="settings-row-main"
+          @click=${() => this.dispatchMoreInfo(entityId)}
+        >
+          <ha-icon icon=${this.entityIcon(entityId, entity)}></ha-icon>
+          <span class="settings-row-label">
+            <span class="settings-row-name">
+              ${entity?.attributes.friendly_name ?? entityId}
+            </span>
+            <span class="settings-row-state">${formatEntityState(entity)}</span>
+          </span>
+        </button>
+        ${this.renderSettingControl(entityId, entity)}
+        ${isSelect && options.length
+          ? html`
+              <div class="settings-options">
+                ${options.map(
+                  (option) => html`
+                    <button
+                      type="button"
+                      class="settings-chip ${entity?.state === option ? 'active' : ''}"
+                      @click=${(event: Event) => {
+                        event.stopPropagation();
+                        this.selectOption(entityId, option);
+                      }}
+                    >
+                      ${humanize(option)}
+                    </button>
+                  `,
+                )}
+              </div>
+            `
+          : nothing}
+      </div>
+    `;
+  }
+
+  private renderSettingsSection(
+    kind: ApplianceKind,
+    machine: LaundryPairMachineConfig,
+  ): TemplateResult {
+    return html`
+      <section
+        class="settings-group"
+        style="--settings-accent: ${kindColor(kind)};"
+      >
+        <h3 class="settings-group-title">${this.displayName(kind, machine)}</h3>
+        <div class="settings-list">
+          ${this.configuredSettingEntities(machine).map((entityId) =>
+            this.renderSettingEntity(entityId),
+          )}
+        </div>
+      </section>
+    `;
+  }
+
+  private renderSettingsDialog(): TemplateResult | typeof nothing {
+    if (!this.settingsOpen || this.isEditorPreview()) {
+      return nothing;
+    }
+
+    return html`
+      <div class="settings-overlay" @click=${this.closeSettings}>
+        <section
+          class="settings-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Laundry settings"
+          @click=${(event: Event) => event.stopPropagation()}
+        >
+          <div class="settings-dialog-header">
+            <div class="settings-dialog-title">
+              <span>${this.config.name ?? 'Laundry'}</span>
+              <h2>Settings & Details</h2>
+            </div>
+            <button
+              type="button"
+              class="settings-dialog-close"
+              aria-label="Close settings"
+              @click=${this.closeSettings}
+            >
+              <ha-icon icon="mdi:close"></ha-icon>
+            </button>
+          </div>
+          <div class="settings-panel">
+            ${this.renderSettingsSection('washer', this.config.washer)}
+            ${this.renderSettingsSection('dryer', this.config.dryer)}
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
   private renderMachine(
     kind: ApplianceKind,
     machine: LaundryPairMachineConfig,
@@ -969,12 +1546,24 @@ export class LgLaundryPairCard extends LitElement {
         <article class="pair-card">
           <header class="pair-header">
             <span class="pair-title">${this.config.name ?? 'Laundry'}</span>
-            <span class="pair-badge">Washer + Dryer</span>
+            <span class="pair-actions">
+              <span class="pair-badge">Washer + Dryer</span>
+              <button
+                type="button"
+                class="settings-toggle"
+                aria-label="Open laundry settings"
+                title="Settings"
+                @click=${this.toggleSettings}
+              >
+                <ha-icon icon="mdi:cog-outline"></ha-icon>
+              </button>
+            </span>
           </header>
           <div class="machines">
             ${this.renderMachine('washer', this.config.washer)}
             ${this.renderMachine('dryer', this.config.dryer)}
           </div>
+          ${this.renderSettingsDialog()}
         </article>
       </ha-card>
     `;
@@ -1149,7 +1738,10 @@ class LgLaundryPairCardEditor extends LitElement {
           ${this.renderTextInput(`${title} Remaining Time`, `${kind}.remaining_time_entity`, `sensor.${kind}_remaining_time`)}
           ${this.renderTextInput(`${title} Total Time`, `${kind}.total_time_entity`, `sensor.${kind}_total_time`)}
           ${this.renderTextInput(`${title} Remote Start`, `${kind}.remote_start_entity`, `binary_sensor.${kind}_remote_start`)}
+          ${this.renderTextInput(`${title} Delayed Start`, `${kind}.delayed_start_entity`, `number.${kind}_delayed_start`)}
           ${this.renderTextInput(`${title} Energy`, `${kind}.energy_entity`, `sensor.${kind}_energy_this_month`)}
+          ${this.renderTextInput(`${title} Cycles`, `${kind}.cycles_entity`, `sensor.${kind}_cycles`)}
+          ${this.renderTextInput(`${title} Notification Event`, `${kind}.notification_entity`, `event.${kind}_notification`)}
           ${this.renderTextInput(`${title} Error Event`, `${kind}.error_entity`, `event.${kind}_error`)}
         </div>
       </section>
