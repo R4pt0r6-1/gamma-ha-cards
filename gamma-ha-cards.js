@@ -296,8 +296,8 @@ const Se = (n, t) => {
   let r, o = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", a = E;
   for (let l = 0; l < e; l++) {
     const c = n[l];
-    let d, u, p = -1, b = 0;
-    for (; b < c.length && (a.lastIndex = b, u = a.exec(c), u !== null); ) b = a.lastIndex, a === E ? u[1] === "!--" ? a = Bt : u[1] !== void 0 ? a = Rt : u[2] !== void 0 ? (ae.test(u[2]) && (r = RegExp("</" + u[2], "g")), a = $) : u[3] !== void 0 && (a = $) : a === $ ? u[0] === ">" ? (a = r ?? E, p = -1) : u[1] === void 0 ? p = -2 : (p = a.lastIndex - u[2].length, d = u[1], a = u[3] === void 0 ? $ : u[3] === '"' ? Ht : jt) : a === Ht || a === jt ? a = $ : a === Bt || a === Rt ? a = E : (a = $, r = void 0);
+    let d, g, p = -1, b = 0;
+    for (; b < c.length && (a.lastIndex = b, g = a.exec(c), g !== null); ) b = a.lastIndex, a === E ? g[1] === "!--" ? a = Bt : g[1] !== void 0 ? a = Rt : g[2] !== void 0 ? (ae.test(g[2]) && (r = RegExp("</" + g[2], "g")), a = $) : g[3] !== void 0 && (a = $) : a === $ ? g[0] === ">" ? (a = r ?? E, p = -1) : g[1] === void 0 ? p = -2 : (p = a.lastIndex - g[2].length, d = g[1], a = g[3] === void 0 ? $ : g[3] === '"' ? Ht : jt) : a === Ht || a === jt ? a = $ : a === Bt || a === Rt ? a = E : (a = $, r = void 0);
     const x = a === $ && n[l + 1].startsWith("/>") ? " " : "";
     o += a === E ? c + $e : p >= 0 ? (i.push(d), c.slice(0, p) + ne + c.slice(p) + v + x) : c + v + (p === -2 ? l : x);
   }
@@ -308,7 +308,7 @@ class N {
     let r;
     this.parts = [];
     let o = 0, a = 0;
-    const l = t.length - 1, c = this.parts, [d, u] = Se(t, e);
+    const l = t.length - 1, c = this.parts, [d, g] = Se(t, e);
     if (this.el = N.createElement(d, i), _.currentNode = this.el.content, e === 2 || e === 3) {
       const p = this.el.content.firstChild;
       p.replaceWith(...p.childNodes);
@@ -316,7 +316,7 @@ class N {
     for (; (r = _.nextNode()) !== null && c.length < l; ) {
       if (r.nodeType === 1) {
         if (r.hasAttributes()) for (const p of r.getAttributeNames()) if (p.endsWith(ne)) {
-          const b = u[a++], x = r.getAttribute(p).split(v), y = /([.?@])?(.*)/.exec(b);
+          const b = g[a++], x = r.getAttribute(p).split(v), y = /([.?@])?(.*)/.exec(b);
           c.push({ type: 1, index: o, name: y[2], strings: x, ctor: y[1] === "." ? Te : y[1] === "?" ? Pe : y[1] === "@" ? Oe : W }), r.removeAttribute(p);
         } else p.startsWith(v) && (c.push({ type: 6, index: o }), r.removeAttribute(p));
         if (ae.test(r.tagName)) {
@@ -521,7 +521,7 @@ const Ae = (n, t, e) => {
  * SPDX-License-Identifier: BSD-3-Clause
  */
 const k = globalThis;
-class g extends T {
+class f extends T {
   constructor() {
     super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
   }
@@ -547,9 +547,9 @@ class g extends T {
   }
 }
 var ie;
-g._$litElement$ = !0, g.finalized = !0, (ie = k.litElementHydrateSupport) == null || ie.call(k, { LitElement: g });
+f._$litElement$ = !0, f.finalized = !0, (ie = k.litElementHydrateSupport) == null || ie.call(k, { LitElement: f });
 const J = k.litElementPolyfillSupport;
-J == null || J({ LitElement: g });
+J == null || J({ LitElement: f });
 (k.litElementVersions ?? (k.litElementVersions = [])).push("4.2.2");
 const Wt = {
   icon: "mdi:ceiling-light",
@@ -596,7 +596,7 @@ function Ue(n, t) {
     })
   );
 }
-const xt = class xt extends g {
+const xt = class xt extends f {
   constructor() {
     super(...arguments), this.holdActive = !1, this.isDimming = !1, this.pendingDimmerPointer = !1, this.pointerStartX = 0, this.pointerStartY = 0, this.suppressClick = !1;
   }
@@ -1665,7 +1665,7 @@ xt.properties = {
 };
 let Y = xt;
 customElements.get("glow-light-card") || customElements.define("glow-light-card", Y);
-const vt = class vt extends g {
+const vt = class vt extends f {
   constructor() {
     super(...arguments), this.config = {};
   }
@@ -1923,7 +1923,7 @@ function De(n, t) {
     })
   );
 }
-const wt = class wt extends g {
+const wt = class wt extends f {
   constructor() {
     super(...arguments), this.holdActive = !1;
   }
@@ -2362,7 +2362,7 @@ wt.properties = {
 };
 let Q = wt;
 customElements.get("glow-switch-card") || customElements.define("glow-switch-card", Q);
-const yt = class yt extends g {
+const yt = class yt extends f {
   constructor() {
     super(...arguments), this.config = {};
   }
@@ -2596,7 +2596,7 @@ function Fe(n, t) {
     })
   );
 }
-const $t = class $t extends g {
+const $t = class $t extends f {
   constructor() {
     super(...arguments), this.holdActive = !1;
   }
@@ -3062,7 +3062,7 @@ $t.properties = {
 };
 let et = $t;
 customElements.get("glow-lock-card") || customElements.define("glow-lock-card", et);
-const _t = class _t extends g {
+const _t = class _t extends f {
   constructor() {
     super(...arguments), this.config = {};
   }
@@ -3328,7 +3328,7 @@ function Re(n, t, e) {
   const i = (n == null ? void 0 : n.trim()) || t, r = /^(\d+(?:\.\d+)?)px$/.exec(i);
   return r ? `${Math.max(e, Number(r[1]))}px` : i === "auto" || i === "initial" || i === "inherit" ? t : `max(${e}px, ${i})`;
 }
-const kt = class kt extends g {
+const kt = class kt extends f {
   constructor() {
     super(...arguments), this.holdActive = !1, this.handledControlPointer = !1;
   }
@@ -4433,7 +4433,7 @@ kt.properties = {
 };
 let rt = kt;
 customElements.get("glow-thermostat-card") || customElements.define("glow-thermostat-card", rt);
-const St = class St extends g {
+const St = class St extends f {
   constructor() {
     super(...arguments), this.config = {};
   }
@@ -4762,7 +4762,7 @@ function He(n, t) {
     })
   );
 }
-const Ct = class Ct extends g {
+const Ct = class Ct extends f {
   constructor() {
     super(...arguments), this.optimisticTimers = {}, this.optimisticStates = {}, this.holdActive = !1;
   }
@@ -5589,7 +5589,7 @@ Ct.properties = {
 };
 let nt = Ct;
 customElements.get("dual-outlet-card") || customElements.define("dual-outlet-card", nt);
-const Tt = class Tt extends g {
+const Tt = class Tt extends f {
   constructor() {
     super(...arguments), this.config = {};
   }
@@ -5838,7 +5838,7 @@ function A(n, t) {
   }
   return t;
 }
-const Pt = class Pt extends g {
+const Pt = class Pt extends f {
   constructor() {
     super(...arguments), this.holdActive = !1, this.handledSpeedPointer = !1;
   }
@@ -6400,7 +6400,7 @@ Pt.properties = {
 };
 let at = Pt;
 customElements.get("speed-fan-card") || customElements.define("speed-fan-card", at);
-const Ot = class Ot extends g {
+const Ot = class Ot extends f {
   constructor() {
     super(...arguments), this.config = {};
   }
@@ -6663,7 +6663,7 @@ function ti(n, t) {
     })
   );
 }
-function f(n) {
+function u(n) {
   return !n || ["unavailable", "unknown"].includes(n.state);
 }
 function F(n) {
@@ -6676,7 +6676,7 @@ function S(n) {
   return e <= 0 ? `${i}m` : i === 0 ? `${e}h` : `${e}h ${i}m`;
 }
 function I(n) {
-  if (f(n))
+  if (u(n))
     return "Unknown";
   if ((n == null ? void 0 : n.attributes.device_class) === "timestamp") {
     const o = mt(n.state);
@@ -6738,14 +6738,14 @@ function bt(n, t) {
   }
 }
 function ce(n) {
-  if (!f(n))
+  if (!u(n))
     return bt(n == null ? void 0 : n.state, n == null ? void 0 : n.attributes.unit_of_measurement);
 }
 function he(n) {
-  if (!f(n))
+  if (!u(n))
     return ei((n == null ? void 0 : n.state) ?? "") ?? bt(n == null ? void 0 : n.state, n == null ? void 0 : n.attributes.unit_of_measurement);
 }
-const Et = class Et extends g {
+const Et = class Et extends f {
   constructor() {
     super(...arguments), this.detailsOpen = !1, this.settingsOpen = !1;
   }
@@ -7503,7 +7503,7 @@ const Et = class Et extends g {
     return this.optimisticOperation ? this.optimisticOperation : ((t = this.statusEntity) == null ? void 0 : t.state) ?? "unknown";
   }
   get statusLabel() {
-    return f(this.statusEntity) ? "Unavailable" : this.rawStatus === "end" ? "Complete" : F(this.rawStatus);
+    return u(this.statusEntity) ? "Unavailable" : this.rawStatus === "end" ? "Complete" : F(this.rawStatus);
   }
   get stateGroup() {
     var e, i;
@@ -7550,7 +7550,7 @@ const Et = class Et extends g {
       const e = S(this.totalMinutes);
       return e === "--" ? "Ready for next cycle" : `${e} default cycle`;
     }
-    if (!f(t) && t) {
+    if (!u(t) && t) {
       const e = mt(t.state);
       if (e)
         return `Finishes around ${e.toLocaleTimeString([], {
@@ -7601,7 +7601,7 @@ const Et = class Et extends g {
   setPower(t) {
     var r;
     const e = this.entity(this.config.power_entity);
-    if (this.setOptimisticOperation(t ? "initial" : "power_off"), this.config.power_entity && !f(e)) {
+    if (this.setOptimisticOperation(t ? "initial" : "power_off"), this.config.power_entity && !u(e)) {
       this.trackServiceResult(
         (r = this.hass) == null ? void 0 : r.callService("switch", t ? "turn_on" : "turn_off", {
           entity_id: this.config.power_entity
@@ -7679,7 +7679,7 @@ const Et = class Et extends g {
       this.config.error_entity
     ].filter((e) => !!e);
     return [...new Set(t)].filter(
-      (e) => !f(this.entity(e))
+      (e) => !u(this.entity(e))
     );
   }
   renderImage() {
@@ -7698,7 +7698,7 @@ const Et = class Et extends g {
     return s`
       <div class="stat">
         <span class="stat-label">${t}</span>
-        <span class="stat-value">${I(i)}</span>
+        <span class="stat-value">${u(i) ? "--" : I(i)}</span>
       </div>
     `;
   }
@@ -7814,7 +7814,7 @@ const Et = class Et extends g {
   render() {
     if (!this.config)
       return s``;
-    const t = this.entity(this.config.power_entity), e = this.entity(this.config.operation_entity), i = this.stateGroup === "running", r = this.stateGroup === "running" || this.stateGroup === "paused", o = !!(this.config.power_entity && t), a = !e || e.state === "unavailable", l = a || !this.canCallOperation("start") || !this.isRemoteStartReady() || i, c = a || !this.canCallOperation("stop") || !r, d = o ? f(t) || (t == null ? void 0 : t.state) === "on" : !this.canCallOperation("power_on"), u = o ? f(t) || (t == null ? void 0 : t.state) === "off" : !this.canCallOperation("power_off"), p = this.kindContrastColor;
+    const t = this.entity(this.config.power_entity), e = this.entity(this.config.operation_entity), i = this.stateGroup === "running", r = this.stateGroup === "running" || this.stateGroup === "paused", o = !!(this.config.power_entity && t), a = !e || e.state === "unavailable", l = a || !this.canCallOperation("start") || !this.isRemoteStartReady() || i, c = a || !this.canCallOperation("stop") || !r, d = o ? u(t) || (t == null ? void 0 : t.state) === "on" : !this.canCallOperation("power_on"), g = o ? u(t) || (t == null ? void 0 : t.state) === "off" : !this.canCallOperation("power_off"), p = this.kindContrastColor;
     return s`
       <ha-card>
         <article
@@ -7888,7 +7888,7 @@ const Et = class Et extends g {
       "Off",
       "mdi:power-standby",
       () => this.setPower(!1),
-      u,
+      g,
       "warning"
     )}
           </div>
@@ -7930,7 +7930,7 @@ Et.properties = {
 };
 let ct = Et;
 customElements.get("lg-laundry-card") || customElements.define("lg-laundry-card", ct);
-const At = class At extends g {
+const At = class At extends f {
   constructor() {
     super(...arguments), this.config = {};
   }
@@ -8223,7 +8223,7 @@ function hi(n) {
 function pe(n) {
   return `/hacsfiles/gamma-ha-cards/assets/laundry-${n}.svg`;
 }
-const Mt = class Mt extends g {
+const Mt = class Mt extends f {
   constructor() {
     super(...arguments), this.optimisticOperations = {}, this.optimisticTimers = {};
   }
@@ -8385,8 +8385,9 @@ const Mt = class Mt extends g {
       .machine-head {
         align-items: center;
         display: grid;
-        gap: 8px;
-        grid-template-columns: 34px minmax(0, 1fr) minmax(96px, auto);
+        column-gap: 11px;
+        row-gap: 4px;
+        grid-template-columns: 34px minmax(78px, 1fr) auto;
         min-width: 0;
       }
 
@@ -8463,8 +8464,9 @@ const Mt = class Mt extends g {
       .machine-actions {
         align-items: center;
         display: inline-flex;
-        gap: 6px;
+        gap: 7px;
         justify-content: end;
+        max-width: 94px;
         min-width: 0;
       }
 
@@ -8480,7 +8482,7 @@ const Mt = class Mt extends g {
         color: var(--secondary-text-color, #b7c0ce);
         font-size: 9.5px;
         line-height: 1.2;
-        max-width: 76px;
+        max-width: 60px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -8874,7 +8876,8 @@ const Mt = class Mt extends g {
         }
 
         .machine-head {
-          grid-template-columns: 32px minmax(0, 1fr) minmax(88px, auto);
+          column-gap: 10px;
+          grid-template-columns: 32px minmax(68px, 1fr) auto;
         }
 
         .image-wrap {
@@ -8887,7 +8890,7 @@ const Mt = class Mt extends g {
         }
 
         .time-subtext {
-          max-width: 66px;
+          max-width: 52px;
         }
 
         .stat {
@@ -9062,7 +9065,7 @@ const Mt = class Mt extends g {
     return e.name || ((r = i == null ? void 0 : i.attributes.friendly_name) == null ? void 0 : r.replace(" Current status", "")) || (t === "dryer" ? "Dryer" : "Washer");
   }
   statusLabel(t, e) {
-    if (f(this.entity(e.entity)))
+    if (u(this.entity(e.entity)))
       return "Unavailable";
     const i = this.rawStatus(t, e);
     return i === "end" ? "Complete" : F(i);
@@ -9153,7 +9156,7 @@ const Mt = class Mt extends g {
   setPower(t, e, i) {
     var a;
     const r = this.entity(e.power_entity);
-    if (this.setOptimisticOperation(t, i ? "initial" : "power_off"), e.power_entity && !f(r)) {
+    if (this.setOptimisticOperation(t, i ? "initial" : "power_off"), e.power_entity && !u(r)) {
       this.trackServiceResult(
         t,
         (a = this.hass) == null ? void 0 : a.callService("switch", i ? "turn_on" : "turn_off", {
@@ -9166,10 +9169,11 @@ const Mt = class Mt extends g {
     this.hasOperation(e, o) && this.callOperation(t, e, o);
   }
   renderStat(t, e) {
+    const i = this.entity(e);
     return s`
       <div class="stat">
         <span class="stat-label">${t}</span>
-        <span class="stat-value">${I(this.entity(e))}</span>
+        <span class="stat-value">${u(i) ? "--" : I(i)}</span>
       </div>
     `;
   }
@@ -9214,22 +9218,22 @@ const Mt = class Mt extends g {
   }
   controlDisabled(t, e, i, r) {
     var x, y;
-    const o = r.action ?? "more_info", a = this.entity(e.power_entity), l = this.entity(e.operation_entity), c = !!(e.power_entity && a), d = !l || l.state === "unavailable", u = i === "running", p = i === "running" || i === "paused", b = r.option ?? o;
+    const o = r.action ?? "more_info", a = this.entity(e.power_entity), l = this.entity(e.operation_entity), c = !!(e.power_entity && a), d = !l || l.state === "unavailable", g = i === "running", p = i === "running" || i === "paused", b = r.option ?? o;
     switch (o) {
       case "power_on":
-        return c ? f(a) || (a == null ? void 0 : a.state) === "on" : !this.canCallOperation(e, "power_on");
+        return c ? u(a) || (a == null ? void 0 : a.state) === "on" : !this.canCallOperation(e, "power_on");
       case "start":
-        return d || !this.canCallOperation(e, b) || !this.isRemoteStartReady(e) || u;
+        return d || !this.canCallOperation(e, b) || !this.isRemoteStartReady(e) || g;
       case "stop":
         return d || !this.canCallOperation(e, b) || !p;
       case "power_off":
-        return c ? f(a) || (a == null ? void 0 : a.state) === "off" : !this.canCallOperation(e, "power_off");
+        return c ? u(a) || (a == null ? void 0 : a.state) === "off" : !this.canCallOperation(e, "power_off");
       case "toggle":
-        return !r.entity || f(this.entity(r.entity));
+        return !r.entity || u(this.entity(r.entity));
       case "press":
-        return !r.entity || f(this.entity(r.entity));
+        return !r.entity || u(this.entity(r.entity));
       case "select_option":
-        return !r.option || f(this.entity(r.entity ?? e.operation_entity)) || !((y = (x = this.entity(r.entity ?? e.operation_entity)) == null ? void 0 : x.attributes.options) != null && y.includes(r.option));
+        return !r.option || u(this.entity(r.entity ?? e.operation_entity)) || !((y = (x = this.entity(r.entity ?? e.operation_entity)) == null ? void 0 : x.attributes.options) != null && y.includes(r.option));
       case "service":
         return !r.service;
       case "settings":
@@ -9298,7 +9302,7 @@ const Mt = class Mt extends g {
       ...t.detail_entities ?? []
     ].filter((i) => !!i);
     return [...new Set(e)].filter(
-      (i) => !f(this.entity(i))
+      (i) => !u(this.entity(i))
     );
   }
   toggleSwitch(t) {
@@ -9317,7 +9321,7 @@ const Mt = class Mt extends g {
     });
   }
   renderSettingControl(t, e) {
-    if (!e || f(e))
+    if (!e || u(e))
       return s`
         <span class="settings-state">
           Unknown
@@ -9351,7 +9355,7 @@ const Mt = class Mt extends g {
   renderSettingEntity(t) {
     const e = this.entity(t), i = (e == null ? void 0 : e.attributes.options) ?? [], r = this.entityDomain(t) === "select";
     return s`
-      <div class="settings-row ${!e || f(e) ? "unavailable" : ""}">
+      <div class="settings-row ${!e || u(e) ? "unavailable" : ""}">
         <button
           type="button"
           class="settings-row-main"
@@ -9529,7 +9533,7 @@ Mt.properties = {
 };
 let dt = Mt;
 customElements.get("lg-laundry-pair-card") || customElements.define("lg-laundry-pair-card", dt);
-const zt = class zt extends g {
+const zt = class zt extends f {
   constructor() {
     super(...arguments), this.config = {};
   }

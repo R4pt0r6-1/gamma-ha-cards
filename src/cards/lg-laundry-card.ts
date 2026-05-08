@@ -1406,7 +1406,7 @@ export class LgLaundryCard extends LitElement {
     return html`
       <div class="stat">
         <span class="stat-label">${label}</span>
-        <span class="stat-value">${formatEntityState(entity)}</span>
+        <span class="stat-value">${isUnavailable(entity) ? '--' : formatEntityState(entity)}</span>
       </div>
     `;
   }

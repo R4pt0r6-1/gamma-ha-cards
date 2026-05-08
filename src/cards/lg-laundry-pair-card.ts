@@ -348,8 +348,9 @@ export class LgLaundryPairCard extends LitElement {
       .machine-head {
         align-items: center;
         display: grid;
-        gap: 8px;
-        grid-template-columns: 34px minmax(0, 1fr) minmax(96px, auto);
+        column-gap: 11px;
+        row-gap: 4px;
+        grid-template-columns: 34px minmax(78px, 1fr) auto;
         min-width: 0;
       }
 
@@ -426,8 +427,9 @@ export class LgLaundryPairCard extends LitElement {
       .machine-actions {
         align-items: center;
         display: inline-flex;
-        gap: 6px;
+        gap: 7px;
         justify-content: end;
+        max-width: 94px;
         min-width: 0;
       }
 
@@ -443,7 +445,7 @@ export class LgLaundryPairCard extends LitElement {
         color: var(--secondary-text-color, #b7c0ce);
         font-size: 9.5px;
         line-height: 1.2;
-        max-width: 76px;
+        max-width: 60px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -837,7 +839,8 @@ export class LgLaundryPairCard extends LitElement {
         }
 
         .machine-head {
-          grid-template-columns: 32px minmax(0, 1fr) minmax(88px, auto);
+          column-gap: 10px;
+          grid-template-columns: 32px minmax(68px, 1fr) auto;
         }
 
         .image-wrap {
@@ -850,7 +853,7 @@ export class LgLaundryPairCard extends LitElement {
         }
 
         .time-subtext {
-          max-width: 66px;
+          max-width: 52px;
         }
 
         .stat {
@@ -1284,10 +1287,11 @@ export class LgLaundryPairCard extends LitElement {
   }
 
   private renderStat(label: string, entityId?: string): TemplateResult {
+    const entity = this.entity(entityId);
     return html`
       <div class="stat">
         <span class="stat-label">${label}</span>
-        <span class="stat-value">${formatEntityState(this.entity(entityId))}</span>
+        <span class="stat-value">${isUnavailable(entity) ? '--' : formatEntityState(entity)}</span>
       </div>
     `;
   }
