@@ -353,6 +353,7 @@ Each machine row has its own gear for a compact settings and details popup.
 ```yaml
 type: custom:lg-laundry-pair-card
 name: Laundry Room
+energy_price_cents_per_kwh: 16.5
 washer:
   entity: sensor.washer_current_status
   name: Washer
@@ -410,6 +411,7 @@ dryer:
 | `fill_container` | `boolean` | `false`   | Stretch the card to the full dashboard column width. |
 | `border_radius`  | `string`  | `14px`    | CSS border radius.                |
 | `background`     | `string`  | `#101722` | Base card background.             |
+| `energy_price_cents_per_kwh` | `number` | Optional | Electricity rate in cents per kWh; energy metrics display estimated cost when set. |
 | `show_controls`  | `boolean` | `true`    | Show Power, Start, Stop, and Off controls for each machine. |
 | `show_stats`     | `boolean` | `false`   | Show Total, Remote, and Energy stats for each machine. |
 | `animated`       | `boolean` | `true`    | Reserved for visual animation support. |
@@ -439,6 +441,7 @@ Machine `control_buttons` accepts `power_toggle`, `power_on`, `start`, `stop`, `
 | `fill_container`        | `boolean` | `true`              | Stretch the card to the full dashboard column width. |
 | `border_radius`         | `string`  | `14px`              | CSS border radius.                |
 | `background`            | `string`  | `#101722`           | Base card background.             |
+| `energy_price_cents_per_kwh` | `number` | Optional       | Electricity rate in cents per kWh; energy stats display estimated cost when set. |
 | `running_color`         | `string`  | Kind accent         | Glow color while running; washer defaults blue, dryer defaults orange-red. |
 | `complete_color`        | `string`  | Kind accent         | Glow color when complete; washer defaults blue, dryer defaults orange-red. |
 | `paused_color`          | `string`  | `#ff8a1c`           | Glow color when paused/reserved.  |

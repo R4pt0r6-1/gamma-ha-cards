@@ -2,10 +2,12 @@ import { LitElement, css, html, nothing } from 'lit';
 import type { CSSResultGroup, TemplateResult } from 'lit';
 import {
   entityDurationMinutes,
+  formatEnergyCost,
   formatDuration,
   formatEntityState,
   humanize,
   isUnavailable,
+  parseCentsPerKwh,
   remainingEntityMinutes,
 } from './lg-laundry-card';
 import type {
@@ -79,6 +81,7 @@ interface LgLaundryPairCardConfig {
   fill_container?: boolean;
   border_radius?: string;
   background?: string;
+  energy_price_cents_per_kwh?: number | string;
   show_controls?: boolean;
   show_stats?: boolean;
   animated?: boolean;
@@ -97,6 +100,7 @@ const DEFAULT_PAIR_CONFIG: Omit<LgLaundryPairCardConfig, 'washer' | 'dryer'> = {
   fill_container: false,
   border_radius: '14px',
   background: '#101722',
+  energy_price_cents_per_kwh: undefined,
   show_controls: true,
   show_stats: false,
   animated: true,
@@ -237,12 +241,29 @@ export class LgLaundryPairCard extends LitElement {
       }
 
       .pair-title {
+        align-items: center;
+        backdrop-filter: blur(10px) saturate(1.35);
+        -webkit-backdrop-filter: blur(10px) saturate(1.35);
+        background:
+          linear-gradient(
+            180deg,
+            rgb(255 255 255 / 12%),
+            rgb(255 255 255 / 4%)
+          );
+        border: 1px solid rgb(255 255 255 / 12%);
+        border-radius: 9px;
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 12%),
+          0 1px 4px rgb(0 0 0 / 12%);
         color: var(--primary-text-color, #f4f7fb);
+        display: inline-flex;
         font-size: 14px;
         font-weight: 700;
         letter-spacing: 0;
         line-height: 1.1;
+        min-height: 25px;
         overflow: hidden;
+        padding: 0 9px;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
@@ -1317,10 +1338,11 @@ export class LgLaundryPairCard extends LitElement {
 
   private renderStat(label: string, entityId?: string): TemplateResult {
     const entity = this.entity(entityId);
+    const cost = formatEnergyCost(entity, this.config.energy_price_cents_per_kwh);
     return html`
       <div class="stat">
-        <span class="stat-label">${label}</span>
-        <span class="stat-value">${isUnavailable(entity) ? '--' : formatEntityState(entity)}</span>
+        <span class="stat-label">${cost ? 'Cost' : label}</span>
+        <span class="stat-value">${cost ?? (isUnavailable(entity) ? '--' : formatEntityState(entity))}</span>
       </div>
     `;
   }
@@ -1565,12 +1587,30 @@ export class LgLaundryPairCard extends LitElement {
       .filter((entityId) => !isUnavailable(this.entity(entityId)));
   }
 
+  private energyCostForMetric(
+    entityId: string,
+    machine: LaundryPairMachineConfig,
+  ): string | undefined {
+    if (
+      entityId !== machine.energy_entity ||
+      parseCentsPerKwh(this.config.energy_price_cents_per_kwh) === undefined
+    ) {
+      return undefined;
+    }
+
+    return formatEnergyCost(
+      this.entity(entityId),
+      this.config.energy_price_cents_per_kwh,
+    );
+  }
+
   private metricLabel(
     kind: ApplianceKind,
     entityId: string,
     machine: LaundryPairMachineConfig,
   ): string {
     const entity = this.entity(entityId);
+    const cost = this.energyCostForMetric(entityId, machine);
     const raw =
       entity?.attributes.friendly_name ??
       entityId.split('.').slice(1).join(' ');
@@ -1582,7 +1622,7 @@ export class LgLaundryPairCard extends LitElement {
       .replace(/\s+this month$/i, '')
       .trim();
 
-    return humanize(cleaned || raw);
+    return cost ? 'Cost' : humanize(cleaned || raw);
   }
 
   private renderMetric(
@@ -1593,7 +1633,9 @@ export class LgLaundryPairCard extends LitElement {
     return html`
       <span class="metric">
         <span class="metric-label">${this.metricLabel(kind, entityId, machine)}</span>
-        <span class="metric-value">${formatEntityState(this.entity(entityId))}</span>
+        <span class="metric-value">
+          ${this.energyCostForMetric(entityId, machine) ?? formatEntityState(this.entity(entityId))}
+        </span>
       </span>
     `;
   }
@@ -2148,6 +2190,7 @@ class LgLaundryPairCardEditor extends LitElement {
             ${this.renderTextInput('Width', 'width', '420px')}
             ${this.renderTextInput('Radius', 'border_radius', '14px')}
             ${this.renderTextInput('Background', 'background', '#101722')}
+            ${this.renderTextInput('Energy Price Cents/kWh', 'energy_price_cents_per_kwh', '16.5')}
           </div>
           <div class="grid">
             ${this.renderSwitch('Fill Container', 'fill_container', false)}

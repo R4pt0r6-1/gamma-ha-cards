@@ -48,6 +48,7 @@ export interface LgLaundryCardConfig {
   fill_container?: boolean;
   border_radius?: string;
   background?: string;
+  energy_price_cents_per_kwh?: number | string;
   running_color?: string;
   complete_color?: string;
   paused_color?: string;
@@ -68,6 +69,7 @@ const DEFAULT_CONFIG: Omit<LgLaundryCardConfig, 'entity'> = {
   fill_container: true,
   border_radius: '14px',
   background: '#101722',
+  energy_price_cents_per_kwh: undefined,
   paused_color: '#ff8a1c',
   error_color: '#ff3b5c',
   off_color: '#697382',
@@ -173,6 +175,57 @@ export function formatEntityState(entity: HassEntity | undefined): string {
   const raw = eventType || entity?.state || '';
   const value = humanize(raw);
   return unit ? `${value} ${unit}` : value;
+}
+
+export function parseEnergyKwh(entity: HassEntity | undefined): number | undefined {
+  if (isUnavailable(entity)) {
+    return undefined;
+  }
+
+  const value = Number(entity?.state);
+  if (!Number.isFinite(value)) {
+    return undefined;
+  }
+
+  const unit = entity?.attributes.unit_of_measurement?.trim().toLowerCase();
+
+  if (unit === 'kwh') {
+    return value;
+  }
+
+  if (unit === 'mwh') {
+    return value * 1000;
+  }
+
+  if (unit === 'wh' || !unit) {
+    return value / 1000;
+  }
+
+  return undefined;
+}
+
+export function parseCentsPerKwh(value: unknown): number | undefined {
+  const rate = Number(value);
+  return Number.isFinite(rate) && rate > 0 ? rate : undefined;
+}
+
+export function formatEnergyCost(
+  entity: HassEntity | undefined,
+  centsPerKwh: unknown,
+): string | undefined {
+  const kwh = parseEnergyKwh(entity);
+  const cents = parseCentsPerKwh(centsPerKwh);
+
+  if (kwh === undefined || cents === undefined) {
+    return undefined;
+  }
+
+  return new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format((kwh * cents) / 100);
 }
 
 export function parseTimestamp(value: string): Date | undefined {
@@ -1403,10 +1456,15 @@ export class LgLaundryCard extends LitElement {
 
   private renderStat(label: string, entityId?: string): TemplateResult {
     const entity = this.entity(entityId);
+    const cost =
+      entityId === this.config.energy_entity
+        ? formatEnergyCost(entity, this.config.energy_price_cents_per_kwh)
+        : undefined;
+
     return html`
       <div class="stat">
-        <span class="stat-label">${label}</span>
-        <span class="stat-value">${isUnavailable(entity) ? '--' : formatEntityState(entity)}</span>
+        <span class="stat-label">${cost ? 'Cost' : label}</span>
+        <span class="stat-value">${cost ?? (isUnavailable(entity) ? '--' : formatEntityState(entity))}</span>
       </div>
     `;
   }
@@ -1938,6 +1996,7 @@ class LgLaundryCardEditor extends LitElement {
             ${this.renderTextInput('Width', 'width', '100%')}
             ${this.renderTextInput('Radius', 'border_radius', '14px')}
             ${this.renderTextInput('Background', 'background', '#101722')}
+            ${this.renderTextInput('Energy Price Cents/kWh', 'energy_price_cents_per_kwh', '16.5')}
             ${this.renderTextInput('Running Color', 'running_color', 'washer #2f8cff, dryer #ff5a2f')}
             ${this.renderTextInput('Complete Color', 'complete_color', 'washer #2f8cff, dryer #ff5a2f')}
             ${this.renderTextInput('Paused Color', 'paused_color', '#ff8a1c')}
