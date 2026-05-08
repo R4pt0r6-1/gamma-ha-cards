@@ -344,14 +344,12 @@ export class LgLaundryCard extends LitElement {
   static properties = {
     hass: { attribute: false },
     config: { state: true },
-    detailsOpen: { state: true },
     settingsOpen: { state: true },
     optimisticOperation: { state: true },
   };
 
   public hass?: HomeAssistant;
   private config!: LgLaundryCardConfig;
-  private detailsOpen = false;
   private settingsOpen = false;
   private optimisticOperation?: string;
   private optimisticTimer?: number;
@@ -1127,7 +1125,6 @@ export class LgLaundryCard extends LitElement {
       ...DEFAULT_CONFIG,
       ...config,
     };
-    this.detailsOpen = Boolean(this.config.show_details);
     this.settingsOpen = false;
 
     this.style.setProperty(
@@ -1142,7 +1139,7 @@ export class LgLaundryCard extends LitElement {
   }
 
   public getCardSize(): number {
-    return this.detailsOpen ? 6 : this.config.show_stats === false ? 3 : 4;
+    return this.config.show_stats === false ? 3 : 4;
   }
 
   public getGridOptions() {
@@ -1391,10 +1388,6 @@ export class LgLaundryCard extends LitElement {
     if (this.hasOperation(operation)) {
       this.callOperation(operation);
     }
-  }
-
-  private toggleDetails(): void {
-    this.detailsOpen = !this.detailsOpen;
   }
 
   private toggleSettings(event: Event): void {
@@ -1826,32 +1819,8 @@ export class LgLaundryCard extends LitElement {
             )}
           </div>
 
-          ${this.detailsOpen
-            ? html`
-                <section class="details">
-                  <div class="detail-header">
-                    <span class="detail-title">Available settings</span>
-                    <button
-                      type="button"
-                      class="details-close"
-                      aria-label="Close settings"
-                      title="Close settings"
-                      @click=${this.toggleDetails}
-                    >
-                      <ha-icon icon="mdi:chevron-up"></ha-icon>
-                      <span>Close</span>
-                    </button>
-                  </div>
-                  <div class="detail-grid">
-                    ${this.configuredDetailEntities().map((entityId) =>
-                      this.renderDetailEntity(entityId),
-                    )}
-                  </div>
-                </section>
-              `
-            : nothing}
-          ${this.renderSettingsDialog()}
         </article>
+        ${this.renderSettingsDialog()}
       </ha-card>
     `;
   }

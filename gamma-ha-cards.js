@@ -6778,7 +6778,7 @@ function pe(n) {
 }
 const Mt = class Mt extends f {
   constructor() {
-    super(...arguments), this.detailsOpen = !1, this.settingsOpen = !1;
+    super(...arguments), this.settingsOpen = !1;
   }
   static get styles() {
     return m`
@@ -7539,7 +7539,7 @@ const Mt = class Mt extends f {
     this.config = {
       ...Je,
       ...t
-    }, this.detailsOpen = !!this.config.show_details, this.settingsOpen = !1, this.style.setProperty(
+    }, this.settingsOpen = !1, this.style.setProperty(
       "--laundry-card-width",
       this.config.fill_container ? "100%" : this.config.width ?? "100%"
     ), this.style.setProperty(
@@ -7548,7 +7548,7 @@ const Mt = class Mt extends f {
     ), this.style.setProperty("--laundry-background", this.config.background ?? "#101722");
   }
   getCardSize() {
-    return this.detailsOpen ? 6 : this.config.show_stats === !1 ? 3 : 4;
+    return this.config.show_stats === !1 ? 3 : 4;
   }
   getGridOptions() {
     return {
@@ -7687,9 +7687,6 @@ const Mt = class Mt extends f {
     }
     const i = t ? "power_on" : "power_off";
     this.hasOperation(i) && this.callOperation(i);
-  }
-  toggleDetails() {
-    this.detailsOpen = !this.detailsOpen;
   }
   toggleSettings(t) {
     t.stopPropagation(), this.settingsOpen = !this.settingsOpen;
@@ -8001,30 +7998,8 @@ const Mt = class Mt extends f {
     )}
           </div>
 
-          ${this.detailsOpen ? a`
-                <section class="details">
-                  <div class="detail-header">
-                    <span class="detail-title">Available settings</span>
-                    <button
-                      type="button"
-                      class="details-close"
-                      aria-label="Close settings"
-                      title="Close settings"
-                      @click=${this.toggleDetails}
-                    >
-                      <ha-icon icon="mdi:chevron-up"></ha-icon>
-                      <span>Close</span>
-                    </button>
-                  </div>
-                  <div class="detail-grid">
-                    ${this.configuredDetailEntities().map(
-      (x) => this.renderDetailEntity(x)
-    )}
-                  </div>
-                </section>
-              ` : h}
-          ${this.renderSettingsDialog()}
         </article>
+        ${this.renderSettingsDialog()}
       </ha-card>
     `;
   }
@@ -8032,7 +8007,6 @@ const Mt = class Mt extends f {
 Mt.properties = {
   hass: { attribute: !1 },
   config: { state: !0 },
-  detailsOpen: { state: !0 },
   settingsOpen: { state: !0 },
   optimisticOperation: { state: !0 }
 };
@@ -9735,8 +9709,8 @@ const It = class It extends f {
             ${this.renderMachine("washer", this.config.washer)}
             ${this.renderMachine("dryer", this.config.dryer)}
           </div>
-          ${this.renderSettingsDialog()}
         </article>
+        ${this.renderSettingsDialog()}
       </ha-card>
     ` : a``;
   }

@@ -1928,8 +1928,8 @@ export class LgLaundryPairCard extends LitElement {
             ${this.renderMachine('washer', this.config.washer)}
             ${this.renderMachine('dryer', this.config.dryer)}
           </div>
-          ${this.renderSettingsDialog()}
         </article>
+        ${this.renderSettingsDialog()}
       </ha-card>
     `;
   }
