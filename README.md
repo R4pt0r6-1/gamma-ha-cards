@@ -111,6 +111,7 @@ feed_entity: number.nova_feed
 feeding_entity: binary_sensor.nova_feeding
 battery_entity: sensor.nova_battery
 last_amount_entity: sensor.nova_last_amount
+last_fed_entity: sensor.nova_last_fed
 name: Tommy Feeder
 layout: auto
 ```
@@ -125,6 +126,7 @@ The feed button calls `number.set_value` on `feed_entity` with the selected port
 | `feeding_entity`     | `string`  | Optional            | Binary sensor that is `on` while feeding. |
 | `battery_entity`     | `string`  | Optional            | Battery sensor shown as a top chip. |
 | `last_amount_entity` | `string`  | Optional            | Sensor for the last fed amount.   |
+| `last_fed_entity`    | `string`  | Optional            | Sensor or input_datetime used for the last fed time. |
 | `name`               | `string`  | Entity friendly name | Display name.                    |
 | `pet_name`           | `string`  | Optional            | Short pet name fallback.          |
 | `icon`               | `string`  | `mdi:food`           | Icon shown on the left.           |
@@ -139,6 +141,7 @@ The feed button calls `number.set_value` on `feed_entity` with the selected port
 | `background`         | `string`  | `#101722`           | Base card background.             |
 | `show_battery`       | `boolean` | `true`              | Show the battery chip when the sensor has a usable value. |
 | `show_last_amount`   | `boolean` | `true`              | Show the last amount metric when the sensor has a usable value. |
+| `show_details`       | `boolean` | `true`              | Show the bottom details strip in vertical/auto layouts. |
 | `animated`           | `boolean` | `true`              | Enable feeding glow animation.    |
 
 ## Glow Lock Card

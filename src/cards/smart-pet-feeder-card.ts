@@ -34,6 +34,7 @@ interface SmartPetFeederCardConfig {
   feeding_entity?: string;
   battery_entity?: string;
   last_amount_entity?: string;
+  last_fed_entity?: string;
   name?: string;
   pet_name?: string;
   icon?: string;
@@ -48,6 +49,7 @@ interface SmartPetFeederCardConfig {
   background?: string;
   show_battery?: boolean;
   show_last_amount?: boolean;
+  show_details?: boolean;
   animated?: boolean;
 }
 
@@ -69,6 +71,7 @@ const DEFAULT_CONFIG: Omit<SmartPetFeederCardConfig, 'feed_entity'> = {
   background: '#101722',
   show_battery: true,
   show_last_amount: true,
+  show_details: true,
   animated: true,
 };
 
@@ -234,8 +237,8 @@ export class SmartPetFeederCard extends LitElement {
       }
 
       .content {
-        align-content: center;
-        display: grid;
+        display: flex;
+        flex-direction: column;
         gap: 10px;
         height: 100%;
         position: relative;
@@ -243,7 +246,16 @@ export class SmartPetFeederCard extends LitElement {
       }
 
       .card.fill-height.layout-vertical .content {
-        align-content: space-between;
+        justify-content: flex-start;
+      }
+
+      .top-group {
+        display: grid;
+        gap: 10px;
+      }
+
+      .card.fill-height.layout-vertical .top-group {
+        margin-top: clamp(2px, 4cqi, 14px);
       }
 
       .head {
@@ -546,6 +558,46 @@ export class SmartPetFeederCard extends LitElement {
         box-shadow: none;
       }
 
+      .info-strip {
+        border-top: 1px solid rgb(255 255 255 / 9%);
+        display: none;
+        gap: 7px;
+        margin-top: auto;
+        padding-top: 10px;
+      }
+
+      .card.layout-vertical .info-strip {
+        display: grid;
+      }
+
+      .info-row {
+        align-items: center;
+        color: var(--secondary-text-color, #aeb8c6);
+        display: flex;
+        font-size: 11px;
+        font-weight: 650;
+        gap: 10px;
+        justify-content: space-between;
+        min-width: 0;
+      }
+
+      .info-label {
+        letter-spacing: 0.08em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .info-value {
+        color: var(--primary-text-color, #f4f7fb);
+        font-weight: 780;
+        overflow: hidden;
+        text-align: right;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
       @keyframes pet-feeder-pulse {
         0%,
         100% {
@@ -593,6 +645,10 @@ export class SmartPetFeederCard extends LitElement {
 
         .card.layout-auto .dose-value {
           font-size: clamp(26px, 11cqi, 34px);
+        }
+
+        .card.layout-auto .info-strip {
+          display: grid;
         }
       }
 
@@ -666,12 +722,19 @@ export class SmartPetFeederCard extends LitElement {
         (lower(entity).includes('last_amount') ||
           (lower(entity).includes('last') && lower(entity).includes('amount'))),
     );
+    const [lastFedEntity] = entities.filter(
+      (entity) =>
+        entity.startsWith('sensor.') &&
+        lower(entity).includes('last') &&
+        (lower(entity).includes('fed') || lower(entity).includes('feed')),
+    );
 
     return {
       feed_entity: feedEntity ?? '',
       ...(feedingEntity ? { feeding_entity: feedingEntity } : {}),
       ...(batteryEntity ? { battery_entity: batteryEntity } : {}),
       ...(lastAmountEntity ? { last_amount_entity: lastAmountEntity } : {}),
+      ...(lastFedEntity ? { last_fed_entity: lastFedEntity } : {}),
     };
   }
 
@@ -754,6 +817,12 @@ export class SmartPetFeederCard extends LitElement {
       : undefined;
   }
 
+  private get lastFedEntity(): FeederEntity | undefined {
+    return this.config.last_fed_entity
+      ? this.hass?.states[this.config.last_fed_entity]
+      : undefined;
+  }
+
   private get amountMin(): number {
     return toNumber(this.feedEntity?.attributes.min) ?? 1;
   }
@@ -784,6 +853,48 @@ export class SmartPetFeederCard extends LitElement {
     return isUnavailable(this.lastAmountEntity)
       ? undefined
       : toNumber(this.lastAmountEntity?.state);
+  }
+
+  private get lastFedDisplay(): string | undefined {
+    if (isUnavailable(this.lastFedEntity)) {
+      return undefined;
+    }
+
+    const state = this.lastFedEntity?.state;
+
+    if (!state) {
+      return undefined;
+    }
+
+    const timestamp = Date.parse(state);
+
+    if (Number.isFinite(timestamp)) {
+      const elapsed = Date.now() - timestamp;
+
+      if (elapsed >= 0 && elapsed < 60_000) {
+        return 'Just now';
+      }
+
+      if (elapsed >= 0 && elapsed < 3_600_000) {
+        return `${Math.max(1, Math.round(elapsed / 60_000))}m ago`;
+      }
+
+      if (elapsed >= 0 && elapsed < 86_400_000) {
+        return `${Math.max(1, Math.round(elapsed / 3_600_000))}h ago`;
+      }
+
+      if (elapsed >= 0 && elapsed < 604_800_000) {
+        return `${Math.max(1, Math.round(elapsed / 86_400_000))}d ago`;
+      }
+
+      return new Date(timestamp).toLocaleDateString([], {
+        month: 'short',
+        day: 'numeric',
+      });
+    }
+
+    const unit = this.lastFedEntity?.attributes.unit_of_measurement;
+    return unit ? `${state} ${unit}` : state;
   }
 
   private get isFeeding(): boolean {
@@ -953,6 +1064,47 @@ export class SmartPetFeederCard extends LitElement {
     `;
   }
 
+  private renderInfoStrip(): TemplateResult | typeof nothing {
+    if (!this.config.show_details) {
+      return nothing;
+    }
+
+    const rows: TemplateResult[] = [];
+
+    if (this.lastFedDisplay) {
+      rows.push(html`
+        <div class="info-row">
+          <span class="info-label">Last fed</span>
+          <span class="info-value">${this.lastFedDisplay}</span>
+        </div>
+      `);
+    }
+
+    if (this.config.show_last_amount && this.lastAmount !== undefined) {
+      rows.push(html`
+        <div class="info-row">
+          <span class="info-label">Last amount</span>
+          <span class="info-value">${formatAmount(this.lastAmount)} portions</span>
+        </div>
+      `);
+    }
+
+    if (this.config.show_battery && this.batteryPercent !== undefined) {
+      rows.push(html`
+        <div class="info-row">
+          <span class="info-label">Battery</span>
+          <span class="info-value">${Math.round(this.batteryPercent)}%</span>
+        </div>
+      `);
+    }
+
+    if (!rows.length) {
+      return nothing;
+    }
+
+    return html`<div class="info-strip">${rows}</div>`;
+  }
+
   protected render(): TemplateResult {
     if (!this.config) {
       return html``;
@@ -985,64 +1137,67 @@ export class SmartPetFeederCard extends LitElement {
             'auto'}"
         >
           <div class="content">
-            <div class="head">
-              <button
-                type="button"
-                class="identity"
-                @click=${() => this.dispatchMoreInfo(this.config.feed_entity)}
-              >
-                <span class="icon-shell">
-                  <ha-icon icon=${this.icon}></ha-icon>
-                </span>
-                <span class="title-block">
-                  <span class="name">${this.displayName}</span>
-                  <span class="status">
-                    <span class="dot"></span>
-                    ${this.statusLine}
-                  </span>
-                </span>
-              </button>
-              ${this.renderBattery()}
-            </div>
-
-            <div class="control-stack">
-              <div class="stepper">
+            <div class="top-group">
+              <div class="head">
                 <button
                   type="button"
-                  class="step-button"
-                  aria-label="Decrease portion"
-                  ?disabled=${!canDecrease || this.isFeeding}
-                  @click=${() => this.adjustAmount(-this.amountStep)}
+                  class="identity"
+                  @click=${() => this.dispatchMoreInfo(this.config.feed_entity)}
                 >
-                  <ha-icon icon="mdi:minus"></ha-icon>
+                  <span class="icon-shell">
+                    <ha-icon icon=${this.icon}></ha-icon>
+                  </span>
+                  <span class="title-block">
+                    <span class="name">${this.displayName}</span>
+                    <span class="status">
+                      <span class="dot"></span>
+                      ${this.statusLine}
+                    </span>
+                  </span>
                 </button>
+                ${this.renderBattery()}
+              </div>
 
-                <div class="dose">
-                  <span class="dose-value">${formatAmount(amount)}</span>
-                  <span class="dose-label">Portions</span>
+              <div class="control-stack">
+                <div class="stepper">
+                  <button
+                    type="button"
+                    class="step-button"
+                    aria-label="Decrease portion"
+                    ?disabled=${!canDecrease || this.isFeeding}
+                    @click=${() => this.adjustAmount(-this.amountStep)}
+                  >
+                    <ha-icon icon="mdi:minus"></ha-icon>
+                  </button>
+
+                  <div class="dose">
+                    <span class="dose-value">${formatAmount(amount)}</span>
+                    <span class="dose-label">Portions</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="step-button"
+                    aria-label="Increase portion"
+                    ?disabled=${!canIncrease || this.isFeeding}
+                    @click=${() => this.adjustAmount(this.amountStep)}
+                  >
+                    <ha-icon icon="mdi:plus"></ha-icon>
+                  </button>
                 </div>
 
                 <button
                   type="button"
-                  class="step-button"
-                  aria-label="Increase portion"
-                  ?disabled=${!canIncrease || this.isFeeding}
-                  @click=${() => this.adjustAmount(this.amountStep)}
+                  class="feed-button"
+                  ?disabled=${this.cardUnavailable || this.isFeeding}
+                  @click=${this.feedNow}
                 >
-                  <ha-icon icon="mdi:plus"></ha-icon>
+                  <ha-icon icon=${this.isFeeding ? 'mdi:progress-clock' : 'mdi:bowl'}></ha-icon>
+                  ${this.isFeeding ? 'Feeding' : 'Feed now'}
                 </button>
               </div>
-
-              <button
-                type="button"
-                class="feed-button"
-                ?disabled=${this.cardUnavailable || this.isFeeding}
-                @click=${this.feedNow}
-              >
-                <ha-icon icon=${this.isFeeding ? 'mdi:progress-clock' : 'mdi:bowl'}></ha-icon>
-                ${this.isFeeding ? 'Feeding' : 'Feed now'}
-              </button>
             </div>
+            ${this.renderInfoStrip()}
           </div>
         </div>
       </ha-card>
@@ -1174,12 +1329,17 @@ class SmartPetFeederCardEditor extends LitElement {
         name: 'last_amount_entity',
         selector: { entity: { domain: 'sensor' } },
       },
+      {
+        name: 'last_fed_entity',
+        selector: { entity: { domain: ['sensor', 'input_datetime'] } },
+      },
     ];
     const labels: Record<string, string> = {
       feed_entity: 'Feed Amount Entity',
       feeding_entity: 'Feeding State Entity',
       battery_entity: 'Battery Entity',
       last_amount_entity: 'Last Amount Entity',
+      last_fed_entity: 'Last Fed Time Entity',
     };
 
     return html`
@@ -1190,6 +1350,7 @@ class SmartPetFeederCardEditor extends LitElement {
           feeding_entity: this.config.feeding_entity,
           battery_entity: this.config.battery_entity,
           last_amount_entity: this.config.last_amount_entity,
+          last_fed_entity: this.config.last_fed_entity,
         }}
         .schema=${schema}
         .computeLabel=${(schemaItem: { name: string }) =>
@@ -1303,6 +1464,7 @@ class SmartPetFeederCardEditor extends LitElement {
           <div class="grid">
             ${this.renderSwitch('Show Battery', 'show_battery', true)}
             ${this.renderSwitch('Show Last Amount', 'show_last_amount', true)}
+            ${this.renderSwitch('Show Details', 'show_details', true)}
             ${this.renderSwitch('Animated Glow', 'animated', true)}
           </div>
         </section>
