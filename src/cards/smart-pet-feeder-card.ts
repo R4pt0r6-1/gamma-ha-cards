@@ -227,7 +227,7 @@ export class SmartPetFeederCard extends LitElement {
 
       .content {
         display: grid;
-        gap: 9px;
+        gap: 10px;
         position: relative;
         z-index: 1;
       }
@@ -302,6 +302,9 @@ export class SmartPetFeederCard extends LitElement {
         font-size: 11px;
         gap: 6px;
         min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .dot {
@@ -314,16 +317,6 @@ export class SmartPetFeederCard extends LitElement {
         width: 6px;
       }
 
-      .chips {
-        align-items: center;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
-        justify-content: flex-end;
-        min-width: 0;
-      }
-
-      .chip,
       .battery {
         align-items: center;
         appearance: none;
@@ -344,11 +337,6 @@ export class SmartPetFeederCard extends LitElement {
         white-space: nowrap;
       }
 
-      .chip b {
-        color: var(--primary-text-color, #f4f7fb);
-        font-weight: 800;
-      }
-
       .battery {
         color: var(--pet-feeder-battery-color);
         cursor: pointer;
@@ -359,32 +347,30 @@ export class SmartPetFeederCard extends LitElement {
         width: 14px;
       }
 
-      .action-row {
+      .control-stack {
         align-items: center;
         display: grid;
         gap: 8px;
-        grid-template-columns: 34px minmax(78px, 1fr) 34px minmax(88px, 0.55fr);
+        grid-template-columns: minmax(0, 1fr) minmax(92px, 0.45fr);
+      }
+
+      .stepper {
+        align-items: center;
+        display: grid;
+        gap: 8px;
+        grid-template-columns: 34px minmax(0, 1fr) 34px;
       }
 
       .card.layout-vertical {
         min-height: max(var(--pet-feeder-height), 146px);
       }
 
-      .card.layout-vertical .head {
-        align-items: start;
+      .card.layout-vertical .control-stack {
         grid-template-columns: 1fr;
       }
 
-      .card.layout-vertical .chips {
-        justify-content: flex-start;
-      }
-
-      .card.layout-vertical .action-row {
-        grid-template-columns: 34px minmax(0, 1fr) 34px;
-      }
-
-      .card.layout-vertical .feed-button {
-        grid-column: 1 / -1;
+      .card.layout-vertical .feed-button,
+      .card.layout-auto .feed-button {
         width: 100%;
       }
 
@@ -481,8 +467,11 @@ export class SmartPetFeederCard extends LitElement {
         gap: 6px;
         height: 34px;
         min-width: 0;
+        overflow: hidden;
         padding: 0 12px;
+        text-overflow: ellipsis;
         text-transform: uppercase;
+        white-space: nowrap;
       }
 
       .feed-button ha-icon {
@@ -518,33 +507,27 @@ export class SmartPetFeederCard extends LitElement {
           padding: 9px;
         }
 
-        .head {
-          align-items: start;
-        }
-
-        .chips {
-          gap: 4px;
-        }
-
-        .chip,
         .battery {
           font-size: 10px;
           min-height: 24px;
           padding: 0 7px;
         }
 
-        .card.layout-auto .action-row {
+        .control-stack {
+          gap: 7px;
+        }
+
+        .control-stack {
+          grid-template-columns: 1fr;
+        }
+
+        .stepper {
           grid-template-columns: 32px minmax(0, 1fr) 32px;
         }
 
         .step-button {
           height: 32px;
           width: 32px;
-        }
-
-        .card.layout-auto .feed-button {
-          grid-column: 1 / -1;
-          width: 100%;
         }
       }
 
@@ -713,8 +696,20 @@ export class SmartPetFeederCard extends LitElement {
 
   private get displayName(): string {
     const friendly = this.feedEntity?.attributes.friendly_name;
-    const feederName = friendly?.replace(/\s*feed\s*$/i, ' Feeder');
-    return cleanName(this.config.name || this.config.pet_name || feederName, 'Pet Feeder');
+
+    if (this.config.name) {
+      return cleanName(this.config.name, 'Pet Feeder');
+    }
+
+    if (this.config.pet_name) {
+      return cleanName(`${this.config.pet_name} Feeder`, 'Pet Feeder');
+    }
+
+    if (friendly && /feed|feeder/i.test(friendly)) {
+      return cleanName(friendly.replace(/\s*feed\s*$/i, ' Feeder'), 'Pet Feeder');
+    }
+
+    return 'Pet Feeder';
   }
 
   private get icon(): string {
@@ -732,6 +727,16 @@ export class SmartPetFeederCard extends LitElement {
     }
 
     return this.isFeeding ? 'Feeding' : 'Ready';
+  }
+
+  private get statusLine(): string {
+    const parts = [this.statusText];
+
+    if (this.config.show_last_amount && this.lastAmount !== undefined) {
+      parts.push(`Last ${formatAmount(this.lastAmount)}`);
+    }
+
+    return parts.join(' · ');
   }
 
   private get stateColor(): string {
@@ -848,24 +853,6 @@ export class SmartPetFeederCard extends LitElement {
     `;
   }
 
-  private renderChips(): TemplateResult | typeof nothing {
-    const chips: Array<TemplateResult | typeof nothing> = [];
-
-    if (this.config.show_last_amount && this.lastAmount !== undefined) {
-      chips.push(html`
-        <span class="chip">Last <b>${formatAmount(this.lastAmount)}</b></span>
-      `);
-    }
-
-    chips.push(this.renderBattery());
-
-    if (!chips.some((chip) => chip !== nothing)) {
-      return nothing;
-    }
-
-    return html`<div class="chips">${chips}</div>`;
-  }
-
   protected render(): TemplateResult {
     if (!this.config) {
       return html``;
@@ -909,38 +896,40 @@ export class SmartPetFeederCard extends LitElement {
                   <span class="name">${this.displayName}</span>
                   <span class="status">
                     <span class="dot"></span>
-                    ${this.statusText}
+                    ${this.statusLine}
                   </span>
                 </span>
               </button>
-              ${this.renderChips()}
+              ${this.renderBattery()}
             </div>
 
-            <div class="action-row">
-              <button
-                type="button"
-                class="step-button"
-                aria-label="Decrease portion"
-                ?disabled=${!canDecrease || this.isFeeding}
-                @click=${() => this.adjustAmount(-this.amountStep)}
-              >
-                <ha-icon icon="mdi:minus"></ha-icon>
-              </button>
+            <div class="control-stack">
+              <div class="stepper">
+                <button
+                  type="button"
+                  class="step-button"
+                  aria-label="Decrease portion"
+                  ?disabled=${!canDecrease || this.isFeeding}
+                  @click=${() => this.adjustAmount(-this.amountStep)}
+                >
+                  <ha-icon icon="mdi:minus"></ha-icon>
+                </button>
 
-              <div class="dose">
-                <span class="dose-value">${formatAmount(amount)}</span>
-                <span class="dose-label">Portions</span>
+                <div class="dose">
+                  <span class="dose-value">${formatAmount(amount)}</span>
+                  <span class="dose-label">Portions</span>
+                </div>
+
+                <button
+                  type="button"
+                  class="step-button"
+                  aria-label="Increase portion"
+                  ?disabled=${!canIncrease || this.isFeeding}
+                  @click=${() => this.adjustAmount(this.amountStep)}
+                >
+                  <ha-icon icon="mdi:plus"></ha-icon>
+                </button>
               </div>
-
-              <button
-                type="button"
-                class="step-button"
-                aria-label="Increase portion"
-                ?disabled=${!canIncrease || this.isFeeding}
-                @click=${() => this.adjustAmount(this.amountStep)}
-              >
-                <ha-icon icon="mdi:plus"></ha-icon>
-              </button>
 
               <button
                 type="button"
@@ -949,7 +938,7 @@ export class SmartPetFeederCard extends LitElement {
                 @click=${this.feedNow}
               >
                 <ha-icon icon=${this.isFeeding ? 'mdi:progress-clock' : 'mdi:bowl'}></ha-icon>
-                ${this.isFeeding ? 'Feeding' : `Feed ${formatAmount(amount)}`}
+                ${this.isFeeding ? 'Feeding' : 'Feed now'}
               </button>
             </div>
           </div>
