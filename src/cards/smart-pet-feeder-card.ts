@@ -537,7 +537,6 @@ export class SmartPetFeederCard extends LitElement {
             color-mix(in srgb, var(--pet-feeder-state-color) 18%, transparent);
         font-size: 12px;
         font-weight: 800;
-        gap: 6px;
         height: 34px;
         min-width: 0;
         overflow: hidden;
@@ -545,11 +544,6 @@ export class SmartPetFeederCard extends LitElement {
         text-overflow: ellipsis;
         text-transform: uppercase;
         white-space: nowrap;
-      }
-
-      .feed-button ha-icon {
-        height: 17px;
-        width: 17px;
       }
 
       .card.unavailable .feed-button {
@@ -1192,7 +1186,6 @@ export class SmartPetFeederCard extends LitElement {
                   ?disabled=${this.cardUnavailable || this.isFeeding}
                   @click=${this.feedNow}
                 >
-                  <ha-icon icon=${this.isFeeding ? 'mdi:progress-clock' : 'mdi:bowl'}></ha-icon>
                   ${this.isFeeding ? 'Feeding' : 'Feed now'}
                 </button>
               </div>

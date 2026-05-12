@@ -22,14 +22,14 @@ let Ce = class {
     return this.cssText;
   }
 };
-const Fe = (o) => new Ce(typeof o == "string" ? o : o + "", void 0, Ot), m = (o, ...t) => {
+const Ie = (o) => new Ce(typeof o == "string" ? o : o + "", void 0, Ot), m = (o, ...t) => {
   const e = o.length === 1 ? o[0] : t.reduce((i, r, n) => i + ((s) => {
     if (s._$cssResult$ === !0) return s.cssText;
     if (typeof s == "number") return s;
     throw Error("Value passed to 'css' function must be a 'css' function result: " + s + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
   })(r) + o[n + 1], o[0]);
   return new Ce(e, o, Ot);
-}, Ie = (o, t) => {
+}, Fe = (o, t) => {
   if (Pt) o.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
   else for (const e of t) {
     const i = document.createElement("style"), r = J.litNonce;
@@ -38,7 +38,7 @@ const Fe = (o) => new Ce(typeof o == "string" ? o : o + "", void 0, Ot), m = (o,
 }, ie = Pt ? (o) => o : (o) => o instanceof CSSStyleSheet ? ((t) => {
   let e = "";
   for (const i of t.cssRules) e += i.cssText;
-  return Fe(e);
+  return Ie(e);
 })(o) : o;
 /**
  * @license
@@ -159,7 +159,7 @@ let O = class extends HTMLElement {
   }
   createRenderRoot() {
     const t = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
-    return Ie(t, this.constructor.elementStyles), t;
+    return Fe(t, this.constructor.elementStyles), t;
   }
   connectedCallback() {
     var t;
@@ -596,7 +596,7 @@ function ri(o, t) {
     })
   );
 }
-const Ft = class Ft extends f {
+const It = class It extends f {
   constructor() {
     super(...arguments), this.holdActive = !1, this.isDimming = !1, this.pendingDimmerPointer = !1, this.pointerStartX = 0, this.pointerStartY = 0, this.suppressClick = !1;
   }
@@ -1673,7 +1673,7 @@ const Ft = class Ft extends f {
     `;
   }
 };
-Ft.properties = {
+It.properties = {
   hass: { attribute: !1 },
   config: { state: !0 },
   holdActive: { state: !0 },
@@ -1685,9 +1685,9 @@ Ft.properties = {
   optimisticKelvin: { state: !0 },
   optimisticEffect: { state: !0 }
 };
-let at = Ft;
+let at = It;
 customElements.get("glow-light-card") || customElements.define("glow-light-card", at);
-const It = class It extends f {
+const Ft = class Ft extends f {
   constructor() {
     super(...arguments), this.config = {};
   }
@@ -1909,11 +1909,11 @@ const It = class It extends f {
     `;
   }
 };
-It.properties = {
+Ft.properties = {
   hass: { attribute: !1 },
   config: { state: !0 }
 };
-let ct = It;
+let ct = Ft;
 customElements.get("glow-light-card-editor") || customElements.define("glow-light-card-editor", ct);
 window.customCards = window.customCards || [];
 window.customCards.push({
@@ -5850,7 +5850,7 @@ function ui(o, t) {
     })
   );
 }
-function F(o, t) {
+function I(o, t) {
   if (typeof o == "number" && Number.isFinite(o))
     return o;
   if (typeof o == "string") {
@@ -6184,9 +6184,9 @@ const Wt = class Wt extends f {
     this.config = {
       ...we,
       ...t,
-      speed_1_percentage: F(t.speed_1_percentage, 33),
-      speed_2_percentage: F(t.speed_2_percentage, 66),
-      speed_3_percentage: F(t.speed_3_percentage, 100)
+      speed_1_percentage: I(t.speed_1_percentage, 33),
+      speed_2_percentage: I(t.speed_2_percentage, 66),
+      speed_3_percentage: I(t.speed_3_percentage, 100)
     }, this.style.setProperty(
       "--fan-card-width",
       this.config.fill_container ? "100%" : this.config.width ?? "260px"
@@ -6221,11 +6221,11 @@ const Wt = class Wt extends f {
   }
   get percentage() {
     var t;
-    return this.optimisticLevel !== void 0 ? this.optimisticLevel === 0 ? 0 : this.percentageForLevel(this.optimisticLevel) : this.isOn ? F((t = this.entity) == null ? void 0 : t.attributes.percentage, 100) : 0;
+    return this.optimisticLevel !== void 0 ? this.optimisticLevel === 0 ? 0 : this.percentageForLevel(this.optimisticLevel) : this.isOn ? I((t = this.entity) == null ? void 0 : t.attributes.percentage, 100) : 0;
   }
   get entityPercentage() {
     var t, e;
-    return ((t = this.entity) == null ? void 0 : t.state) !== "on" ? 0 : F((e = this.entity) == null ? void 0 : e.attributes.percentage, 100);
+    return ((t = this.entity) == null ? void 0 : t.state) !== "on" ? 0 : I((e = this.entity) == null ? void 0 : e.attributes.percentage, 100);
   }
   levelFromPercentage(t) {
     if (t <= 0)
@@ -9984,7 +9984,7 @@ const zi = {
   background: "#101722",
   energy_price_cents_per_kwh: void 0
 };
-function I(o) {
+function F(o) {
   return o === void 0 ? "--" : `${new Intl.NumberFormat(void 0, {
     maximumFractionDigits: o >= 10 ? 1 : 2,
     minimumFractionDigits: o >= 10 ? 1 : 2
@@ -10421,7 +10421,7 @@ const Jt = class Jt extends f {
   }
   displayEnergy(t) {
     const e = this.entity(t);
-    return W(e, this.config.energy_price_cents_per_kwh) ?? I(vt(e));
+    return W(e, this.config.energy_price_cents_per_kwh) ?? F(vt(e));
   }
   monthLabel() {
     return new Intl.DateTimeFormat(void 0, {
@@ -10434,7 +10434,7 @@ const Jt = class Jt extends f {
     if (i !== void 0 || r !== void 0)
       return Y((i ?? 0) + (r ?? 0));
     const n = this.energy(t), s = this.energy(e);
-    return n === void 0 && s === void 0 ? "--" : I((n ?? 0) + (s ?? 0));
+    return n === void 0 && s === void 0 ? "--" : F((n ?? 0) + (s ?? 0));
   }
   totalMonthCost() {
     const t = this.cost(this.config.washer_energy_entity), e = this.cost(this.config.dryer_energy_entity);
@@ -10489,7 +10489,7 @@ const Jt = class Jt extends f {
         </div>
         <div class="machine-report-main">
           <span class="machine-report-cost">${this.displayEnergy(e)}</span>
-          <span class="machine-report-kwh">${I(this.energy(e))}</span>
+          <span class="machine-report-kwh">${F(this.energy(e))}</span>
         </div>
         <div class="machine-report-meta">
           <span class="meta-item">
@@ -10528,7 +10528,7 @@ const Jt = class Jt extends f {
             <div class="hero-main">
               <span class="hero-label">Monthly spend</span>
               <span class="hero-value">
-                ${t !== void 0 ? Y(t) : I(e)}
+                ${t !== void 0 ? Y(t) : F(e)}
               </span>
               <span class="hero-sub">${this.dryerShare()}</span>
             </div>
@@ -10564,7 +10564,7 @@ const Jt = class Jt extends f {
           <section class="summary-grid">
             <div class="summary">
               <span>Energy</span>
-              <strong>${I(e)}</strong>
+              <strong>${F(e)}</strong>
             </div>
             <div class="summary">
               <span>Cycles</span>
@@ -10622,7 +10622,7 @@ window.customCards.push({
   name: "LG Laundry Usage Card",
   description: "A glassy laundry energy and cost analytics card."
 });
-const Fi = {
+const Ii = {
   name: "Atom Echo Voice",
   width: "360px",
   fill_container: !1,
@@ -10650,7 +10650,7 @@ const Fi = {
     icon: "mdi:format-list-bulleted"
   }
 ];
-function Ii(o, t) {
+function Fi(o, t) {
   o.dispatchEvent(
     new CustomEvent("config-changed", {
       detail: { config: t },
@@ -10898,7 +10898,7 @@ const Xt = class Xt extends f {
   }
   setConfig(t) {
     this.config = {
-      ...Fi,
+      ...Ii,
       ...t
     }, this.style.setProperty(
       "--voice-card-width",
@@ -11078,7 +11078,7 @@ const Zt = class Zt extends f {
     Object.keys(e).forEach((i) => {
       const r = i;
       e[r] === "" && delete e[r];
-    }), this.config = e, Ii(this, e);
+    }), this.config = e, Fi(this, e);
   }
   valueChanged(t) {
     var r;
@@ -11643,7 +11643,6 @@ const Qt = class Qt extends f {
             color-mix(in srgb, var(--pet-feeder-state-color) 18%, transparent);
         font-size: 12px;
         font-weight: 800;
-        gap: 6px;
         height: 34px;
         min-width: 0;
         overflow: hidden;
@@ -11651,11 +11650,6 @@ const Qt = class Qt extends f {
         text-overflow: ellipsis;
         text-transform: uppercase;
         white-space: nowrap;
-      }
-
-      .feed-button ha-icon {
-        height: 17px;
-        width: 17px;
       }
 
       .card.unavailable .feed-button {
@@ -12109,7 +12103,6 @@ const Qt = class Qt extends f {
                   ?disabled=${this.cardUnavailable || this.isFeeding}
                   @click=${this.feedNow}
                 >
-                  <ha-icon icon=${this.isFeeding ? "mdi:progress-clock" : "mdi:bowl"}></ha-icon>
                   ${this.isFeeding ? "Feeding" : "Feed now"}
                 </button>
               </div>
