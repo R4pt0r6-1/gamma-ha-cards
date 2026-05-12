@@ -133,6 +133,9 @@ export class GlowLightCard extends LitElement {
     controlMode: { state: true },
     optimisticOn: { state: true },
     optimisticBrightnessPercent: { state: true },
+    optimisticRgb: { state: true },
+    optimisticKelvin: { state: true },
+    optimisticEffect: { state: true },
   };
 
   public hass?: HomeAssistant;
@@ -144,6 +147,9 @@ export class GlowLightCard extends LitElement {
   private controlMode?: LightControlMode;
   private optimisticOn?: boolean;
   private optimisticBrightnessPercent?: number;
+  private optimisticRgb?: number[];
+  private optimisticKelvin?: number;
+  private optimisticEffect?: string;
   private isDimming = false;
   private pendingDimmerPointer = false;
   private pointerStartX = 0;
@@ -570,17 +576,22 @@ export class GlowLightCard extends LitElement {
       }
 
       .swatches {
-        background: var(--swatch-line);
-        border: 1px solid rgb(255 255 255 / 12%);
-        border-radius: 999px;
+        align-items: center;
+        background:
+          linear-gradient(180deg, rgb(255 255 255 / 9%), rgb(255 255 255 / 4%)),
+          rgb(0 0 0 / 14%);
+        border: 1px solid rgb(255 255 255 / 10%);
+        border-radius: 16px;
         box-shadow:
-          inset 0 1px 0 rgb(255 255 255 / 22%),
-          0 8px 14px rgb(0 0 0 / 14%);
+          inset 0 1px 0 rgb(255 255 255 / 12%),
+          inset 0 -8px 16px rgb(0 0 0 / 10%),
+          0 8px 14px rgb(0 0 0 / 12%);
         display: grid;
-        gap: 0;
-        grid-template-columns: repeat(6, minmax(0, 1fr));
-        height: 24px;
-        overflow: hidden;
+        gap: 6px;
+        grid-template-columns: repeat(auto-fit, minmax(24px, 1fr));
+        min-height: 36px;
+        overflow: visible;
+        padding: 5px;
       }
 
       .swatch,
@@ -592,40 +603,54 @@ export class GlowLightCard extends LitElement {
 
       .swatch {
         align-items: center;
-        background: transparent;
-        border: 0;
-        border-left: 1px solid rgb(255 255 255 / 16%);
-        border-radius: 0;
-        box-shadow: none;
+        background:
+          radial-gradient(circle at 34% 28%, rgb(255 255 255 / 42%), transparent 30%),
+          var(--swatch-color, #ffffff);
+        border: 1px solid rgb(255 255 255 / 22%);
+        border-radius: 999px;
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 22%),
+          inset 0 -8px 12px rgb(0 0 0 / 14%),
+          0 4px 10px rgb(0 0 0 / 16%);
         display: inline-flex;
-        height: 100%;
+        height: 24px;
         justify-content: center;
         padding: 0;
         position: relative;
+        transition:
+          border-color 140ms ease,
+          box-shadow 140ms ease,
+          transform 140ms ease;
+        width: 100%;
       }
 
-      .swatch:first-child {
-        border-left: 0;
+      .swatch:active {
+        transform: scale(0.94);
       }
 
       .swatch.active {
-        background: rgb(255 255 255 / 18%);
+        border-color: rgb(255 255 255 / 70%);
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 28%),
+          inset 0 -8px 12px rgb(0 0 0 / 14%),
+          0 0 0 2px color-mix(in srgb, var(--glow-state-color) 38%, transparent),
+          0 8px 16px rgb(0 0 0 / 20%);
       }
 
       .swatch.active::after {
         align-items: center;
-        background: rgb(0 0 0 / 42%);
-        border: 1px solid rgb(255 255 255 / 34%);
+        background: rgb(0 0 0 / 48%);
+        border: 1px solid rgb(255 255 255 / 42%);
         border-radius: 999px;
         color: #ffffff;
         content: '✓';
         display: inline-flex;
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 800;
-        height: 14px;
+        height: 13px;
         justify-content: center;
         line-height: 1;
-        width: 14px;
+        width: 13px;
       }
 
       .effect-list {
@@ -841,6 +866,10 @@ export class GlowLightCard extends LitElement {
   }
 
   private get currentRgb(): number[] | undefined {
+    if (this.optimisticRgb) {
+      return this.optimisticRgb;
+    }
+
     const rgb = this.entity?.attributes.rgb_color;
 
     if (!Array.isArray(rgb) || rgb.length < 3) {
@@ -853,9 +882,17 @@ export class GlowLightCard extends LitElement {
   }
 
   private get currentKelvin(): number | undefined {
+    if (typeof this.optimisticKelvin === 'number') {
+      return this.optimisticKelvin;
+    }
+
     const kelvin = this.entity?.attributes.color_temp_kelvin;
 
     return typeof kelvin === 'number' ? kelvin : undefined;
+  }
+
+  private get currentEffect(): string {
+    return this.optimisticEffect ?? String(this.entity?.attributes.effect || '');
   }
 
   private get colorPresets(): LightColorPreset[] {
@@ -870,8 +907,17 @@ export class GlowLightCard extends LitElement {
     }
 
     const rgb = this.currentRgb;
+    const kelvin = this.currentKelvin;
 
-    return rgb ? this.rgbToCss(rgb) : this.config.on_color ?? '#ff8a1c';
+    if (rgb) {
+      return this.rgbToCss(rgb);
+    }
+
+    if (typeof kelvin === 'number') {
+      return this.kelvinToCss(kelvin);
+    }
+
+    return this.config.on_color ?? '#ff8a1c';
   }
 
   private get brightnessPercent(): number | undefined {
@@ -1008,6 +1054,9 @@ export class GlowLightCard extends LitElement {
     window.clearTimeout(this.optimisticTimer);
     this.optimisticOn = undefined;
     this.optimisticBrightnessPercent = undefined;
+    this.optimisticRgb = undefined;
+    this.optimisticKelvin = undefined;
+    this.optimisticEffect = undefined;
   }
 
   private trackServiceResult(result: Promise<unknown> | void): void {
@@ -1097,6 +1146,23 @@ export class GlowLightCard extends LitElement {
     }
 
     this.setOptimisticOn(true, brightness);
+
+    if (Array.isArray(options.rgb_color)) {
+      this.optimisticRgb = options.rgb_color
+        .slice(0, 3)
+        .map((value) => Math.max(0, Math.min(255, Math.round(Number(value) || 0))));
+      this.optimisticKelvin = undefined;
+    }
+
+    if (typeof options.color_temp_kelvin === 'number') {
+      this.optimisticKelvin = options.color_temp_kelvin;
+      this.optimisticRgb = undefined;
+    }
+
+    if (typeof options.effect === 'string') {
+      this.optimisticEffect = options.effect;
+    }
+
     this.trackServiceResult(this.hass?.callService('light', 'turn_on', serviceData));
   }
 
@@ -1314,17 +1380,15 @@ export class GlowLightCard extends LitElement {
     const presets = this.colorPresets.filter((preset) =>
       Array.isArray(preset.rgb_color),
     );
-    const gradient = `linear-gradient(90deg, ${presets
-      .map((preset) => this.rgbToCss(preset.rgb_color ?? [255, 255, 255]))
-      .join(', ')})`;
 
     return html`
-      <span class="swatches" style="--swatch-line: ${gradient}" aria-label="Color presets">
+      <span class="swatches" aria-label="Color presets">
         ${presets.map(
           (preset) => html`
             <button
               type="button"
               class="swatch ${this.isColorPresetActive(preset) ? 'active' : ''}"
+              style=${`--swatch-color: ${this.rgbToCss(preset.rgb_color ?? [255, 255, 255])}`}
               aria-label=${`Set ${preset.name}`}
               title=${preset.name}
               @pointerdown=${this.stopControlEvent}
@@ -1339,14 +1403,9 @@ export class GlowLightCard extends LitElement {
   }
 
   private renderTemperatureControls(): TemplateResult {
-    const gradient = `linear-gradient(90deg, ${DEFAULT_TEMP_PRESETS.map((preset) =>
-      this.kelvinToCss(preset.color_temp_kelvin ?? 3000),
-    ).join(', ')})`;
-
     return html`
       <span
         class="swatches"
-        style="--swatch-line: ${gradient}"
         aria-label="Color temperature presets"
       >
         ${DEFAULT_TEMP_PRESETS.map(
@@ -1354,6 +1413,7 @@ export class GlowLightCard extends LitElement {
             <button
               type="button"
               class="swatch ${this.isTemperaturePresetActive(preset) ? 'active' : ''}"
+              style=${`--swatch-color: ${this.kelvinToCss(preset.color_temp_kelvin ?? 3000)}`}
               aria-label=${`Set ${preset.name}`}
               title=${`${preset.name} ${preset.color_temp_kelvin}K`}
               @pointerdown=${this.stopControlEvent}
@@ -1369,7 +1429,7 @@ export class GlowLightCard extends LitElement {
   }
 
   private renderEffectControls(): TemplateResult {
-    const currentEffect = String(this.entity?.attributes.effect || '');
+    const currentEffect = this.currentEffect;
 
     return html`
       <span class="effect-list" aria-label="Light effects">
