@@ -11197,6 +11197,7 @@ const _e = {
   icon: "mdi:food",
   width: "320px",
   fill_container: !1,
+  fill_height: !0,
   height: "118px",
   border_radius: "18px",
   layout: "auto",
@@ -11245,6 +11246,7 @@ const Zt = class Zt extends f {
 
         container-type: inline-size;
         display: block;
+        height: var(--pet-feeder-host-height, auto);
         max-width: var(--pet-feeder-width);
         width: 100%;
       }
@@ -11254,6 +11256,7 @@ const Zt = class Zt extends f {
         border: 0;
         box-shadow: none;
         display: block;
+        height: 100%;
         overflow: visible;
       }
 
@@ -11292,6 +11295,10 @@ const Zt = class Zt extends f {
         padding: 10px;
         position: relative;
         width: 100%;
+      }
+
+      .card.fill-height {
+        height: 100%;
       }
 
       .card::before {
@@ -11335,10 +11342,16 @@ const Zt = class Zt extends f {
       }
 
       .content {
+        align-content: center;
         display: grid;
         gap: 10px;
+        height: 100%;
         position: relative;
         z-index: 1;
+      }
+
+      .card.fill-height.layout-vertical .content {
+        align-content: space-between;
       }
 
       .head {
@@ -11624,9 +11637,6 @@ const Zt = class Zt extends f {
 
         .control-stack {
           gap: 7px;
-        }
-
-        .control-stack {
           grid-template-columns: 1fr;
         }
 
@@ -11678,6 +11688,9 @@ const Zt = class Zt extends f {
       "--pet-feeder-width",
       this.config.fill_container ? "100%" : this.config.width ?? "320px"
     ), this.style.setProperty(
+      "--pet-feeder-host-height",
+      this.config.fill_height ? "100%" : "auto"
+    ), this.style.setProperty(
       "--pet-feeder-height",
       this.config.height ?? "118px"
     ), this.style.setProperty(
@@ -11702,9 +11715,9 @@ const Zt = class Zt extends f {
     return {
       rows: ((e = this.config) == null ? void 0 : e.layout) === "vertical" ? 3 : 2,
       columns: 6,
-      min_rows: 2,
-      max_rows: 4,
-      min_columns: 4,
+      min_rows: 1,
+      max_rows: 6,
+      min_columns: 2,
       max_columns: 12
     };
   }
@@ -11853,7 +11866,7 @@ const Zt = class Zt extends f {
         "
       >
         <div
-          class="card ${this.isFeeding ? "feeding" : ""} ${this.cardUnavailable ? "unavailable" : ""} ${this.config.animated ? "animated" : ""} layout-${this.config.layout ?? "auto"}"
+          class="card ${this.isFeeding ? "feeding" : ""} ${this.cardUnavailable ? "unavailable" : ""} ${this.config.animated ? "animated" : ""} ${this.config.fill_height ? "fill-height" : ""} layout-${this.config.layout ?? "auto"}"
         >
           <div class="content">
             <div class="head">
@@ -12111,6 +12124,7 @@ const Qt = class Qt extends f {
           </div>
           <div class="grid">
             ${this.renderSwitch("Fill Container", "fill_container", !1)}
+            ${this.renderSwitch("Fill Height", "fill_height", !0)}
           </div>
         </section>
 

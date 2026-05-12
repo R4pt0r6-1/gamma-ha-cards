@@ -130,6 +130,7 @@ The feed button calls `number.set_value` on `feed_entity` with the selected port
 | `icon`               | `string`  | `mdi:food`           | Icon shown on the left.           |
 | `width`              | `string`  | `320px`             | CSS width of the card.            |
 | `fill_container`     | `boolean` | `false`             | Stretch the card to the full dashboard column width. |
+| `fill_height`        | `boolean` | `true`              | Stretch the card to the dashboard grid height. |
 | `height`             | `string`  | `118px`             | CSS minimum height of the card.   |
 | `border_radius`      | `string`  | `18px`              | CSS border radius.                |
 | `layout`             | `string`  | `auto`              | `auto`, `horizontal`, or `vertical`. |

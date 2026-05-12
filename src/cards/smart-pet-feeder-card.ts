@@ -39,6 +39,7 @@ interface SmartPetFeederCardConfig {
   icon?: string;
   width?: string;
   fill_container?: boolean;
+  fill_height?: boolean;
   height?: string;
   border_radius?: string;
   layout?: FeederLayout;
@@ -59,6 +60,7 @@ const DEFAULT_CONFIG: Omit<SmartPetFeederCardConfig, 'feed_entity'> = {
   icon: 'mdi:food',
   width: '320px',
   fill_container: false,
+  fill_height: true,
   height: '118px',
   border_radius: '18px',
   layout: 'auto',
@@ -136,6 +138,7 @@ export class SmartPetFeederCard extends LitElement {
 
         container-type: inline-size;
         display: block;
+        height: var(--pet-feeder-host-height, auto);
         max-width: var(--pet-feeder-width);
         width: 100%;
       }
@@ -145,6 +148,7 @@ export class SmartPetFeederCard extends LitElement {
         border: 0;
         box-shadow: none;
         display: block;
+        height: 100%;
         overflow: visible;
       }
 
@@ -183,6 +187,10 @@ export class SmartPetFeederCard extends LitElement {
         padding: 10px;
         position: relative;
         width: 100%;
+      }
+
+      .card.fill-height {
+        height: 100%;
       }
 
       .card::before {
@@ -226,10 +234,16 @@ export class SmartPetFeederCard extends LitElement {
       }
 
       .content {
+        align-content: center;
         display: grid;
         gap: 10px;
+        height: 100%;
         position: relative;
         z-index: 1;
+      }
+
+      .card.fill-height.layout-vertical .content {
+        align-content: space-between;
       }
 
       .head {
@@ -515,9 +529,6 @@ export class SmartPetFeederCard extends LitElement {
 
         .control-stack {
           gap: 7px;
-        }
-
-        .control-stack {
           grid-template-columns: 1fr;
         }
 
@@ -594,6 +605,10 @@ export class SmartPetFeederCard extends LitElement {
       this.config.fill_container ? '100%' : this.config.width ?? '320px',
     );
     this.style.setProperty(
+      '--pet-feeder-host-height',
+      this.config.fill_height ? '100%' : 'auto',
+    );
+    this.style.setProperty(
       '--pet-feeder-height',
       this.config.height ?? '118px',
     );
@@ -625,9 +640,9 @@ export class SmartPetFeederCard extends LitElement {
     return {
       rows: vertical ? 3 : 2,
       columns: 6,
-      min_rows: 2,
-      max_rows: 4,
-      min_columns: 4,
+      min_rows: 1,
+      max_rows: 6,
+      min_columns: 2,
       max_columns: 12,
     };
   }
@@ -879,7 +894,9 @@ export class SmartPetFeederCard extends LitElement {
         <div
           class="card ${this.isFeeding ? 'feeding' : ''} ${this.cardUnavailable
             ? 'unavailable'
-            : ''} ${this.config.animated ? 'animated' : ''} layout-${this.config.layout ??
+            : ''} ${this.config.animated ? 'animated' : ''} ${this.config.fill_height
+            ? 'fill-height'
+            : ''} layout-${this.config.layout ??
             'auto'}"
         >
           <div class="content">
@@ -1187,6 +1204,7 @@ class SmartPetFeederCardEditor extends LitElement {
           </div>
           <div class="grid">
             ${this.renderSwitch('Fill Container', 'fill_container', false)}
+            ${this.renderSwitch('Fill Height', 'fill_height', true)}
           </div>
         </section>
 
