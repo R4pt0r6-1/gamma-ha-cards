@@ -241,10 +241,10 @@ export class GlowLightCard extends LitElement {
         border-radius: min(var(--glow-card-radius), 22px);
         cursor: default;
         display: grid;
-        gap: 3px;
+        gap: 7px;
         grid-template-columns: 1fr;
-        min-height: max(108px, var(--glow-card-height));
-        padding: 5px 10px;
+        min-height: max(122px, var(--glow-card-height));
+        padding: 9px 11px 10px;
       }
 
       .button::before {
@@ -471,49 +471,51 @@ export class GlowLightCard extends LitElement {
       .panel-header {
         align-items: center;
         display: grid;
-        gap: 7px;
-        grid-template-columns: 26px minmax(0, 1fr) auto;
-        min-height: 26px;
+        gap: 8px;
+        grid-template-columns: 30px minmax(0, 1fr) auto;
+        min-height: 30px;
       }
 
       .panel .icon-shell {
-        height: 26px;
-        width: 26px;
+        height: 30px;
+        width: 30px;
       }
 
       .panel .icon-shell ha-icon {
-        --mdc-icon-size: 15px;
+        --mdc-icon-size: 17px;
       }
 
       .panel .name {
-        font-size: 11px;
-        font-weight: 650;
+        font-size: 13px;
+        font-weight: 720;
       }
 
       .panel .state {
-        font-size: 10px;
+        font-size: 11px;
         line-height: 1.1;
-        margin-top: 1px;
+        margin-top: 2px;
       }
 
       .level {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 11px;
-        font-weight: 700;
+        font-size: 12px;
+        font-weight: 760;
         line-height: 1;
-        min-width: 30px;
+        min-width: 34px;
         text-align: right;
       }
 
       .brightness-control {
         appearance: none;
-        background: rgb(255 255 255 / 10%);
-        border: 1px solid rgb(255 255 255 / 11%);
-        border-radius: 10px;
-        box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%);
+        background: rgb(255 255 255 / 12%);
+        border: 0;
+        border-radius: 999px;
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 8%),
+          inset 0 -1px 0 rgb(0 0 0 / 18%);
         cursor: pointer;
         display: block;
-        height: 12px;
+        height: 8px;
         overflow: hidden;
         padding: 0;
         touch-action: pan-y;
@@ -524,24 +526,26 @@ export class GlowLightCard extends LitElement {
         background:
           linear-gradient(
             90deg,
-            color-mix(in srgb, var(--glow-state-color) 70%, #ff9a52),
-            #fff6eb
+            color-mix(in srgb, var(--glow-state-color) 76%, #ffffff 8%),
+            color-mix(in srgb, var(--glow-state-color) 38%, #ffffff 42%)
           );
         border-radius: inherit;
+        box-shadow: 0 0 14px color-mix(in srgb, var(--glow-state-color) 34%, transparent);
         display: block;
         height: 100%;
+        transition: width 140ms ease;
         width: var(--glow-slider-percent);
       }
 
       .mode-tabs {
-        background: rgb(0 0 0 / 16%);
+        background: rgb(0 0 0 / 14%);
         border: 1px solid rgb(255 255 255 / 10%);
-        border-radius: 999px;
+        border-radius: 12px;
         display: grid;
         gap: 2px;
         grid-auto-columns: minmax(0, 1fr);
         grid-auto-flow: column;
-        min-height: 19px;
+        min-height: 24px;
         padding: 2px;
       }
 
@@ -553,7 +557,7 @@ export class GlowLightCard extends LitElement {
         color: var(--secondary-text-color, #b7c0ce);
         cursor: pointer;
         font: inherit;
-        font-size: 9px;
+        font-size: 10px;
         font-weight: 700;
         letter-spacing: 0;
         padding: 0 8px;
@@ -572,26 +576,17 @@ export class GlowLightCard extends LitElement {
 
       .control-panel {
         display: grid;
-        gap: 0;
+        gap: 6px;
       }
 
       .swatches {
         align-items: center;
-        background:
-          linear-gradient(180deg, rgb(255 255 255 / 9%), rgb(255 255 255 / 4%)),
-          rgb(0 0 0 / 14%);
-        border: 1px solid rgb(255 255 255 / 10%);
-        border-radius: 16px;
-        box-shadow:
-          inset 0 1px 0 rgb(255 255 255 / 12%),
-          inset 0 -8px 16px rgb(0 0 0 / 10%),
-          0 8px 14px rgb(0 0 0 / 12%);
-        display: grid;
-        gap: 6px;
-        grid-template-columns: repeat(auto-fit, minmax(24px, 1fr));
-        min-height: 36px;
+        display: flex;
+        gap: 8px;
+        justify-content: space-between;
+        min-height: 28px;
         overflow: visible;
-        padding: 5px;
+        padding: 0;
       }
 
       .swatch,
@@ -613,7 +608,8 @@ export class GlowLightCard extends LitElement {
           inset 0 -8px 12px rgb(0 0 0 / 14%),
           0 4px 10px rgb(0 0 0 / 16%);
         display: inline-flex;
-        height: 24px;
+        flex: 0 0 26px;
+        height: 26px;
         justify-content: center;
         padding: 0;
         position: relative;
@@ -621,7 +617,7 @@ export class GlowLightCard extends LitElement {
           border-color 140ms ease,
           box-shadow 140ms ease,
           transform 140ms ease;
-        width: 100%;
+        width: 26px;
       }
 
       .swatch:active {
@@ -629,28 +625,24 @@ export class GlowLightCard extends LitElement {
       }
 
       .swatch.active {
-        border-color: rgb(255 255 255 / 70%);
+        border-color: rgb(255 255 255 / 82%);
         box-shadow:
           inset 0 1px 0 rgb(255 255 255 / 28%),
           inset 0 -8px 12px rgb(0 0 0 / 14%),
-          0 0 0 2px color-mix(in srgb, var(--glow-state-color) 38%, transparent),
+          0 0 0 2px rgb(255 255 255 / 22%),
+          0 0 0 5px color-mix(in srgb, var(--glow-state-color) 28%, transparent),
           0 8px 16px rgb(0 0 0 / 20%);
       }
 
       .swatch.active::after {
-        align-items: center;
-        background: rgb(0 0 0 / 48%);
-        border: 1px solid rgb(255 255 255 / 42%);
+        background: rgb(255 255 255 / 92%);
         border-radius: 999px;
-        color: #ffffff;
-        content: '✓';
-        display: inline-flex;
-        font-size: 9px;
-        font-weight: 800;
-        height: 13px;
-        justify-content: center;
-        line-height: 1;
-        width: 13px;
+        box-shadow:
+          0 1px 4px rgb(0 0 0 / 34%),
+          0 0 10px rgb(255 255 255 / 24%);
+        content: '';
+        height: 7px;
+        width: 7px;
       }
 
       .effect-list {
@@ -968,6 +960,14 @@ export class GlowLightCard extends LitElement {
 
     if (this.isOn && brightness !== undefined && (mode === 'brightness' || mode === 'auto')) {
       return `${brightness}%`;
+    }
+
+    return this.isOn ? 'On' : 'Off';
+  }
+
+  private get displayPowerState(): string {
+    if (this.isUnavailable) {
+      return 'Unavailable';
     }
 
     return this.isOn ? 'On' : 'Off';
@@ -1527,7 +1527,7 @@ export class GlowLightCard extends LitElement {
           <span class="content">
             <span class="name">${this.displayName}</span>
             ${this.config.show_state
-              ? html`<span class="state">${this.displayState}</span>`
+              ? html`<span class="state">${this.displayPowerState}</span>`
               : nothing}
           </span>
           <span class="level">${this.activeBrightnessPercent}%</span>

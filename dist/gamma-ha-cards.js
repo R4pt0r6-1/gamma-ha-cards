@@ -284,14 +284,14 @@ P.elementStyles = [], P.shadowRootOptions = { mode: "open" }, P[D("elementProper
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const N = globalThis, Xt = (n) => n, Y = N.trustedTypes, Zt = Y ? Y.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, xe = "$lit$", w = `lit$${Math.random().toFixed(9).slice(2)}$`, we = "?" + w, Ie = `<${we}>`, T = document, F = () => T.createComment(""), L = (n) => n === null || typeof n != "object" && typeof n != "function", Ct = Array.isArray, De = (n) => Ct(n) || typeof (n == null ? void 0 : n[Symbol.iterator]) == "function", Q = `[ 	
+const U = globalThis, Xt = (n) => n, Y = U.trustedTypes, Zt = Y ? Y.createPolicy("lit-html", { createHTML: (n) => n }) : void 0, xe = "$lit$", w = `lit$${Math.random().toFixed(9).slice(2)}$`, we = "?" + w, Ie = `<${we}>`, T = document, F = () => T.createComment(""), L = (n) => n === null || typeof n != "object" && typeof n != "function", Ct = Array.isArray, De = (n) => Ct(n) || typeof (n == null ? void 0 : n[Symbol.iterator]) == "function", Q = `[ 	
 \f\r]`, M = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, Qt = /-->/g, te = />/g, $ = RegExp(`>|${Q}(?:([^\\s"'>=/]+)(${Q}*=${Q}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), ee = /'/g, ie = /"/g, ve = /^(?:script|style|textarea|title)$/i, Ne = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), a = Ne(1), O = Symbol.for("lit-noChange"), d = Symbol.for("lit-nothing"), re = /* @__PURE__ */ new WeakMap(), k = T.createTreeWalker(T, 129);
+\f\r"'\`<>=]|("|')|))|$)`, "g"), ee = /'/g, ie = /"/g, ve = /^(?:script|style|textarea|title)$/i, Ue = (n) => (t, ...e) => ({ _$litType$: n, strings: t, values: e }), a = Ue(1), O = Symbol.for("lit-noChange"), d = Symbol.for("lit-nothing"), re = /* @__PURE__ */ new WeakMap(), k = T.createTreeWalker(T, 129);
 function ye(n, t) {
   if (!Ct(n) || !n.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return Zt !== void 0 ? Zt.createHTML(t) : t;
 }
-const Ue = (n, t) => {
+const Ne = (n, t) => {
   const e = n.length - 1, i = [];
   let r, o = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", s = M;
   for (let c = 0; c < e; c++) {
@@ -308,7 +308,7 @@ class R {
     let r;
     this.parts = [];
     let o = 0, s = 0;
-    const c = t.length - 1, l = this.parts, [h, u] = Ue(t, e);
+    const c = t.length - 1, l = this.parts, [h, u] = Ne(t, e);
     if (this.el = R.createElement(h, i), k.currentNode = this.el.content, e === 2 || e === 3) {
       const p = this.el.content.firstChild;
       p.replaceWith(...p.childNodes);
@@ -504,8 +504,8 @@ class je {
     A(this, t);
   }
 }
-const tt = N.litHtmlPolyfillSupport;
-tt == null || tt(R, V), (N.litHtmlVersions ?? (N.litHtmlVersions = [])).push("3.3.2");
+const tt = U.litHtmlPolyfillSupport;
+tt == null || tt(R, V), (U.litHtmlVersions ?? (U.litHtmlVersions = [])).push("3.3.2");
 const Ve = (n, t, e) => {
   const i = (e == null ? void 0 : e.renderBefore) ?? t;
   let r = i._$litPart$;
@@ -685,10 +685,10 @@ const Tt = class Tt extends f {
         border-radius: min(var(--glow-card-radius), 22px);
         cursor: default;
         display: grid;
-        gap: 3px;
+        gap: 7px;
         grid-template-columns: 1fr;
-        min-height: max(108px, var(--glow-card-height));
-        padding: 5px 10px;
+        min-height: max(122px, var(--glow-card-height));
+        padding: 9px 11px 10px;
       }
 
       .button::before {
@@ -915,49 +915,51 @@ const Tt = class Tt extends f {
       .panel-header {
         align-items: center;
         display: grid;
-        gap: 7px;
-        grid-template-columns: 26px minmax(0, 1fr) auto;
-        min-height: 26px;
+        gap: 8px;
+        grid-template-columns: 30px minmax(0, 1fr) auto;
+        min-height: 30px;
       }
 
       .panel .icon-shell {
-        height: 26px;
-        width: 26px;
+        height: 30px;
+        width: 30px;
       }
 
       .panel .icon-shell ha-icon {
-        --mdc-icon-size: 15px;
+        --mdc-icon-size: 17px;
       }
 
       .panel .name {
-        font-size: 11px;
-        font-weight: 650;
+        font-size: 13px;
+        font-weight: 720;
       }
 
       .panel .state {
-        font-size: 10px;
+        font-size: 11px;
         line-height: 1.1;
-        margin-top: 1px;
+        margin-top: 2px;
       }
 
       .level {
         color: var(--primary-text-color, #f4f7fb);
-        font-size: 11px;
-        font-weight: 700;
+        font-size: 12px;
+        font-weight: 760;
         line-height: 1;
-        min-width: 30px;
+        min-width: 34px;
         text-align: right;
       }
 
       .brightness-control {
         appearance: none;
-        background: rgb(255 255 255 / 10%);
-        border: 1px solid rgb(255 255 255 / 11%);
-        border-radius: 10px;
-        box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%);
+        background: rgb(255 255 255 / 12%);
+        border: 0;
+        border-radius: 999px;
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 8%),
+          inset 0 -1px 0 rgb(0 0 0 / 18%);
         cursor: pointer;
         display: block;
-        height: 12px;
+        height: 8px;
         overflow: hidden;
         padding: 0;
         touch-action: pan-y;
@@ -968,24 +970,26 @@ const Tt = class Tt extends f {
         background:
           linear-gradient(
             90deg,
-            color-mix(in srgb, var(--glow-state-color) 70%, #ff9a52),
-            #fff6eb
+            color-mix(in srgb, var(--glow-state-color) 76%, #ffffff 8%),
+            color-mix(in srgb, var(--glow-state-color) 38%, #ffffff 42%)
           );
         border-radius: inherit;
+        box-shadow: 0 0 14px color-mix(in srgb, var(--glow-state-color) 34%, transparent);
         display: block;
         height: 100%;
+        transition: width 140ms ease;
         width: var(--glow-slider-percent);
       }
 
       .mode-tabs {
-        background: rgb(0 0 0 / 16%);
+        background: rgb(0 0 0 / 14%);
         border: 1px solid rgb(255 255 255 / 10%);
-        border-radius: 999px;
+        border-radius: 12px;
         display: grid;
         gap: 2px;
         grid-auto-columns: minmax(0, 1fr);
         grid-auto-flow: column;
-        min-height: 19px;
+        min-height: 24px;
         padding: 2px;
       }
 
@@ -997,7 +1001,7 @@ const Tt = class Tt extends f {
         color: var(--secondary-text-color, #b7c0ce);
         cursor: pointer;
         font: inherit;
-        font-size: 9px;
+        font-size: 10px;
         font-weight: 700;
         letter-spacing: 0;
         padding: 0 8px;
@@ -1016,26 +1020,17 @@ const Tt = class Tt extends f {
 
       .control-panel {
         display: grid;
-        gap: 0;
+        gap: 6px;
       }
 
       .swatches {
         align-items: center;
-        background:
-          linear-gradient(180deg, rgb(255 255 255 / 9%), rgb(255 255 255 / 4%)),
-          rgb(0 0 0 / 14%);
-        border: 1px solid rgb(255 255 255 / 10%);
-        border-radius: 16px;
-        box-shadow:
-          inset 0 1px 0 rgb(255 255 255 / 12%),
-          inset 0 -8px 16px rgb(0 0 0 / 10%),
-          0 8px 14px rgb(0 0 0 / 12%);
-        display: grid;
-        gap: 6px;
-        grid-template-columns: repeat(auto-fit, minmax(24px, 1fr));
-        min-height: 36px;
+        display: flex;
+        gap: 8px;
+        justify-content: space-between;
+        min-height: 28px;
         overflow: visible;
-        padding: 5px;
+        padding: 0;
       }
 
       .swatch,
@@ -1057,7 +1052,8 @@ const Tt = class Tt extends f {
           inset 0 -8px 12px rgb(0 0 0 / 14%),
           0 4px 10px rgb(0 0 0 / 16%);
         display: inline-flex;
-        height: 24px;
+        flex: 0 0 26px;
+        height: 26px;
         justify-content: center;
         padding: 0;
         position: relative;
@@ -1065,7 +1061,7 @@ const Tt = class Tt extends f {
           border-color 140ms ease,
           box-shadow 140ms ease,
           transform 140ms ease;
-        width: 100%;
+        width: 26px;
       }
 
       .swatch:active {
@@ -1073,28 +1069,24 @@ const Tt = class Tt extends f {
       }
 
       .swatch.active {
-        border-color: rgb(255 255 255 / 70%);
+        border-color: rgb(255 255 255 / 82%);
         box-shadow:
           inset 0 1px 0 rgb(255 255 255 / 28%),
           inset 0 -8px 12px rgb(0 0 0 / 14%),
-          0 0 0 2px color-mix(in srgb, var(--glow-state-color) 38%, transparent),
+          0 0 0 2px rgb(255 255 255 / 22%),
+          0 0 0 5px color-mix(in srgb, var(--glow-state-color) 28%, transparent),
           0 8px 16px rgb(0 0 0 / 20%);
       }
 
       .swatch.active::after {
-        align-items: center;
-        background: rgb(0 0 0 / 48%);
-        border: 1px solid rgb(255 255 255 / 42%);
+        background: rgb(255 255 255 / 92%);
         border-radius: 999px;
-        color: #ffffff;
-        content: '✓';
-        display: inline-flex;
-        font-size: 9px;
-        font-weight: 800;
-        height: 13px;
-        justify-content: center;
-        line-height: 1;
-        width: 13px;
+        box-shadow:
+          0 1px 4px rgb(0 0 0 / 34%),
+          0 0 10px rgb(255 255 255 / 24%);
+        content: '';
+        height: 7px;
+        width: 7px;
       }
 
       .effect-list {
@@ -1290,6 +1282,9 @@ const Tt = class Tt extends f {
       return "Unavailable";
     const t = this.config.state_display ?? "state", e = this.brightnessPercent;
     return this.isOn && this.hasDimmer ? `${this.activeBrightnessPercent}%` : this.isOn && e !== void 0 && (t === "brightness" || t === "auto") ? `${e}%` : this.isOn ? "On" : "Off";
+  }
+  get displayPowerState() {
+    return this.isUnavailable ? "Unavailable" : this.isOn ? "On" : "Off";
   }
   get icon() {
     var t;
@@ -1627,7 +1622,7 @@ const Tt = class Tt extends f {
           </button>
           <span class="content">
             <span class="name">${this.displayName}</span>
-            ${this.config.show_state ? a`<span class="state">${this.displayState}</span>` : d}
+            ${this.config.show_state ? a`<span class="state">${this.displayPowerState}</span>` : d}
           </span>
           <span class="level">${this.activeBrightnessPercent}%</span>
         </span>
@@ -4789,7 +4784,7 @@ function ii(n, t) {
     })
   );
 }
-const Nt = class Nt extends f {
+const Ut = class Ut extends f {
   constructor() {
     super(...arguments), this.optimisticTimers = {}, this.optimisticStates = {}, this.holdActive = !1;
   }
@@ -5608,15 +5603,15 @@ const Nt = class Nt extends f {
     `;
   }
 };
-Nt.properties = {
+Ut.properties = {
   hass: { attribute: !1 },
   config: { state: !0 },
   holdActive: { state: !0 },
   optimisticStates: { state: !0 }
 };
-let ht = Nt;
+let ht = Ut;
 customElements.get("dual-outlet-card") || customElements.define("dual-outlet-card", ht);
-const Ut = class Ut extends f {
+const Nt = class Nt extends f {
   constructor() {
     super(...arguments), this.config = {};
   }
@@ -5811,11 +5806,11 @@ const Ut = class Ut extends f {
     `;
   }
 };
-Ut.properties = {
+Nt.properties = {
   hass: { attribute: !1 },
   config: { state: !0 }
 };
-let pt = Ut;
+let pt = Nt;
 customElements.get("dual-outlet-card-editor") || customElements.define("dual-outlet-card-editor", pt);
 window.customCards = window.customCards || [];
 window.customCards.push({
@@ -10633,7 +10628,7 @@ const Ci = {
   fill_container: !1,
   border_radius: "16px",
   background: "#101722"
-}, U = [
+}, N = [
   {
     entity: "select.m5stack_atom_echo_546544_response_speaker",
     name: "Response speaker",
@@ -10895,7 +10890,7 @@ const Wt = class Wt extends f {
     return {
       type: "custom:voice-settings-card",
       name: "Atom Echo Voice",
-      rows: U
+      rows: N
     };
   }
   static async getConfigElement() {
@@ -10932,7 +10927,7 @@ const Wt = class Wt extends f {
   }
   rows() {
     var t;
-    return (t = this.config.rows) != null && t.length ? this.config.rows : U;
+    return (t = this.config.rows) != null && t.length ? this.config.rows : N;
   }
   optionLabel(t) {
     return Ei(t.replace(/\s+\([^)]+\)$/u, ""));
@@ -11075,7 +11070,7 @@ const Gt = class Gt extends f {
     var e;
     this.config = {
       ...t,
-      rows: (e = t.rows) != null && e.length ? t.rows : U
+      rows: (e = t.rows) != null && e.length ? t.rows : N
     };
   }
   updateConfig(t) {
@@ -11097,7 +11092,7 @@ const Gt = class Gt extends f {
     const e = t.target, i = t, r = e.rowIndex, o = e.rowKey;
     if (r === void 0 || !o)
       return;
-    const s = [...(c = this.config.rows) != null && c.length ? this.config.rows : U];
+    const s = [...(c = this.config.rows) != null && c.length ? this.config.rows : N];
     s[r] = {
       ...s[r],
       [o]: ((l = i.detail) == null ? void 0 : l.value) ?? e.value
@@ -11143,7 +11138,7 @@ const Gt = class Gt extends f {
   }
   renderRows() {
     var e;
-    const t = (e = this.config.rows) != null && e.length ? this.config.rows : U;
+    const t = (e = this.config.rows) != null && e.length ? this.config.rows : N;
     return a`
       <div class="rows">
         ${t.map(
