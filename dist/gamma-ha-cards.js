@@ -11477,34 +11477,61 @@ const Zt = class Zt extends f {
       }
 
       .stepper {
-        align-items: center;
+        align-items: stretch;
+        background:
+          linear-gradient(
+            180deg,
+            rgb(255 255 255 / 8%),
+            rgb(255 255 255 / 3%)
+          );
+        border: 1px solid rgb(255 255 255 / 11%);
+        border-radius: 999px;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 7%);
         display: grid;
-        gap: 8px;
-        grid-template-columns: 34px minmax(0, 1fr) 34px;
+        grid-template-columns: 44px minmax(0, 1fr) 44px;
+        min-height: 50px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .stepper::before,
+      .stepper::after {
+        background: rgb(255 255 255 / 9%);
+        bottom: 14%;
+        content: "";
+        position: absolute;
+        top: 14%;
+        width: 1px;
+      }
+
+      .stepper::before {
+        left: 44px;
+      }
+
+      .stepper::after {
+        right: 44px;
       }
 
       .card.layout-vertical .control-stack {
         grid-template-columns: 1fr;
-        gap: 8px;
+        gap: 10px;
       }
 
       .card.layout-vertical .stepper {
-        grid-template-columns: 36px minmax(0, 1fr) 36px;
+        grid-template-columns: 48px minmax(0, 1fr) 48px;
+        min-height: 58px;
       }
 
-      .card.layout-vertical .dose {
-        flex-direction: column;
-        gap: 2px;
-        min-height: 48px;
-        padding: 6px 12px;
+      .card.layout-vertical .stepper::before {
+        left: 48px;
+      }
+
+      .card.layout-vertical .stepper::after {
+        right: 48px;
       }
 
       .card.layout-vertical .dose-value {
         font-size: clamp(26px, 11cqi, 34px);
-      }
-
-      .card.layout-vertical .dose-label {
-        font-size: 9px;
       }
 
       .card.layout-vertical .feed-button,
@@ -11526,11 +11553,19 @@ const Zt = class Zt extends f {
       }
 
       .step-button {
+        background: transparent;
+        height: 100%;
+        position: relative;
+        transition: background 0.18s ease;
+        width: 100%;
+      }
+
+      .step-button:hover:not(:disabled) {
         background: rgb(255 255 255 / 7%);
-        border: 1px solid rgb(255 255 255 / 9%);
-        border-radius: 11px;
-        height: 34px;
-        width: 34px;
+      }
+
+      .step-button:active:not(:disabled) {
+        background: rgb(255 255 255 / 12%);
       }
 
       .step-button ha-icon {
@@ -11541,26 +11576,22 @@ const Zt = class Zt extends f {
       .step-button:disabled,
       .feed-button:disabled {
         cursor: default;
-        opacity: 0.42;
+        opacity: 0.32;
       }
 
       .dose {
         align-items: center;
-        background:
-          linear-gradient(
-            180deg,
-            rgb(255 255 255 / 8%),
-            rgb(255 255 255 / 4%)
-          );
-        border: 1px solid rgb(255 255 255 / 10%);
-        border-radius: 16px;
-        box-shadow: inset 0 1px 0 rgb(255 255 255 / 7%);
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
         display: flex;
-        gap: 8px;
+        flex-direction: column;
+        gap: 2px;
         justify-content: center;
-        min-height: 34px;
+        min-height: 0;
         overflow: hidden;
-        padding: 0 12px;
+        padding: 0 10px;
       }
 
       .dose-value {
@@ -11569,15 +11600,14 @@ const Zt = class Zt extends f {
         font-weight: 780;
         letter-spacing: 0;
         line-height: 1;
-        min-width: 36px;
         text-align: center;
       }
 
       .dose-label {
         color: var(--secondary-text-color, #aeb8c6);
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 720;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.12em;
         line-height: 1.1;
         text-transform: uppercase;
       }
@@ -11651,38 +11681,30 @@ const Zt = class Zt extends f {
           gap: 6px;
         }
 
-        .card.layout-auto .battery {
-          font-size: 10px;
-          min-height: 24px;
-          padding: 0 7px;
-        }
-
         .card.layout-auto .control-stack {
-          gap: 8px;
+          gap: 10px;
           grid-template-columns: 1fr;
         }
 
         .card.layout-auto .stepper {
-          grid-template-columns: 36px minmax(0, 1fr) 36px;
+          grid-template-columns: 48px minmax(0, 1fr) 48px;
+          min-height: 58px;
         }
 
-        .card.layout-auto .dose {
-          flex-direction: column;
-          gap: 2px;
-          min-height: 48px;
-          padding: 6px 12px;
+        .card.layout-auto .stepper::before {
+          left: 48px;
+        }
+
+        .card.layout-auto .stepper::after {
+          right: 48px;
         }
 
         .card.layout-auto .dose-value {
           font-size: clamp(26px, 11cqi, 34px);
         }
-
-        .card.layout-auto .dose-label {
-          font-size: 9px;
-        }
       }
 
-      /* Very narrow: tighten battery in any layout */
+      /* Very narrow: tighten battery */
       @container (max-width: 220px) {
         .battery {
           font-size: 10px;
@@ -11695,9 +11717,21 @@ const Zt = class Zt extends f {
           width: 12px;
         }
 
-        .step-button {
-          height: 32px;
-          width: 32px;
+        .stepper,
+        .card.layout-auto .stepper,
+        .card.layout-vertical .stepper {
+          grid-template-columns: 40px minmax(0, 1fr) 40px;
+          min-height: 50px;
+        }
+
+        .card.layout-auto .stepper::before,
+        .card.layout-vertical .stepper::before {
+          left: 40px;
+        }
+
+        .card.layout-auto .stepper::after,
+        .card.layout-vertical .stepper::after {
+          right: 40px;
         }
       }
 
