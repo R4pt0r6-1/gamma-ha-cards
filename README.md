@@ -6,6 +6,7 @@ A fast Home Assistant Lovelace card collection for compact, animated dashboard c
 
 - `custom:glow-light-card` - a resizable glowing toggle card for lights and other toggleable entities.
 - `custom:glow-switch-card` - a compact switch-only button with a green on-state outline glow.
+- `custom:smart-pet-feeder-card` - a compact pet feeder card with portion controls, feed action, battery, and last amount.
 - `custom:glow-lock-card` - a compact smart lock card with instant lock and unlock feedback.
 - `custom:glow-thermostat-card` - a dial-style thermostat card with instant setpoint controls.
 - `custom:dual-outlet-card` - one duplex socket card for two switch entities, with independent tap toggles and a red on-state outline glow.
@@ -101,6 +102,41 @@ icon: mdi:coffee-maker
 | `tap_action`     | `string`  | `toggle`            | `toggle`, `more-info`, or `none`. |
 | `hold_action`    | `string`  | `more-info`         | `toggle`, `more-info`, or `none`. |
 | `animated`       | `boolean` | `true`              | Enable glow animation when on.    |
+
+## Smart Pet Feeder Card
+
+```yaml
+type: custom:smart-pet-feeder-card
+feed_entity: number.nova_feed
+feeding_entity: binary_sensor.nova_feeding
+battery_entity: sensor.nova_battery
+last_amount_entity: sensor.nova_last_amount
+name: Tommy Feeder
+```
+
+The feed button calls `number.set_value` on `feed_entity` with the selected portion amount.
+
+### Smart Pet Feeder Options
+
+| Name                 | Type      | Default             | Description                       |
+| -------------------- | --------- | ------------------- | --------------------------------- |
+| `feed_entity`        | `string`  | Required            | Number entity used to send the feed amount. |
+| `feeding_entity`     | `string`  | Optional            | Binary sensor that is `on` while feeding. |
+| `battery_entity`     | `string`  | Optional            | Battery sensor shown as a top chip. |
+| `last_amount_entity` | `string`  | Optional            | Sensor for the last fed amount.   |
+| `name`               | `string`  | Entity friendly name | Display name.                    |
+| `pet_name`           | `string`  | Optional            | Short pet name fallback.          |
+| `icon`               | `string`  | `mdi:food-drumstick` | Icon shown on the left.          |
+| `width`              | `string`  | `320px`             | CSS width of the card.            |
+| `fill_container`     | `boolean` | `false`             | Stretch the card to the full dashboard column width. |
+| `height`             | `string`  | `148px`             | CSS minimum height of the card.   |
+| `border_radius`      | `string`  | `20px`              | CSS border radius.                |
+| `accent_color`       | `string`  | `#ff9f2f`           | Active feeder glow color.         |
+| `off_color`          | `string`  | `#778392`           | Muted unavailable color.          |
+| `background`         | `string`  | `#101722`           | Base card background.             |
+| `show_battery`       | `boolean` | `true`              | Show the battery chip when the sensor has a usable value. |
+| `show_last_amount`   | `boolean` | `true`              | Show the last amount metric when the sensor has a usable value. |
+| `animated`           | `boolean` | `true`              | Enable feeding glow animation.    |
 
 ## Glow Lock Card
 

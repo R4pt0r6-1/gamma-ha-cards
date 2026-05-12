@@ -8,3 +8,4 @@ import './cards/lg-laundry-card';
 import './cards/lg-laundry-pair-card';
 import './cards/lg-laundry-usage-card';
 import './cards/voice-settings-card';
+import './cards/smart-pet-feeder-card';

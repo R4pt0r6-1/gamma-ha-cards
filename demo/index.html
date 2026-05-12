@@ -83,6 +83,13 @@
       </section>
 
       <section class="demo-section">
+        <h2 class="group-title">Pet Feeder</h2>
+        <div class="grid">
+          <smart-pet-feeder-card id="tommy-feeder"></smart-pet-feeder-card>
+        </div>
+      </section>
+
+      <section class="demo-section">
         <h2 class="group-title">Locks</h2>
         <div class="grid">
           <glow-lock-card id="front-door"></glow-lock-card>
@@ -155,6 +162,16 @@
               const icon = this.icon;
               this.textContent = icon.includes('tune')
                 ? '≋'
+                : icon.includes('plus')
+                ? '+'
+                : icon.includes('minus')
+                ? '-'
+                : icon.includes('battery')
+                ? '▰'
+                : icon.includes('progress')
+                ? '◷'
+                : icon.includes('bowl') || icon.includes('food')
+                ? '◒'
                 : icon.includes('power-cycle')
                 ? '↻'
                 : icon.includes('power')
@@ -254,6 +271,40 @@
           attributes: {
             friendly_name: 'Air Purifier',
             icon: 'mdi:air-purifier',
+          },
+        },
+        'binary_sensor.nova_feeding': {
+          entity_id: 'binary_sensor.nova_feeding',
+          state: 'off',
+          attributes: { friendly_name: 'Tommy Feeding' },
+        },
+        'number.nova_feed': {
+          entity_id: 'number.nova_feed',
+          state: '2.0',
+          attributes: {
+            friendly_name: 'Tommy Feed',
+            min: 1,
+            max: 9,
+            step: 1,
+            mode: 'auto',
+          },
+        },
+        'sensor.nova_battery': {
+          entity_id: 'sensor.nova_battery',
+          state: '93.0',
+          attributes: {
+            friendly_name: 'Tommy Battery',
+            state_class: 'measurement',
+            unit_of_measurement: '%',
+            device_class: 'battery',
+          },
+        },
+        'sensor.nova_last_amount': {
+          entity_id: 'sensor.nova_last_amount',
+          state: '5.0',
+          attributes: {
+            friendly_name: 'Tommy Last amount',
+            state_class: 'measurement',
           },
         },
         'lock.front_door': {
@@ -622,6 +673,22 @@
             entity.attributes.swing_horizontal_mode = data.swing_horizontal_mode;
           } else if (domain === 'select' && service === 'select_option') {
             entity.state = data.option;
+          } else if (domain === 'number' && service === 'set_value') {
+            entity.state = String(data.value);
+            if (data.entity_id === 'number.nova_feed') {
+              states['sensor.nova_last_amount'].state = String(data.value);
+              states['binary_sensor.nova_feeding'].state = 'on';
+              window.setTimeout(() => {
+                states['binary_sensor.nova_feeding'].state = 'off';
+                document
+                  .querySelectorAll(
+                    'glow-light-card, glow-switch-card, glow-lock-card, glow-thermostat-card, dual-outlet-card, speed-fan-card, lg-laundry-card, lg-laundry-pair-card, smart-pet-feeder-card',
+                  )
+                  .forEach((card) => {
+                    card.hass = { ...hass, states: { ...states } };
+                  });
+              }, 1800);
+            }
           } else if (service === 'turn_off') {
             entity.state = 'off';
             if (entity.attributes.percentage !== undefined) {
@@ -657,7 +724,7 @@
 
           document
             .querySelectorAll(
-              'glow-light-card, glow-switch-card, glow-lock-card, glow-thermostat-card, dual-outlet-card, speed-fan-card, lg-laundry-card, lg-laundry-pair-card',
+              'glow-light-card, glow-switch-card, glow-lock-card, glow-thermostat-card, dual-outlet-card, speed-fan-card, lg-laundry-card, lg-laundry-pair-card, smart-pet-feeder-card',
             )
             .forEach((card) => {
               card.hass = { ...hass, states: { ...states } };
@@ -700,6 +767,17 @@
         width: '100%',
       });
       airPurifier.hass = hass;
+
+      const tommyFeeder = document.querySelector('#tommy-feeder');
+      tommyFeeder.setConfig({
+        feed_entity: 'number.nova_feed',
+        feeding_entity: 'binary_sensor.nova_feeding',
+        battery_entity: 'sensor.nova_battery',
+        last_amount_entity: 'sensor.nova_last_amount',
+        name: 'Tommy Feeder',
+        width: '100%',
+      });
+      tommyFeeder.hass = hass;
 
       const frontDoor = document.querySelector('#front-door');
       frontDoor.setConfig({
