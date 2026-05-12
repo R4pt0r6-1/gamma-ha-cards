@@ -26,6 +26,8 @@ type HomeAssistant = {
   ) => Promise<unknown> | void;
 };
 
+type FeederLayout = 'auto' | 'horizontal' | 'vertical';
+
 interface SmartPetFeederCardConfig {
   type?: string;
   feed_entity: string;
@@ -39,6 +41,7 @@ interface SmartPetFeederCardConfig {
   fill_container?: boolean;
   height?: string;
   border_radius?: string;
+  layout?: FeederLayout;
   accent_color?: string;
   off_color?: string;
   background?: string;
@@ -53,11 +56,12 @@ type ConfigElement = HTMLInputElement & {
 };
 
 const DEFAULT_CONFIG: Omit<SmartPetFeederCardConfig, 'feed_entity'> = {
-  icon: 'mdi:food-drumstick',
+  icon: 'mdi:food',
   width: '320px',
   fill_container: false,
-  height: '148px',
-  border_radius: '20px',
+  height: '118px',
+  border_radius: '18px',
+  layout: 'auto',
   accent_color: '#ff9f2f',
   off_color: '#778392',
   background: '#101722',
@@ -65,6 +69,8 @@ const DEFAULT_CONFIG: Omit<SmartPetFeederCardConfig, 'feed_entity'> = {
   show_last_amount: true,
   animated: true,
 };
+
+const LAYOUTS: FeederLayout[] = ['auto', 'horizontal', 'vertical'];
 
 function fireConfigChanged(
   element: HTMLElement,
@@ -122,12 +128,13 @@ export class SmartPetFeederCard extends LitElement {
     return css`
       :host {
         --pet-feeder-width: 320px;
-        --pet-feeder-height: 148px;
-        --pet-feeder-radius: 20px;
+        --pet-feeder-height: 118px;
+        --pet-feeder-radius: 18px;
         --pet-feeder-accent: #ff9f2f;
         --pet-feeder-off: #778392;
         --pet-feeder-background: #101722;
 
+        container-type: inline-size;
         display: block;
         max-width: var(--pet-feeder-width);
         width: 100%;
@@ -173,7 +180,7 @@ export class SmartPetFeederCard extends LitElement {
         color: var(--primary-text-color, #f4f7fb);
         min-height: var(--pet-feeder-height);
         overflow: hidden;
-        padding: 12px;
+        padding: 10px;
         position: relative;
         width: 100%;
       }
@@ -228,7 +235,7 @@ export class SmartPetFeederCard extends LitElement {
       .head {
         align-items: center;
         display: grid;
-        gap: 10px;
+        gap: 8px;
         grid-template-columns: minmax(0, 1fr) auto;
       }
 
@@ -241,8 +248,8 @@ export class SmartPetFeederCard extends LitElement {
         cursor: pointer;
         display: grid;
         font-family: inherit;
-        gap: 10px;
-        grid-template-columns: 38px minmax(0, 1fr);
+        gap: 8px;
+        grid-template-columns: 34px minmax(0, 1fr);
         min-width: 0;
         padding: 0;
         text-align: left;
@@ -258,18 +265,18 @@ export class SmartPetFeederCard extends LitElement {
           ),
           rgb(255 255 255 / 7%);
         border: 1px solid rgb(255 255 255 / 10%);
-        border-radius: 13px;
+        border-radius: 11px;
         box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%);
         color: var(--pet-feeder-state-color);
         display: inline-flex;
         height: 34px;
         justify-content: center;
-        width: 36px;
+        width: 34px;
       }
 
       .icon-shell ha-icon {
-        height: 20px;
-        width: 20px;
+        height: 19px;
+        width: 19px;
       }
 
       .title-block {
@@ -279,7 +286,7 @@ export class SmartPetFeederCard extends LitElement {
       }
 
       .name {
-        font-size: 17px;
+        font-size: 15px;
         font-weight: 760;
         letter-spacing: 0;
         line-height: 1.05;
@@ -292,7 +299,7 @@ export class SmartPetFeederCard extends LitElement {
         align-items: center;
         color: var(--secondary-text-color, #aeb8c6);
         display: inline-flex;
-        font-size: 12px;
+        font-size: 11px;
         gap: 6px;
         min-width: 0;
       }
@@ -307,34 +314,78 @@ export class SmartPetFeederCard extends LitElement {
         width: 6px;
       }
 
+      .chips {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        justify-content: flex-end;
+        min-width: 0;
+      }
+
+      .chip,
       .battery {
         align-items: center;
         appearance: none;
         background: rgb(255 255 255 / 7%);
         border: 1px solid rgb(255 255 255 / 10%);
         border-radius: 999px;
-        color: var(--pet-feeder-battery-color);
-        cursor: pointer;
         display: inline-flex;
         font-family: inherit;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 720;
-        gap: 6px;
-        min-height: 29px;
-        padding: 0 10px;
+        gap: 5px;
+        line-height: 1;
+        min-height: 26px;
+        max-width: 108px;
+        padding: 0 9px;
+        overflow: hidden;
+        text-overflow: ellipsis;
         white-space: nowrap;
       }
 
-      .battery ha-icon {
-        height: 16px;
-        width: 16px;
+      .chip b {
+        color: var(--primary-text-color, #f4f7fb);
+        font-weight: 800;
       }
 
-      .controls {
+      .battery {
+        color: var(--pet-feeder-battery-color);
+        cursor: pointer;
+      }
+
+      .battery ha-icon {
+        height: 14px;
+        width: 14px;
+      }
+
+      .action-row {
         align-items: center;
         display: grid;
         gap: 8px;
-        grid-template-columns: 36px minmax(0, 1fr) 36px;
+        grid-template-columns: 34px minmax(78px, 1fr) 34px minmax(88px, 0.55fr);
+      }
+
+      .card.layout-vertical {
+        min-height: max(var(--pet-feeder-height), 146px);
+      }
+
+      .card.layout-vertical .head {
+        align-items: start;
+        grid-template-columns: 1fr;
+      }
+
+      .card.layout-vertical .chips {
+        justify-content: flex-start;
+      }
+
+      .card.layout-vertical .action-row {
+        grid-template-columns: 34px minmax(0, 1fr) 34px;
+      }
+
+      .card.layout-vertical .feed-button {
+        grid-column: 1 / -1;
+        width: 100%;
       }
 
       .step-button,
@@ -353,9 +404,9 @@ export class SmartPetFeederCard extends LitElement {
       .step-button {
         background: rgb(255 255 255 / 7%);
         border: 1px solid rgb(255 255 255 / 9%);
-        border-radius: 13px;
+        border-radius: 11px;
         height: 34px;
-        width: 36px;
+        width: 34px;
       }
 
       .step-button ha-icon {
@@ -380,8 +431,9 @@ export class SmartPetFeederCard extends LitElement {
         border: 1px solid rgb(255 255 255 / 10%);
         border-radius: 16px;
         box-shadow: inset 0 1px 0 rgb(255 255 255 / 7%);
-        display: grid;
-        grid-template-columns: auto minmax(0, 1fr);
+        display: flex;
+        gap: 8px;
+        justify-content: center;
         min-height: 34px;
         overflow: hidden;
         padding: 0 12px;
@@ -389,7 +441,7 @@ export class SmartPetFeederCard extends LitElement {
 
       .dose-value {
         color: #ffffff;
-        font-size: 25px;
+        font-size: 24px;
         font-weight: 780;
         letter-spacing: 0;
         line-height: 1;
@@ -403,36 +455,6 @@ export class SmartPetFeederCard extends LitElement {
         letter-spacing: 0.08em;
         line-height: 1.1;
         text-transform: uppercase;
-      }
-
-      .bottom {
-        align-items: center;
-        display: grid;
-        gap: 8px;
-        grid-template-columns: minmax(0, 1fr) auto;
-      }
-
-      .metrics {
-        align-items: center;
-        color: color-mix(in srgb, var(--primary-text-color, #f4f7fb) 76%, transparent);
-        display: flex;
-        flex-wrap: wrap;
-        font-size: 12px;
-        font-weight: 650;
-        gap: 7px 10px;
-        min-width: 0;
-      }
-
-      .metric {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .metric b {
-        color: var(--primary-text-color, #f4f7fb);
-        font-weight: 780;
       }
 
       .feed-button {
@@ -456,10 +478,10 @@ export class SmartPetFeederCard extends LitElement {
             color-mix(in srgb, var(--pet-feeder-state-color) 18%, transparent);
         font-size: 12px;
         font-weight: 800;
-        gap: 7px;
+        gap: 6px;
         height: 34px;
-        min-width: 104px;
-        padding: 0 14px;
+        min-width: 0;
+        padding: 0 12px;
         text-transform: uppercase;
       }
 
@@ -491,35 +513,37 @@ export class SmartPetFeederCard extends LitElement {
         }
       }
 
-      @media (max-width: 360px) {
+      @container (max-width: 310px) {
         .card {
-          padding: 12px;
+          padding: 9px;
         }
 
-        .identity {
-          grid-template-columns: 38px minmax(0, 1fr);
+        .head {
+          align-items: start;
         }
 
-        .icon-shell {
-          border-radius: 12px;
-          height: 34px;
-          width: 36px;
+        .chips {
+          gap: 4px;
         }
 
-        .name {
-          font-size: 15px;
-        }
-
+        .chip,
         .battery {
-          min-height: 30px;
-          padding: 0 9px;
+          font-size: 10px;
+          min-height: 24px;
+          padding: 0 7px;
         }
 
-        .bottom {
-          grid-template-columns: 1fr;
+        .card.layout-auto .action-row {
+          grid-template-columns: 32px minmax(0, 1fr) 32px;
         }
 
-        .feed-button {
+        .step-button {
+          height: 32px;
+          width: 32px;
+        }
+
+        .card.layout-auto .feed-button {
+          grid-column: 1 / -1;
           width: 100%;
         }
       }
@@ -538,7 +562,18 @@ export class SmartPetFeederCard extends LitElement {
 
   public static getStubConfig(_: unknown, entities: string[]) {
     const lower = (entity: string) => entity.toLowerCase();
-    const [feedEntity] = entities.filter((entity) => entity.startsWith('number.'));
+    const feederNumberEntities = entities.filter((entity) => {
+      const id = lower(entity);
+      return (
+        entity.startsWith('number.') &&
+        (id.includes('feed') ||
+          id.includes('feeder') ||
+          id.includes('portion') ||
+          id.includes('pet') ||
+          id.includes('nova'))
+      );
+    });
+    const [feedEntity] = feederNumberEntities;
     const [feedingEntity] = entities.filter(
       (entity) =>
         entity.startsWith('binary_sensor.') && lower(entity).includes('feeding'),
@@ -577,11 +612,11 @@ export class SmartPetFeederCard extends LitElement {
     );
     this.style.setProperty(
       '--pet-feeder-height',
-      this.config.height ?? '148px',
+      this.config.height ?? '118px',
     );
     this.style.setProperty(
       '--pet-feeder-radius',
-      this.config.border_radius ?? '20px',
+      this.config.border_radius ?? '18px',
     );
     this.style.setProperty(
       '--pet-feeder-accent',
@@ -602,11 +637,13 @@ export class SmartPetFeederCard extends LitElement {
   }
 
   public getGridOptions() {
+    const vertical = this.config?.layout === 'vertical';
+
     return {
-      rows: 2,
+      rows: vertical ? 3 : 2,
       columns: 6,
       min_rows: 2,
-      max_rows: 3,
+      max_rows: 4,
       min_columns: 4,
       max_columns: 12,
     };
@@ -811,28 +848,22 @@ export class SmartPetFeederCard extends LitElement {
     `;
   }
 
-  private renderMetrics(): TemplateResult | typeof nothing {
-    const metrics: TemplateResult[] = [];
+  private renderChips(): TemplateResult | typeof nothing {
+    const chips: Array<TemplateResult | typeof nothing> = [];
 
     if (this.config.show_last_amount && this.lastAmount !== undefined) {
-      metrics.push(html`
-        <span class="metric">Last <b>${formatAmount(this.lastAmount)}</b></span>
+      chips.push(html`
+        <span class="chip">Last <b>${formatAmount(this.lastAmount)}</b></span>
       `);
     }
 
-    if (!this.cardUnavailable) {
-      metrics.push(html`
-        <span class="metric"
-          >Range <b>${formatAmount(this.amountMin)}-${formatAmount(this.amountMax)}</b></span
-        >
-      `);
-    }
+    chips.push(this.renderBattery());
 
-    if (!metrics.length) {
+    if (!chips.some((chip) => chip !== nothing)) {
       return nothing;
     }
 
-    return html`<div class="metrics">${metrics}</div>`;
+    return html`<div class="chips">${chips}</div>`;
   }
 
   protected render(): TemplateResult {
@@ -861,7 +892,8 @@ export class SmartPetFeederCard extends LitElement {
         <div
           class="card ${this.isFeeding ? 'feeding' : ''} ${this.cardUnavailable
             ? 'unavailable'
-            : ''} ${this.config.animated ? 'animated' : ''}"
+            : ''} ${this.config.animated ? 'animated' : ''} layout-${this.config.layout ??
+            'auto'}"
         >
           <div class="content">
             <div class="head">
@@ -881,10 +913,10 @@ export class SmartPetFeederCard extends LitElement {
                   </span>
                 </span>
               </button>
-              ${this.renderBattery()}
+              ${this.renderChips()}
             </div>
 
-            <div class="controls">
+            <div class="action-row">
               <button
                 type="button"
                 class="step-button"
@@ -909,10 +941,7 @@ export class SmartPetFeederCard extends LitElement {
               >
                 <ha-icon icon="mdi:plus"></ha-icon>
               </button>
-            </div>
 
-            <div class="bottom">
-              ${this.renderMetrics()}
               <button
                 type="button"
                 class="feed-button"
@@ -976,6 +1005,7 @@ class SmartPetFeederCardEditor extends LitElement {
 
       ha-form,
       ha-icon-picker,
+      ha-select,
       ha-textfield {
         width: 100%;
       }
@@ -1126,6 +1156,31 @@ class SmartPetFeederCardEditor extends LitElement {
     `;
   }
 
+  private renderSelect(
+    label: string,
+    key: keyof SmartPetFeederCardConfig,
+    options: string[],
+    value: string,
+  ): TemplateResult {
+    return html`
+      <ha-select
+        .label=${label}
+        .value=${this.config[key] ?? value}
+        .configValue=${key}
+        @selected=${this.valueChanged}
+        @closed=${(event: Event) => event.stopPropagation()}
+        fixedMenuPosition
+        naturalMenuWidth
+      >
+        ${options.map(
+          (option) => html`
+            <mwc-list-item .value=${option}>${option}</mwc-list-item>
+          `,
+        )}
+      </ha-select>
+    `;
+  }
+
   protected render(): TemplateResult {
     return html`
       <div class="editor">
@@ -1137,8 +1192,9 @@ class SmartPetFeederCardEditor extends LitElement {
             ${this.renderTextInput('Pet Name', 'pet_name', 'Tommy')}
             ${this.renderIconPicker('Icon', 'icon')}
             ${this.renderTextInput('Width', 'width', '320px')}
-            ${this.renderTextInput('Height', 'height', '148px')}
-            ${this.renderTextInput('Radius', 'border_radius', '20px')}
+            ${this.renderTextInput('Height', 'height', '118px')}
+            ${this.renderTextInput('Radius', 'border_radius', '18px')}
+            ${this.renderSelect('Layout', 'layout', LAYOUTS, 'auto')}
           </div>
           <div class="grid">
             ${this.renderSwitch('Fill Container', 'fill_container', false)}

@@ -112,6 +112,7 @@ feeding_entity: binary_sensor.nova_feeding
 battery_entity: sensor.nova_battery
 last_amount_entity: sensor.nova_last_amount
 name: Tommy Feeder
+layout: auto
 ```
 
 The feed button calls `number.set_value` on `feed_entity` with the selected portion amount.
@@ -126,11 +127,12 @@ The feed button calls `number.set_value` on `feed_entity` with the selected port
 | `last_amount_entity` | `string`  | Optional            | Sensor for the last fed amount.   |
 | `name`               | `string`  | Entity friendly name | Display name.                    |
 | `pet_name`           | `string`  | Optional            | Short pet name fallback.          |
-| `icon`               | `string`  | `mdi:food-drumstick` | Icon shown on the left.          |
+| `icon`               | `string`  | `mdi:food`           | Icon shown on the left.           |
 | `width`              | `string`  | `320px`             | CSS width of the card.            |
 | `fill_container`     | `boolean` | `false`             | Stretch the card to the full dashboard column width. |
-| `height`             | `string`  | `148px`             | CSS minimum height of the card.   |
-| `border_radius`      | `string`  | `20px`              | CSS border radius.                |
+| `height`             | `string`  | `118px`             | CSS minimum height of the card.   |
+| `border_radius`      | `string`  | `18px`              | CSS border radius.                |
+| `layout`             | `string`  | `auto`              | `auto`, `horizontal`, or `vertical`. |
 | `accent_color`       | `string`  | `#ff9f2f`           | Active feeder glow color.         |
 | `off_color`          | `string`  | `#778392`           | Muted unavailable color.          |
 | `background`         | `string`  | `#101722`           | Base card background.             |

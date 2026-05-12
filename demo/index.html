@@ -86,6 +86,7 @@
         <h2 class="group-title">Pet Feeder</h2>
         <div class="grid">
           <smart-pet-feeder-card id="tommy-feeder"></smart-pet-feeder-card>
+          <smart-pet-feeder-card id="tommy-feeder-vertical"></smart-pet-feeder-card>
         </div>
       </section>
 
@@ -775,9 +776,22 @@
         battery_entity: 'sensor.nova_battery',
         last_amount_entity: 'sensor.nova_last_amount',
         name: 'Tommy Feeder',
+        layout: 'horizontal',
         width: '100%',
       });
       tommyFeeder.hass = hass;
+
+      const tommyFeederVertical = document.querySelector('#tommy-feeder-vertical');
+      tommyFeederVertical.setConfig({
+        feed_entity: 'number.nova_feed',
+        feeding_entity: 'binary_sensor.nova_feeding',
+        battery_entity: 'sensor.nova_battery',
+        last_amount_entity: 'sensor.nova_last_amount',
+        name: 'Tommy Vertical',
+        layout: 'vertical',
+        width: '100%',
+      });
+      tommyFeederVertical.hass = hass;
 
       const frontDoor = document.querySelector('#front-door');
       frontDoor.setConfig({
