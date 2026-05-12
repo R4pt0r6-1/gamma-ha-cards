@@ -45,7 +45,7 @@ const Ie = (o) => new Ce(typeof o == "string" ? o : o + "", void 0, Pt), m = (o,
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const { is: Ue, defineProperty: Ne, getOwnPropertyDescriptor: De, getOwnPropertyNames: Le, getOwnPropertySymbols: Re, getPrototypeOf: Be } = Object, w = globalThis, ie = w.trustedTypes, je = ie ? ie.emptyScript : "", tt = w.reactiveElementPolyfillSupport, U = (o, t) => o, ot = { toAttribute(o, t) {
+const { is: Ue, defineProperty: Ne, getOwnPropertyDescriptor: De, getOwnPropertyNames: Le, getOwnPropertySymbols: Re, getPrototypeOf: Be } = Object, y = globalThis, ie = y.trustedTypes, je = ie ? ie.emptyScript : "", tt = y.reactiveElementPolyfillSupport, U = (o, t) => o, ot = { toAttribute(o, t) {
   switch (t) {
     case Boolean:
       o = o ? je : null;
@@ -74,7 +74,7 @@ const { is: Ue, defineProperty: Ne, getOwnPropertyDescriptor: De, getOwnProperty
   }
   return e;
 } }, Se = (o, t) => !Ue(o, t), re = { attribute: !0, type: String, converter: ot, reflect: !1, useDefault: !1, hasChanged: Se };
-Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), w.litPropertyMetadata ?? (w.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
+Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), y.litPropertyMetadata ?? (y.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
 let O = class extends HTMLElement {
   static addInitializer(t) {
     this._$Ei(), (this.l ?? (this.l = [])).push(t);
@@ -278,7 +278,7 @@ let O = class extends HTMLElement {
   firstUpdated(t) {
   }
 };
-O.elementStyles = [], O.shadowRootOptions = { mode: "open" }, O[U("elementProperties")] = /* @__PURE__ */ new Map(), O[U("finalized")] = /* @__PURE__ */ new Map(), tt == null || tt({ ReactiveElement: O }), (w.reactiveElementVersions ?? (w.reactiveElementVersions = [])).push("2.1.2");
+O.elementStyles = [], O.shadowRootOptions = { mode: "open" }, O[U("elementProperties")] = /* @__PURE__ */ new Map(), O[U("finalized")] = /* @__PURE__ */ new Map(), tt == null || tt({ ReactiveElement: O }), (y.reactiveElementVersions ?? (y.reactiveElementVersions = [])).push("2.1.2");
 /**
  * @license
  * Copyright 2017 Google LLC
@@ -5819,7 +5819,7 @@ window.customCards.push({
   name: "Dual Outlet Card",
   description: "A two-outlet toggle card with red on-state glow."
 });
-const we = {
+const ye = {
   icon: "mdi:fan",
   width: "260px",
   fill_container: !1,
@@ -6182,7 +6182,7 @@ const Vt = class Vt extends f {
     if (!(t != null && t.entity))
       throw new Error("Entity is required");
     this.config = {
-      ...we,
+      ...ye,
       ...t,
       speed_1_percentage: I(t.speed_1_percentage, 33),
       speed_2_percentage: I(t.speed_2_percentage, 66),
@@ -6251,7 +6251,7 @@ const Vt = class Vt extends f {
   }
   get icon() {
     var t;
-    return this.config.icon || ((t = this.entity) == null ? void 0 : t.attributes.icon) || we.icon;
+    return this.config.icon || ((t = this.entity) == null ? void 0 : t.attributes.icon) || ye.icon;
   }
   percentageForLevel(t) {
     return t === 1 ? this.config.speed_1_percentage ?? 33 : t === 2 ? this.config.speed_2_percentage ?? 66 : this.config.speed_3_percentage ?? 100;
@@ -6677,7 +6677,7 @@ const fi = {
   "spinning",
   "steam_softening",
   "wrinkle_care"
-]), xi = /* @__PURE__ */ new Set(["end"]), vi = /* @__PURE__ */ new Set(["pause", "reserved", "rinse_hold"]), wi = /* @__PURE__ */ new Set(["power_off", "initial"]), yi = /* @__PURE__ */ new Set(["error"]);
+]), xi = /* @__PURE__ */ new Set(["end"]), vi = /* @__PURE__ */ new Set(["pause", "reserved", "rinse_hold"]), yi = /* @__PURE__ */ new Set(["power_off", "initial"]), wi = /* @__PURE__ */ new Set(["error"]);
 function _i(o, t) {
   o.dispatchEvent(
     new CustomEvent("config-changed", {
@@ -6693,7 +6693,7 @@ function u(o) {
 function E(o) {
   return !o || o === "unknown" || o === "unavailable" ? "Unknown" : o.replace(/_/g, " ").replace(/\b\w/g, (t) => t.toUpperCase());
 }
-function y(o) {
+function w(o) {
   if (o === void 0 || o < 0)
     return "--";
   const t = Math.ceil(o), e = Math.floor(t / 60), i = t % 60;
@@ -6711,7 +6711,7 @@ function C(o) {
       });
   }
   if ((o == null ? void 0 : o.attributes.device_class) === "duration")
-    return y(
+    return w(
       Mt(o.state, o.attributes.unit_of_measurement)
     );
   const t = o == null ? void 0 : o.attributes.unit_of_measurement, i = (o == null ? void 0 : o.attributes.event_type) || (o == null ? void 0 : o.state) || "", r = E(i);
@@ -7606,7 +7606,7 @@ const Ht = class Ht extends f {
   get stateGroup() {
     var e, i;
     const t = this.rawStatus;
-    return yi.has(t) || (e = this.entity(this.config.error_entity)) != null && e.attributes.event_type ? "error" : bi.has(t) ? "running" : xi.has(t) ? "complete" : vi.has(t) ? "paused" : (wi.has(t) || ((i = this.entity(this.config.power_entity)) == null ? void 0 : i.state) === "off", "off");
+    return wi.has(t) || (e = this.entity(this.config.error_entity)) != null && e.attributes.event_type ? "error" : bi.has(t) ? "running" : xi.has(t) ? "complete" : vi.has(t) ? "paused" : (yi.has(t) || ((i = this.entity(this.config.power_entity)) == null ? void 0 : i.state) === "off", "off");
   }
   get kindColor() {
     return this.kind === "dryer" ? "#ff5a2f" : "#2f8cff";
@@ -7638,14 +7638,14 @@ const Ht = class Ht extends f {
     return !t || e === void 0 ? this.stateGroup === "running" ? 18 : 0 : Math.min(100, Math.max(0, (t - e) / t * 100));
   }
   get timeDisplay() {
-    return this.stateGroup === "complete" ? "Done" : this.stateGroup === "off" ? "--" : y(this.remainingMinutes);
+    return this.stateGroup === "complete" ? "Done" : this.stateGroup === "off" ? "--" : w(this.remainingMinutes);
   }
   get timeSubtext() {
     const t = this.entity(this.config.remaining_time_entity);
     if (this.stateGroup === "complete")
       return "Complete";
     if (this.stateGroup === "off") {
-      const e = y(this.totalMinutes);
+      const e = w(this.totalMinutes);
       return e === "--" ? "Ready" : `${e} cycle`;
     }
     if (!u(t) && t) {
@@ -7657,7 +7657,7 @@ const Ht = class Ht extends f {
         })}`;
       const i = this.remainingMinutes;
       if (i !== void 0)
-        return `${y(i)} remaining`;
+        return `${w(i)} remaining`;
     }
     return "Waiting for LG";
   }
@@ -8261,8 +8261,8 @@ Gt.properties = {
   hass: { attribute: !1 },
   config: { state: !0 }
 };
-let wt = Gt;
-customElements.get("lg-laundry-card-editor") || customElements.define("lg-laundry-card-editor", wt);
+let yt = Gt;
+customElements.get("lg-laundry-card-editor") || customElements.define("lg-laundry-card-editor", yt);
 window.customCards = window.customCards || [];
 window.customCards.push({
   preview: !0,
@@ -9265,17 +9265,17 @@ const Kt = class Kt extends f {
     return !r || n === void 0 ? i === "running" ? 18 : 0 : Math.min(100, Math.max(0, (r - n) / r * 100));
   }
   timeDisplay(t, e) {
-    return e === "complete" ? "Done" : e === "off" ? "--" : y(this.remainingMinutes(t));
+    return e === "complete" ? "Done" : e === "off" ? "--" : w(this.remainingMinutes(t));
   }
   timeSubtext(t, e) {
     if (e === "complete")
       return "Complete";
     if (e === "off") {
-      const r = y(this.totalMinutes(t));
+      const r = w(this.totalMinutes(t));
       return r === "--" ? "Ready" : `${r} cycle`;
     }
     const i = this.remainingMinutes(t);
-    return i === void 0 ? "Waiting for LG" : `${y(i)} left`;
+    return i === void 0 ? "Waiting for LG" : `${w(i)} left`;
   }
   hasOperation(t, e) {
     var r;
@@ -9743,8 +9743,8 @@ Kt.properties = {
   optimisticOperations: { state: !0 },
   settingsMachine: { state: !0 }
 };
-let yt = Kt;
-customElements.get("lg-laundry-pair-card") || customElements.define("lg-laundry-pair-card", yt);
+let wt = Kt;
+customElements.get("lg-laundry-pair-card") || customElements.define("lg-laundry-pair-card", wt);
 const qt = class qt extends f {
   constructor() {
     super(...arguments), this.config = {};
@@ -9998,7 +9998,7 @@ function q(o) {
     maximumFractionDigits: 2
   }).format(o);
 }
-function ye(o) {
+function we(o) {
   const t = Number(o);
   return Number.isFinite(t) ? new Intl.NumberFormat(void 0, {
     maximumFractionDigits: 0
@@ -10450,13 +10450,13 @@ const Yt = class Yt extends f {
     const t = this.entity(this.config.washer_cycles_entity), e = this.entity(this.config.dryer_cycles_entity), i = u(t) ? void 0 : Number(t == null ? void 0 : t.state), r = u(e) ? void 0 : Number(e == null ? void 0 : e.state);
     if (Number.isFinite(i) || Number.isFinite(r)) {
       const n = Number.isFinite(i) ? Number(i) : 0, s = Number.isFinite(r) ? Number(r) : 0;
-      return ye(String(n + s));
+      return we(String(n + s));
     }
-    return ye(t == null ? void 0 : t.state);
+    return we(t == null ? void 0 : t.state);
   }
   totalTime() {
     const t = Z(this.entity(this.config.washer_total_time_entity)), e = Z(this.entity(this.config.dryer_total_time_entity));
-    return t === void 0 && e === void 0 ? "--" : y((t ?? 0) + (e ?? 0));
+    return t === void 0 && e === void 0 ? "--" : w((t ?? 0) + (e ?? 0));
   }
   dryerShare() {
     const t = this.energy(this.config.washer_energy_entity), e = this.energy(this.config.dryer_energy_entity);
@@ -11483,12 +11483,28 @@ const Zt = class Zt extends f {
         grid-template-columns: 34px minmax(0, 1fr) 34px;
       }
 
-      .card.layout-vertical {
-        min-height: max(var(--pet-feeder-height), 146px);
-      }
-
       .card.layout-vertical .control-stack {
         grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .card.layout-vertical .stepper {
+        grid-template-columns: 36px minmax(0, 1fr) 36px;
+      }
+
+      .card.layout-vertical .dose {
+        flex-direction: column;
+        gap: 2px;
+        min-height: 48px;
+        padding: 6px 12px;
+      }
+
+      .card.layout-vertical .dose-value {
+        font-size: clamp(26px, 11cqi, 34px);
+      }
+
+      .card.layout-vertical .dose-label {
+        font-size: 9px;
       }
 
       .card.layout-vertical .feed-button,
@@ -11549,11 +11565,12 @@ const Zt = class Zt extends f {
 
       .dose-value {
         color: #ffffff;
-        font-size: 24px;
+        font-size: clamp(22px, 10cqi, 30px);
         font-weight: 780;
         letter-spacing: 0;
         line-height: 1;
         min-width: 36px;
+        text-align: center;
       }
 
       .dose-label {
@@ -11567,10 +11584,10 @@ const Zt = class Zt extends f {
 
       .feed-button {
         background:
-          radial-gradient(
-            circle at 50% 20%,
-            color-mix(in srgb, #ffffff 22%, transparent),
-            transparent 52%
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, #ffffff 18%, transparent),
+            transparent 55%
           ),
           linear-gradient(
             135deg,
@@ -11624,24 +11641,58 @@ const Zt = class Zt extends f {
         }
       }
 
-      @container (max-width: 310px) {
-        .card {
-          padding: 9px;
+      /* Auto layout: horizontal by default, vertical when container < 280px */
+      @container (max-width: 280px) {
+        .card.layout-auto {
+          padding: 11px;
         }
 
-        .battery {
+        .card.layout-auto .head {
+          gap: 6px;
+        }
+
+        .card.layout-auto .battery {
           font-size: 10px;
           min-height: 24px;
           padding: 0 7px;
         }
 
-        .control-stack {
-          gap: 7px;
+        .card.layout-auto .control-stack {
+          gap: 8px;
           grid-template-columns: 1fr;
         }
 
-        .stepper {
-          grid-template-columns: 32px minmax(0, 1fr) 32px;
+        .card.layout-auto .stepper {
+          grid-template-columns: 36px minmax(0, 1fr) 36px;
+        }
+
+        .card.layout-auto .dose {
+          flex-direction: column;
+          gap: 2px;
+          min-height: 48px;
+          padding: 6px 12px;
+        }
+
+        .card.layout-auto .dose-value {
+          font-size: clamp(26px, 11cqi, 34px);
+        }
+
+        .card.layout-auto .dose-label {
+          font-size: 9px;
+        }
+      }
+
+      /* Very narrow: tighten battery in any layout */
+      @container (max-width: 220px) {
+        .battery {
+          font-size: 10px;
+          min-height: 22px;
+          padding: 0 6px;
+        }
+
+        .battery ha-icon {
+          height: 12px;
+          width: 12px;
         }
 
         .step-button {

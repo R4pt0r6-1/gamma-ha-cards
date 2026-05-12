@@ -375,12 +375,28 @@ export class SmartPetFeederCard extends LitElement {
         grid-template-columns: 34px minmax(0, 1fr) 34px;
       }
 
-      .card.layout-vertical {
-        min-height: max(var(--pet-feeder-height), 146px);
-      }
-
       .card.layout-vertical .control-stack {
         grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .card.layout-vertical .stepper {
+        grid-template-columns: 36px minmax(0, 1fr) 36px;
+      }
+
+      .card.layout-vertical .dose {
+        flex-direction: column;
+        gap: 2px;
+        min-height: 48px;
+        padding: 6px 12px;
+      }
+
+      .card.layout-vertical .dose-value {
+        font-size: clamp(26px, 11cqi, 34px);
+      }
+
+      .card.layout-vertical .dose-label {
+        font-size: 9px;
       }
 
       .card.layout-vertical .feed-button,
@@ -441,11 +457,12 @@ export class SmartPetFeederCard extends LitElement {
 
       .dose-value {
         color: #ffffff;
-        font-size: 24px;
+        font-size: clamp(22px, 10cqi, 30px);
         font-weight: 780;
         letter-spacing: 0;
         line-height: 1;
         min-width: 36px;
+        text-align: center;
       }
 
       .dose-label {
@@ -459,10 +476,10 @@ export class SmartPetFeederCard extends LitElement {
 
       .feed-button {
         background:
-          radial-gradient(
-            circle at 50% 20%,
-            color-mix(in srgb, #ffffff 22%, transparent),
-            transparent 52%
+          linear-gradient(
+            180deg,
+            color-mix(in srgb, #ffffff 18%, transparent),
+            transparent 55%
           ),
           linear-gradient(
             135deg,
@@ -516,24 +533,58 @@ export class SmartPetFeederCard extends LitElement {
         }
       }
 
-      @container (max-width: 310px) {
-        .card {
-          padding: 9px;
+      /* Auto layout: horizontal by default, vertical when container < 280px */
+      @container (max-width: 280px) {
+        .card.layout-auto {
+          padding: 11px;
         }
 
-        .battery {
+        .card.layout-auto .head {
+          gap: 6px;
+        }
+
+        .card.layout-auto .battery {
           font-size: 10px;
           min-height: 24px;
           padding: 0 7px;
         }
 
-        .control-stack {
-          gap: 7px;
+        .card.layout-auto .control-stack {
+          gap: 8px;
           grid-template-columns: 1fr;
         }
 
-        .stepper {
-          grid-template-columns: 32px minmax(0, 1fr) 32px;
+        .card.layout-auto .stepper {
+          grid-template-columns: 36px minmax(0, 1fr) 36px;
+        }
+
+        .card.layout-auto .dose {
+          flex-direction: column;
+          gap: 2px;
+          min-height: 48px;
+          padding: 6px 12px;
+        }
+
+        .card.layout-auto .dose-value {
+          font-size: clamp(26px, 11cqi, 34px);
+        }
+
+        .card.layout-auto .dose-label {
+          font-size: 9px;
+        }
+      }
+
+      /* Very narrow: tighten battery in any layout */
+      @container (max-width: 220px) {
+        .battery {
+          font-size: 10px;
+          min-height: 22px;
+          padding: 0 6px;
+        }
+
+        .battery ha-icon {
+          height: 12px;
+          width: 12px;
         }
 
         .step-button {
