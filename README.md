@@ -5,6 +5,7 @@ A fast Home Assistant Lovelace card collection for compact, animated dashboard c
 ## Cards
 
 - `custom:glow-light-card` - a resizable glowing toggle card for lights and other toggleable entities.
+- `custom:glow-media-card` - a larger glowing media player tile for TVs, receivers, and set-top boxes.
 - `custom:glow-switch-card` - a compact switch-only button with a green on-state outline glow.
 - `custom:smart-pet-feeder-card` - a compact pet feeder card with portion controls, feed action, battery, and last amount.
 - `custom:glow-lock-card` - a compact smart lock card with instant lock and unlock feedback.
@@ -74,6 +75,41 @@ show_light_controls: true
 | `tap_action`    | `string`  | `toggle`            | `toggle`, `more-info`, or `none`. |
 | `hold_action`   | `string`  | `more-info`         | `toggle`, `more-info`, or `none`. |
 | `animated`      | `boolean` | `true`              | Enable glow animation when on.    |
+
+## Glow Media Card
+
+```yaml
+type: custom:glow-media-card
+entity: media_player.demo_room_demo_room_window_sony
+name: Demo Room TV
+icon: mdi:television-play
+tap_action:
+  action: call-service
+  service: script.sony_source_test
+```
+
+### Glow Media Options
+
+| Name             | Type         | Default                                            | Description                                                                 |
+| ---------------- | ------------ | -------------------------------------------------- | --------------------------------------------------------------------------- |
+| `entity`         | `string`     | Required                                           | Media player entity to display.                                              |
+| `name`           | `string`     | Entity friendly name                               | Display name.                                                               |
+| `icon`           | `string`     | `mdi:television-play`                              | Icon shown on the left.                                                     |
+| `width`          | `string`     | `280px`                                            | CSS width of the card.                                                      |
+| `fill_container` | `boolean`    | `false`                                            | Stretch the card to the full dashboard column width.                        |
+| `height`         | `string`     | `120px`                                            | CSS minimum height of the card.                                             |
+| `border_radius`  | `string`     | `22px`                                             | CSS border radius.                                                          |
+| `show_state`     | `boolean`    | `true`                                             | Show the current media player state under the name.                         |
+| `show_source`    | `boolean`    | `true`                                             | Show source/app text from `source`, `app_name`, or `app_id` when available. |
+| `active_color`   | `string`     | `#ff8a1c`                                          | Glow color when active.                                                     |
+| `idle_color`     | `string`     | `#45d158`                                          | Glow color when the media player is idle.                                   |
+| `off_color`      | `string`     | `#697382`                                          | Muted color when the player is off or unavailable.                          |
+| `background`     | `string`     | `#101722`                                          | Base card background.                                                       |
+| `tap_action`     | `object`     | `more-info`                                        | Home Assistant action for tap events, including `call-service`.             |
+| `hold_action`    | `object`     | `more-info`                                        | Home Assistant action for hold events, including `call-service`.            |
+| `animated`       | `boolean`    | `true`                                             | Enable glow animation when active.                                          |
+| `active_states`  | `array`      | `["on", "playing", "paused", "buffering", "idle"]` | States treated as active.                         |
+| `off_states`     | `array`      | `["off", "standby", "unavailable", "unknown"]` | States treated as off/unavailable.                 |
 
 ## Glow Switch Card
 
