@@ -1008,10 +1008,7 @@ class GlowMediaCardEditor extends LitElement {
     }
 
     if (actionType === 'more-info') {
-      const existingEntity =
-        typeof action === 'object' && action.entity
-          ? action.entity
-          : this.config.entity;
+      const existingEntity = this.config.entity;
       return html`
         <div class="grid full">
           <ha-selector

@@ -5488,7 +5488,7 @@ const Gt = class Gt extends u {
       `;
     }
     if (i === "more-info") {
-      const n = typeof e == "object" && e.entity ? e.entity : this.config.entity;
+      const n = this.config.entity;
       return a`
         <div class="grid full">
           <ha-selector
