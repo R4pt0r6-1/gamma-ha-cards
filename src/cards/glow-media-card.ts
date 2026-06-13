@@ -63,10 +63,14 @@ interface GlowMediaCardConfig {
   off_states?: string[];
 }
 
-type ConfigElement = HTMLInputElement & {
-  checked?: boolean;
-  configValue?: keyof GlowMediaCardConfig;
-};
+type ConfigElement =
+  | (HTMLInputElement & {
+      checked?: boolean;
+      configValue?: keyof GlowMediaCardConfig;
+    })
+  | (HTMLSelectElement & {
+      configValue?: keyof GlowMediaCardConfig;
+    });
 
 const DEFAULT_CONFIG: Omit<GlowMediaCardConfig, 'entity'> = {
   icon: 'mdi:television-play',
@@ -796,17 +800,25 @@ class GlowMediaCardEditor extends LitElement {
   }
 
   private valueChanged(event: Event): void {
-    const target = event.target as ConfigElement;
+    const target = (event.currentTarget as HTMLElement) ||
+      (event.target as HTMLElement);
+    const configValue =
+      target?.dataset?.configValue ||
+      (target as ConfigElement).configValue;
 
-    if (!target?.configValue) {
+    if (!configValue) {
       return;
     }
 
-    const value = target.checked !== undefined ? target.checked : target.value;
+    const checkboxTarget = target as HTMLInputElement;
+    const selectTarget = target as HTMLSelectElement;
+    const value = checkboxTarget.checked !== undefined
+      ? checkboxTarget.checked
+      : selectTarget.value ?? (target as any).value;
 
-    if (target.configValue === 'active_states' || target.configValue === 'off_states') {
+    if (configValue === 'active_states' || configValue === 'off_states') {
       this.updateConfig({
-        [target.configValue]: String(value)
+        [configValue]: String(value)
           .split(',')
           .map((item) => item.trim())
           .filter(Boolean),
@@ -815,13 +827,12 @@ class GlowMediaCardEditor extends LitElement {
     }
 
     if (
-      (target.configValue === 'tap_action' ||
-        target.configValue === 'hold_action') &&
+      (configValue === 'tap_action' || configValue === 'hold_action') &&
       typeof value === 'string' &&
       value === 'call-service'
     ) {
       this.updateConfig({
-        [target.configValue]: {
+        [configValue]: {
           action: 'call-service',
           service: '',
         },
@@ -830,7 +841,7 @@ class GlowMediaCardEditor extends LitElement {
     }
 
     this.updateConfig({
-      [target.configValue]: value,
+      [configValue]: value,
     } as Partial<GlowMediaCardConfig>);
   }
 
@@ -917,12 +928,17 @@ class GlowMediaCardEditor extends LitElement {
         <span>${label}</span>
         <select
           .value=${selectedValue}
-          .configValue=${key}
+          data-config-value=${key}
           @change=${this.valueChanged}
         >
           ${options.map(
             (option) => html`
-              <option value=${option}>${option}</option>
+              <option
+                value=${option}
+                ?selected=${option === selectedValue}
+              >
+                ${option}
+              </option>
             `,
           )}
         </select>

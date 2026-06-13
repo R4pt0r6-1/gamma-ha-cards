@@ -1645,7 +1645,8 @@ class GlowLightCardEditor extends LitElement {
       ha-form,
       ha-icon-picker,
       ha-textfield,
-      ha-select {
+      ha-select,
+      select {
         width: 100%;
       }
 
@@ -1692,18 +1693,22 @@ class GlowLightCardEditor extends LitElement {
   }
 
   private valueChanged(event: Event): void {
-    const target = event.target as ConfigElement;
-    const customEvent = event as CustomEvent<{ value?: string }>;
+    const target = event.target as HTMLElement &
+      Partial<ConfigElement> & {
+        dataset?: { configValue?: string };
+      };
+    const configValue = target.dataset?.configValue || target.configValue;
 
-    if (!target.configValue) {
+    if (!configValue) {
       return;
     }
 
+    const inputValue = (target as HTMLInputElement).checked !== undefined
+      ? (target as HTMLInputElement).checked
+      : (target as HTMLSelectElement).value ?? (target as any).value;
+
     this.updateConfig({
-      [target.configValue]:
-        target.checked !== undefined
-          ? target.checked
-          : customEvent.detail?.value ?? target.value,
+      [configValue]: inputValue,
     } as Partial<GlowLightCardConfig>);
   }
 
@@ -1779,21 +1784,20 @@ class GlowLightCardEditor extends LitElement {
     value: string,
   ): TemplateResult {
     return html`
-      <ha-select
-        .label=${label}
-        .value=${this.config[key] ?? value}
-        .configValue=${key}
-        @selected=${this.valueChanged}
-        @closed=${(event: Event) => event.stopPropagation()}
-        fixedMenuPosition
-        naturalMenuWidth
-      >
-        ${options.map(
-          (option) => html`
-            <mwc-list-item .value=${option}>${option}</mwc-list-item>
-          `,
-        )}
-      </ha-select>
+      <label>
+        <span>${label}</span>
+        <select
+          .value=${this.config[key] ?? value}
+          data-config-value=${key}
+          @change=${this.valueChanged}
+        >
+          ${options.map(
+            (option) => html`
+              <option value=${option}>${option}</option>
+            `,
+          )}
+        </select>
+      </label>
     `;
   }
 

@@ -1726,7 +1726,8 @@ const Nt = class Nt extends u {
       ha-form,
       ha-icon-picker,
       ha-textfield,
-      ha-select {
+      ha-select,
+      select {
         width: 100%;
       }
 
@@ -1759,10 +1760,13 @@ const Nt = class Nt extends u {
     (i = e.detail) != null && i.value && this.updateConfig(e.detail.value);
   }
   valueChanged(t) {
-    var r;
-    const e = t.target, i = t;
-    e.configValue && this.updateConfig({
-      [e.configValue]: e.checked !== void 0 ? e.checked : ((r = i.detail) == null ? void 0 : r.value) ?? e.value
+    var n;
+    const e = t.target, i = ((n = e.dataset) == null ? void 0 : n.configValue) || e.configValue;
+    if (!i)
+      return;
+    const r = e.checked !== void 0 ? e.checked : e.value ?? e.value;
+    this.updateConfig({
+      [i]: r
     });
   }
   renderEntityPicker(t, e) {
@@ -1814,21 +1818,20 @@ const Nt = class Nt extends u {
   }
   renderSelect(t, e, i, r) {
     return a`
-      <ha-select
-        .label=${t}
-        .value=${this.config[e] ?? r}
-        .configValue=${e}
-        @selected=${this.valueChanged}
-        @closed=${(n) => n.stopPropagation()}
-        fixedMenuPosition
-        naturalMenuWidth
-      >
-        ${i.map(
+      <label>
+        <span>${t}</span>
+        <select
+          .value=${this.config[e] ?? r}
+          data-config-value=${e}
+          @change=${this.valueChanged}
+        >
+          ${i.map(
       (n) => a`
-            <mwc-list-item .value=${n}>${n}</mwc-list-item>
-          `
+              <option value=${n}>${n}</option>
+            `
     )}
-      </ha-select>
+        </select>
+      </label>
     `;
   }
   renderEntityForm() {
@@ -5337,19 +5340,20 @@ const Gt = class Gt extends u {
     (i = e.detail) != null && i.value && this.updateConfig(e.detail.value);
   }
   valueChanged(t) {
-    const e = t.target;
-    if (!(e != null && e.configValue))
+    var c;
+    const e = t.currentTarget || t.target, i = ((c = e == null ? void 0 : e.dataset) == null ? void 0 : c.configValue) || e.configValue;
+    if (!i)
       return;
-    const i = e.checked !== void 0 ? e.checked : e.value;
-    if (e.configValue === "active_states" || e.configValue === "off_states") {
+    const r = e, n = e, s = r.checked !== void 0 ? r.checked : n.value ?? e.value;
+    if (i === "active_states" || i === "off_states") {
       this.updateConfig({
-        [e.configValue]: String(i).split(",").map((r) => r.trim()).filter(Boolean)
+        [i]: String(s).split(",").map((l) => l.trim()).filter(Boolean)
       });
       return;
     }
-    if ((e.configValue === "tap_action" || e.configValue === "hold_action") && typeof i == "string" && i === "call-service") {
+    if ((i === "tap_action" || i === "hold_action") && typeof s == "string" && s === "call-service") {
       this.updateConfig({
-        [e.configValue]: {
+        [i]: {
           action: "call-service",
           service: ""
         }
@@ -5357,7 +5361,7 @@ const Gt = class Gt extends u {
       return;
     }
     this.updateConfig({
-      [e.configValue]: i
+      [i]: s
     });
   }
   renderEntityPicker(t, e) {
@@ -5415,12 +5419,17 @@ const Gt = class Gt extends u {
         <span>${t}</span>
         <select
           .value=${s}
-          .configValue=${e}
+          data-config-value=${e}
           @change=${this.valueChanged}
         >
           ${i.map(
       (c) => a`
-              <option value=${c}>${c}</option>
+              <option
+                value=${c}
+                ?selected=${c === s}
+              >
+                ${c}
+              </option>
             `
     )}
         </select>
