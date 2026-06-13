@@ -4777,6 +4777,7 @@ const K = {
 }, ke = [
   "more-info",
   "none",
+  "toggle",
   "call-service"
 ];
 function mi(o, t) {
@@ -4806,6 +4807,14 @@ const Ht = class Ht extends u {
         display: block;
         max-width: var(--media-card-width);
         width: 100%;
+      }
+
+      :host([interactive]) {
+        cursor: pointer;
+      }
+
+      :host([interactive]) ha-card,
+      :host([interactive]) .media-button {
         cursor: pointer;
       }
 
@@ -4819,7 +4828,6 @@ const Ht = class Ht extends u {
         box-shadow: none;
         display: block;
         overflow: visible;
-        cursor: pointer;
       }
 
       ha-card.unavailable {
@@ -4827,6 +4835,16 @@ const Ht = class Ht extends u {
       }
 
       .media-button {
+        all: unset;
+        cursor: default;
+        display: grid;
+        grid-template-columns: 86px 1fr;
+        gap: 16px;
+        min-height: 100%;
+        position: relative;
+        width: 100%;
+        text-align: left;
+      }
 
       .media-button::before {
         background:
@@ -4943,11 +4961,13 @@ const Ht = class Ht extends u {
         height: 56px;
         justify-content: center;
         width: 56px;
+        transition: color 160ms ease, opacity 160ms ease;
       }
 
       .icon-shell ha-icon {
         --mdc-icon-size: 28px;
         color: currentColor;
+        opacity: var(--media-icon-opacity, 1);
       }
 
       .content {
@@ -5107,11 +5127,22 @@ const Ht = class Ht extends u {
     var e, i;
     if (t) {
       if (typeof t == "string") {
-        t === "more-info" && this.dispatchMoreInfo();
+        if (t === "more-info") {
+          this.dispatchMoreInfo();
+          return;
+        }
+        if (t === "toggle") {
+          this.performToggle();
+          return;
+        }
         return;
       }
       if (t.action === "more-info") {
         this.dispatchMoreInfo();
+        return;
+      }
+      if (t.action === "toggle") {
+        this.performToggle();
         return;
       }
       if (t.action === "call-service") {
@@ -5152,11 +5183,40 @@ const Ht = class Ht extends u {
   handleClick() {
     this.holdActive || this.performAction(this.config.tap_action);
   }
+  performToggle() {
+    var r, n, s, c;
+    if (this.isUnavailable)
+      return;
+    const e = !!(Number(
+      ((r = this.entity) == null ? void 0 : r.attributes.supported_features) ?? 0
+    ) & 1), i = this.state;
+    if (e) {
+      (n = this.hass) == null || n.callService("media_player", "toggle", {
+        entity_id: this.config.entity
+      });
+      return;
+    }
+    if (["off", "standby"].includes(i)) {
+      (s = this.hass) == null || s.callService("media_player", "turn_on", {
+        entity_id: this.config.entity
+      });
+      return;
+    }
+    if (["on", "playing", "paused", "buffering", "idle"].includes(i)) {
+      (c = this.hass) == null || c.callService("media_player", "turn_off", {
+        entity_id: this.config.entity
+      });
+      return;
+    }
+  }
   render() {
     if (!this.config)
       return a``;
     const t = this.isActive && !this.isUnavailable, e = this.sourceText;
-    return this.toggleAttribute("unavailable", this.isUnavailable), a`
+    return this.toggleAttribute("unavailable", this.isUnavailable), this.toggleAttribute(
+      "interactive",
+      !this.isUnavailable && this.config.tap_action !== "none"
+    ), a`
       <ha-card
         class=${this.isUnavailable ? "unavailable" : ""}
         style="
@@ -5170,6 +5230,7 @@ const Ht = class Ht extends u {
           --media-outer-strength: ${t ? "10%" : "0%"};
           --media-on-opacity: ${t ? "1" : "0"};
           --media-icon-color: ${this.stateColor};
+          --media-icon-opacity: ${t ? "1" : "0.55"};
         "
       >
         <button
@@ -5367,6 +5428,50 @@ const Gt = class Gt extends u {
       </ha-select>
     `;
   }
+  getActionValue(t) {
+    return this.config[t];
+  }
+  getCallServiceAction(t) {
+    const e = this.getActionValue(t);
+    return typeof e == "object" && e.action === "call-service" ? {
+      action: "call-service",
+      service: e.service ?? "",
+      target: e.target,
+      service_data: e.service_data ?? e.data
+    } : {
+      action: "call-service",
+      service: ""
+    };
+  }
+  renderCallServiceFields(t) {
+    const e = this.getActionValue(t);
+    if (typeof e != "object" || e.action !== "call-service")
+      return d;
+    const i = this.getCallServiceAction(t);
+    return a`
+      <ha-textfield
+        .label=${t === "tap_action" ? "Tap Service" : "Hold Service"}
+        .placeholder=${"script.sony_source_test"}
+        .value=${i.service ?? ""}
+        data-action-key=${t}
+        data-action-field="service"
+        @input=${this.serviceFieldChanged}
+      ></ha-textfield>
+    `;
+  }
+  serviceFieldChanged(t) {
+    var c, l;
+    const e = t.target, i = (c = e.dataset) == null ? void 0 : c.actionKey, r = (l = e.dataset) == null ? void 0 : l.actionField;
+    if (!i || r !== "service")
+      return;
+    const n = this.getCallServiceAction(i), s = {
+      action: "call-service",
+      service: e.value,
+      target: n.target,
+      service_data: n.service_data
+    };
+    this.updateConfig({ [i]: s });
+  }
   renderEntityForm() {
     const t = [
       {
@@ -5441,6 +5546,8 @@ const Gt = class Gt extends u {
       "more-info"
     )}
           </div>
+          ${this.renderCallServiceFields("tap_action")}
+          ${this.renderCallServiceFields("hold_action")}
         </section>
       </div>
     `;

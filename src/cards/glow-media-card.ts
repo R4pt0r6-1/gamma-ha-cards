@@ -24,7 +24,7 @@ type HomeAssistant = {
   ) => Promise<unknown> | void;
 };
 
-type ActionMode = 'more-info' | 'none';
+type ActionMode = 'toggle' | 'more-info' | 'none';
 
 type ActionObject = {
   action: ActionMode;
@@ -89,6 +89,7 @@ const DEFAULT_CONFIG: Omit<GlowMediaCardConfig, 'entity'> = {
 const ACTIONS: Array<ActionMode | 'call-service'> = [
   'more-info',
   'none',
+  'toggle',
   'call-service',
 ];
 
@@ -131,6 +132,14 @@ export class GlowMediaCard extends LitElement {
         display: block;
         max-width: var(--media-card-width);
         width: 100%;
+      }
+
+      :host([interactive]) {
+        cursor: pointer;
+      }
+
+      :host([interactive]) ha-card,
+      :host([interactive]) .media-button {
         cursor: pointer;
       }
 
@@ -144,7 +153,6 @@ export class GlowMediaCard extends LitElement {
         box-shadow: none;
         display: block;
         overflow: visible;
-        cursor: pointer;
       }
 
       ha-card.unavailable {
@@ -152,6 +160,16 @@ export class GlowMediaCard extends LitElement {
       }
 
       .media-button {
+        all: unset;
+        cursor: default;
+        display: grid;
+        grid-template-columns: 86px 1fr;
+        gap: 16px;
+        min-height: 100%;
+        position: relative;
+        width: 100%;
+        text-align: left;
+      }
 
       .media-button::before {
         background:
@@ -268,11 +286,13 @@ export class GlowMediaCard extends LitElement {
         height: 56px;
         justify-content: center;
         width: 56px;
+        transition: color 160ms ease, opacity 160ms ease;
       }
 
       .icon-shell ha-icon {
         --mdc-icon-size: 28px;
         color: currentColor;
+        opacity: var(--media-icon-opacity, 1);
       }
 
       .content {
@@ -495,12 +515,24 @@ export class GlowMediaCard extends LitElement {
     if (typeof action === 'string') {
       if (action === 'more-info') {
         this.dispatchMoreInfo();
+        return;
       }
+
+      if (action === 'toggle') {
+        this.performToggle();
+        return;
+      }
+
       return;
     }
 
     if (action.action === 'more-info') {
       this.dispatchMoreInfo();
+      return;
+    }
+
+    if (action.action === 'toggle') {
+      this.performToggle();
       return;
     }
 
@@ -569,6 +601,39 @@ export class GlowMediaCard extends LitElement {
     this.performAction(this.config.tap_action);
   }
 
+  private performToggle(): void {
+    if (this.isUnavailable) {
+      return;
+    }
+
+    const supportedFeatures = Number(
+      this.entity?.attributes.supported_features ?? 0,
+    );
+    const hasToggleSupport = Boolean(supportedFeatures & 1);
+    const state = this.state;
+
+    if (hasToggleSupport) {
+      this.hass?.callService('media_player', 'toggle', {
+        entity_id: this.config.entity,
+      });
+      return;
+    }
+
+    if (['off', 'standby'].includes(state)) {
+      this.hass?.callService('media_player', 'turn_on', {
+        entity_id: this.config.entity,
+      });
+      return;
+    }
+
+    if (['on', 'playing', 'paused', 'buffering', 'idle'].includes(state)) {
+      this.hass?.callService('media_player', 'turn_off', {
+        entity_id: this.config.entity,
+      });
+      return;
+    }
+  }
+
   protected render(): TemplateResult {
     if (!this.config) {
       return html``;
@@ -577,6 +642,10 @@ export class GlowMediaCard extends LitElement {
     const active = this.isActive && !this.isUnavailable;
     const displaySource = this.sourceText;
     this.toggleAttribute('unavailable', this.isUnavailable);
+    this.toggleAttribute(
+      'interactive',
+      !this.isUnavailable && this.config.tap_action !== 'none',
+    );
 
     return html`
       <ha-card
@@ -596,6 +665,7 @@ export class GlowMediaCard extends LitElement {
           --media-outer-strength: ${active ? '10%' : '0%'};
           --media-on-opacity: ${active ? '1' : '0'};
           --media-icon-color: ${this.stateColor};
+          --media-icon-opacity: ${active ? '1' : '0.55'};
         "
       >
         <button
@@ -863,6 +933,77 @@ class GlowMediaCardEditor extends LitElement {
     `;
   }
 
+  private getActionValue(key: 'tap_action' | 'hold_action'): ActionConfig | undefined {
+    return this.config[key];
+  }
+
+  private getCallServiceAction(
+    key: 'tap_action' | 'hold_action',
+  ): CallServiceAction {
+    const action = this.getActionValue(key);
+
+    if (typeof action === 'object' && action.action === 'call-service') {
+      return {
+        action: 'call-service',
+        service: action.service ?? '',
+        target: action.target,
+        service_data: action.service_data ?? action.data,
+      };
+    }
+
+    return {
+      action: 'call-service',
+      service: '',
+    };
+  }
+
+  private renderCallServiceFields(
+    key: 'tap_action' | 'hold_action',
+  ): TemplateResult | typeof nothing {
+    const action = this.getActionValue(key);
+    if (typeof action !== 'object' || action.action !== 'call-service') {
+      return nothing;
+    }
+
+    const callAction = this.getCallServiceAction(key);
+
+    return html`
+      <ha-textfield
+        .label=${key === 'tap_action' ? 'Tap Service' : 'Hold Service'}
+        .placeholder=${'script.sony_source_test'}
+        .value=${callAction.service ?? ''}
+        data-action-key=${key}
+        data-action-field="service"
+        @input=${this.serviceFieldChanged}
+      ></ha-textfield>
+    `;
+  }
+
+  private serviceFieldChanged(event: Event): void {
+    const target = event.target as HTMLInputElement & {
+      dataset?: { actionKey?: string; actionField?: string };
+    };
+    const actionKey = target.dataset?.actionKey as
+      | 'tap_action'
+      | 'hold_action'
+      | undefined;
+    const actionField = target.dataset?.actionField;
+
+    if (!actionKey || actionField !== 'service') {
+      return;
+    }
+
+    const current = this.getCallServiceAction(actionKey);
+    const nextAction: CallServiceAction = {
+      action: 'call-service',
+      service: target.value,
+      target: current.target,
+      service_data: current.service_data,
+    };
+
+    this.updateConfig({ [actionKey]: nextAction } as Partial<GlowMediaCardConfig>);
+  }
+
   private renderEntityForm(): TemplateResult {
     const schema = [
       {
@@ -941,6 +1082,8 @@ class GlowMediaCardEditor extends LitElement {
               'more-info',
             )}
           </div>
+          ${this.renderCallServiceFields('tap_action')}
+          ${this.renderCallServiceFields('hold_action')}
         </section>
       </div>
     `;
