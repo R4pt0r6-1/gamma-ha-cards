@@ -5337,7 +5337,7 @@ const Gt = class Gt extends u {
   }
   valueChanged(t) {
     var n;
-    const e = t.currentTarget || t.target, i = t;
+    const e = t.target, i = t;
     if (!(e != null && e.configValue))
       return;
     const r = e.checked !== void 0 ? e.checked : ((n = i.detail) == null ? void 0 : n.value) ?? e.value;
