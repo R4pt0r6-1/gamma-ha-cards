@@ -4774,7 +4774,11 @@ const K = {
   animated: !0,
   active_states: ["on", "playing", "paused", "buffering", "idle"],
   off_states: ["off", "standby", "unavailable", "unknown"]
-}, ke = ["more-info", "none"];
+}, ke = [
+  "more-info",
+  "none",
+  "call-service"
+];
 function mi(o, t) {
   o.dispatchEvent(
     new CustomEvent("config-changed", {
@@ -4802,6 +4806,11 @@ const Ht = class Ht extends u {
         display: block;
         max-width: var(--media-card-width);
         width: 100%;
+        cursor: pointer;
+      }
+
+      :host([unavailable]) {
+        cursor: default;
       }
 
       ha-card {
@@ -4810,62 +4819,14 @@ const Ht = class Ht extends u {
         box-shadow: none;
         display: block;
         overflow: visible;
+        cursor: pointer;
+      }
+
+      ha-card.unavailable {
+        cursor: default;
       }
 
       .media-button {
-        align-items: center;
-        background:
-          radial-gradient(
-            circle at 15% 50%,
-            color-mix(in srgb, var(--media-hot-color) 14%, transparent),
-            transparent 44%
-          ),
-          linear-gradient(
-            115deg,
-            color-mix(in srgb, var(--media-warm-color) 12%, transparent) 0%,
-            color-mix(in srgb, var(--media-state-color) 8%, transparent) 42%,
-            color-mix(in srgb, var(--media-hot-color) 13%, transparent) 100%
-          ),
-          linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--media-background) 92%, #ffffff 6%),
-            color-mix(in srgb, var(--media-background) 92%, #000000 12%)
-          );
-        border: 1px solid
-          color-mix(
-            in srgb,
-            var(--media-state-color) var(--media-border-strength),
-            transparent
-          );
-        border-radius: var(--media-card-radius);
-        box-shadow:
-          inset 0 1px 0 rgb(255 255 255 / 7%),
-          inset 0 0 0 var(--media-inner-ring-width)
-            color-mix(
-              in srgb,
-              var(--media-state-color) var(--media-inner-ring-strength),
-              transparent
-            ),
-          0 12px 24px rgb(0 0 0 / 22%),
-          0 0 var(--media-outer-blur)
-            color-mix(
-              in srgb,
-              var(--media-state-color) var(--media-outer-strength),
-              transparent
-            );
-        box-sizing: border-box;
-        color: var(--primary-text-color, #f4f7fb);
-        cursor: pointer;
-        display: grid;
-        grid-template-columns: 56px minmax(0, 1fr);
-        gap: 16px;
-        min-height: var(--media-card-height);
-        overflow: hidden;
-        padding: 18px;
-        position: relative;
-        text-align: left;
-        width: 100%;
-      }
 
       .media-button::before {
         background:
@@ -5110,16 +5071,16 @@ const Ht = class Ht extends u {
     return String(((t = this.entity) == null ? void 0 : t.state) ?? "unknown").toLowerCase();
   }
   get activeStates() {
-    return Array.isArray(this.config.active_states) ? this.config.active_states.map((t) => String(t).toLowerCase()) : K.active_states;
+    return Array.isArray(this.config.active_states) ? this.config.active_states.map((t) => String(t).toLowerCase()) : K.active_states ?? [];
   }
   get offStates() {
-    return Array.isArray(this.config.off_states) ? this.config.off_states.map((t) => String(t).toLowerCase()) : K.off_states;
+    return Array.isArray(this.config.off_states) ? this.config.off_states.map((t) => String(t).toLowerCase()) : K.off_states ?? [];
   }
   get isActive() {
     return this.activeStates.includes(this.state);
   }
   get isUnavailable() {
-    return !this.entity || ["unavailable", "unknown"].includes(this.state) || this.offStates.includes(this.state);
+    return !this.entity || ["unavailable", "unknown"].includes(this.state);
   }
   get displayName() {
     var t;
@@ -5143,7 +5104,7 @@ const Ht = class Ht extends u {
     return this.config.icon || ((t = this.entity) == null ? void 0 : t.attributes.icon) || K.icon;
   }
   performAction(t) {
-    var e;
+    var e, i;
     if (t) {
       if (typeof t == "string") {
         t === "more-info" && this.dispatchMoreInfo();
@@ -5154,13 +5115,13 @@ const Ht = class Ht extends u {
         return;
       }
       if (t.action === "call-service") {
-        const i = String(t.service || "").trim(), [r, n] = i.split(".");
-        if (!r || !n)
+        const r = String(t.service || "").trim(), [n, s] = r.split(".");
+        if (!n || !s)
           return;
-        const s = {
-          ...t.service_data ?? {}
+        const c = {
+          ...t.service_data ?? t.data ?? {}
         };
-        Object.prototype.hasOwnProperty.call(s, "entity_id") || (s.entity_id = this.config.entity), (e = this.hass) == null || e.callService(r, n, s);
+        Object.prototype.hasOwnProperty.call(c, "entity_id") || (c.entity_id = this.config.entity), t.target ? (e = this.hass) == null || e.callService(n, s, c, t.target) : (i = this.hass) == null || i.callService(n, s, c);
         return;
       }
     }
@@ -5195,8 +5156,9 @@ const Ht = class Ht extends u {
     if (!this.config)
       return a``;
     const t = this.isActive && !this.isUnavailable, e = this.sourceText;
-    return a`
+    return this.toggleAttribute("unavailable", this.isUnavailable), a`
       <ha-card
+        class=${this.isUnavailable ? "unavailable" : ""}
         style="
           --media-state-color: ${this.stateColor};
           --media-warm-color: ${t ? "color-mix(in srgb, " + this.stateColor + " 86%, #ffd26a)" : this.stateColor};
@@ -5324,6 +5286,15 @@ const Gt = class Gt extends u {
       });
       return;
     }
+    if ((e.configValue === "tap_action" || e.configValue === "hold_action") && typeof r == "string" && r === "call-service") {
+      this.updateConfig({
+        [e.configValue]: {
+          action: "call-service",
+          service: ""
+        }
+      });
+      return;
+    }
     this.updateConfig({
       [e.configValue]: r
     });
@@ -5377,19 +5348,20 @@ const Gt = class Gt extends u {
     `;
   }
   renderSelect(t, e, i, r) {
+    const n = this.config[e], s = typeof n == "string" ? n : (n == null ? void 0 : n.action) ?? r;
     return a`
       <ha-select
         .label=${t}
-        .value=${this.config[e] ?? r}
+        .value=${s}
         .configValue=${e}
         @selected=${this.valueChanged}
-        @closed=${(n) => n.stopPropagation()}
+        @closed=${(c) => c.stopPropagation()}
         fixedMenuPosition
         naturalMenuWidth
       >
         ${i.map(
-      (n) => a`
-            <mwc-list-item .value=${n}>${n}</mwc-list-item>
+      (c) => a`
+            <mwc-list-item .value=${c}>${c}</mwc-list-item>
           `
     )}
       </ha-select>

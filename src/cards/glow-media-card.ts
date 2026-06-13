@@ -26,13 +26,19 @@ type HomeAssistant = {
 
 type ActionMode = 'more-info' | 'none';
 
+type ActionObject = {
+  action: ActionMode;
+};
+
 type CallServiceAction = {
   action: 'call-service';
   service: string;
+  target?: Record<string, unknown>;
   service_data?: Record<string, unknown>;
+  data?: Record<string, unknown>;
 };
 
-type ActionConfig = ActionMode | CallServiceAction;
+type ActionConfig = ActionMode | ActionObject | CallServiceAction;
 
 interface GlowMediaCardConfig {
   type?: string;
@@ -80,7 +86,11 @@ const DEFAULT_CONFIG: Omit<GlowMediaCardConfig, 'entity'> = {
   off_states: ['off', 'standby', 'unavailable', 'unknown'],
 };
 
-const ACTIONS: ActionMode[] = ['more-info', 'none'];
+const ACTIONS: Array<ActionMode | 'call-service'> = [
+  'more-info',
+  'none',
+  'call-service',
+];
 
 function fireConfigChanged(
   element: HTMLElement,
@@ -121,6 +131,11 @@ export class GlowMediaCard extends LitElement {
         display: block;
         max-width: var(--media-card-width);
         width: 100%;
+        cursor: pointer;
+      }
+
+      :host([unavailable]) {
+        cursor: default;
       }
 
       ha-card {
@@ -129,62 +144,14 @@ export class GlowMediaCard extends LitElement {
         box-shadow: none;
         display: block;
         overflow: visible;
+        cursor: pointer;
+      }
+
+      ha-card.unavailable {
+        cursor: default;
       }
 
       .media-button {
-        align-items: center;
-        background:
-          radial-gradient(
-            circle at 15% 50%,
-            color-mix(in srgb, var(--media-hot-color) 14%, transparent),
-            transparent 44%
-          ),
-          linear-gradient(
-            115deg,
-            color-mix(in srgb, var(--media-warm-color) 12%, transparent) 0%,
-            color-mix(in srgb, var(--media-state-color) 8%, transparent) 42%,
-            color-mix(in srgb, var(--media-hot-color) 13%, transparent) 100%
-          ),
-          linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--media-background) 92%, #ffffff 6%),
-            color-mix(in srgb, var(--media-background) 92%, #000000 12%)
-          );
-        border: 1px solid
-          color-mix(
-            in srgb,
-            var(--media-state-color) var(--media-border-strength),
-            transparent
-          );
-        border-radius: var(--media-card-radius);
-        box-shadow:
-          inset 0 1px 0 rgb(255 255 255 / 7%),
-          inset 0 0 0 var(--media-inner-ring-width)
-            color-mix(
-              in srgb,
-              var(--media-state-color) var(--media-inner-ring-strength),
-              transparent
-            ),
-          0 12px 24px rgb(0 0 0 / 22%),
-          0 0 var(--media-outer-blur)
-            color-mix(
-              in srgb,
-              var(--media-state-color) var(--media-outer-strength),
-              transparent
-            );
-        box-sizing: border-box;
-        color: var(--primary-text-color, #f4f7fb);
-        cursor: pointer;
-        display: grid;
-        grid-template-columns: 56px minmax(0, 1fr);
-        gap: 16px;
-        min-height: var(--media-card-height);
-        overflow: hidden;
-        padding: 18px;
-        position: relative;
-        text-align: left;
-        width: 100%;
-      }
 
       .media-button::before {
         background:
@@ -448,13 +415,13 @@ export class GlowMediaCard extends LitElement {
   private get activeStates(): string[] {
     return Array.isArray(this.config.active_states)
       ? this.config.active_states.map((state) => String(state).toLowerCase())
-      : DEFAULT_CONFIG.active_states;
+      : DEFAULT_CONFIG.active_states ?? [];
   }
 
   private get offStates(): string[] {
     return Array.isArray(this.config.off_states)
       ? this.config.off_states.map((state) => String(state).toLowerCase())
-      : DEFAULT_CONFIG.off_states;
+      : DEFAULT_CONFIG.off_states ?? [];
   }
 
   private get isActive(): boolean {
@@ -463,9 +430,7 @@ export class GlowMediaCard extends LitElement {
 
   private get isUnavailable(): boolean {
     return (
-      !this.entity ||
-      ['unavailable', 'unknown'].includes(this.state) ||
-      this.offStates.includes(this.state)
+      !this.entity || ['unavailable', 'unknown'].includes(this.state)
     );
   }
 
@@ -548,14 +513,18 @@ export class GlowMediaCard extends LitElement {
       }
 
       const serviceData: Record<string, unknown> = {
-        ...(action.service_data ?? {}),
+        ...(action.service_data ?? action.data ?? {}),
       };
 
       if (!Object.prototype.hasOwnProperty.call(serviceData, 'entity_id')) {
         serviceData.entity_id = this.config.entity;
       }
 
-      this.hass?.callService(domain, service, serviceData);
+      if (action.target) {
+        this.hass?.callService(domain, service, serviceData, action.target);
+      } else {
+        this.hass?.callService(domain, service, serviceData);
+      }
       return;
     }
   }
@@ -607,9 +576,11 @@ export class GlowMediaCard extends LitElement {
 
     const active = this.isActive && !this.isUnavailable;
     const displaySource = this.sourceText;
+    this.toggleAttribute('unavailable', this.isUnavailable);
 
     return html`
       <ha-card
+        class=${this.isUnavailable ? 'unavailable' : ''}
         style="
           --media-state-color: ${this.stateColor};
           --media-warm-color: ${active
@@ -775,6 +746,21 @@ class GlowMediaCardEditor extends LitElement {
       return;
     }
 
+    if (
+      (target.configValue === 'tap_action' ||
+        target.configValue === 'hold_action') &&
+      typeof value === 'string' &&
+      value === 'call-service'
+    ) {
+      this.updateConfig({
+        [target.configValue]: {
+          action: 'call-service',
+          service: '',
+        },
+      } as Partial<GlowMediaCardConfig>);
+      return;
+    }
+
     this.updateConfig({
       [target.configValue]: value,
     } as Partial<GlowMediaCardConfig>);
@@ -852,10 +838,16 @@ class GlowMediaCardEditor extends LitElement {
     options: string[],
     value: string,
   ): TemplateResult {
+    const currentValue = this.config[key];
+    const selectedValue =
+      typeof currentValue === 'string'
+        ? currentValue
+        : (currentValue as CallServiceAction | undefined)?.action ?? value;
+
     return html`
       <ha-select
         .label=${label}
-        .value=${this.config[key] ?? value}
+        .value=${selectedValue}
         .configValue=${key}
         @selected=${this.valueChanged}
         @closed=${(event: Event) => event.stopPropagation()}
