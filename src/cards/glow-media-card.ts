@@ -795,10 +795,11 @@ class GlowMediaCardEditor extends LitElement {
   }
 
   private valueChanged(event: Event): void {
-    const target = event.target as ConfigElement;
+    const target = (event.currentTarget as ConfigElement) ||
+      (event.target as ConfigElement);
     const customEvent = event as CustomEvent<{ value?: string }>;
 
-    if (!target.configValue) {
+    if (!target?.configValue) {
       return;
     }
 
