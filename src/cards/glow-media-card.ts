@@ -748,7 +748,8 @@ class GlowMediaCardEditor extends LitElement {
       ha-form,
       ha-icon-picker,
       ha-textfield,
-      ha-select {
+      ha-select,
+      select {
         width: 100%;
       }
 
@@ -796,16 +797,12 @@ class GlowMediaCardEditor extends LitElement {
 
   private valueChanged(event: Event): void {
     const target = event.target as ConfigElement;
-    const customEvent = event as CustomEvent<{ value?: string }>;
 
     if (!target?.configValue) {
       return;
     }
 
-    const value =
-      target.checked !== undefined
-        ? target.checked
-        : customEvent.detail?.value ?? target.value;
+    const value = target.checked !== undefined ? target.checked : target.value;
 
     if (target.configValue === 'active_states' || target.configValue === 'off_states') {
       this.updateConfig({
@@ -916,21 +913,20 @@ class GlowMediaCardEditor extends LitElement {
         : (currentValue as CallServiceAction | undefined)?.action ?? value;
 
     return html`
-      <ha-select
-        .label=${label}
-        .value=${selectedValue}
-        .configValue=${key}
-        @selected=${this.valueChanged}
-        @closed=${(event: Event) => event.stopPropagation()}
-        fixedMenuPosition
-        naturalMenuWidth
-      >
-        ${options.map(
-          (option) => html`
-            <mwc-list-item .value=${option}>${option}</mwc-list-item>
-          `,
-        )}
-      </ha-select>
+      <label>
+        <span>${label}</span>
+        <select
+          .value=${selectedValue}
+          .configValue=${key}
+          @change=${this.valueChanged}
+        >
+          ${options.map(
+            (option) => html`
+              <option value=${option}>${option}</option>
+            `,
+          )}
+        </select>
+      </label>
     `;
   }
 

@@ -5303,7 +5303,8 @@ const Gt = class Gt extends u {
       ha-form,
       ha-icon-picker,
       ha-textfield,
-      ha-select {
+      ha-select,
+      select {
         width: 100%;
       }
 
@@ -5336,18 +5337,17 @@ const Gt = class Gt extends u {
     (i = e.detail) != null && i.value && this.updateConfig(e.detail.value);
   }
   valueChanged(t) {
-    var n;
-    const e = t.target, i = t;
+    const e = t.target;
     if (!(e != null && e.configValue))
       return;
-    const r = e.checked !== void 0 ? e.checked : ((n = i.detail) == null ? void 0 : n.value) ?? e.value;
+    const i = e.checked !== void 0 ? e.checked : e.value;
     if (e.configValue === "active_states" || e.configValue === "off_states") {
       this.updateConfig({
-        [e.configValue]: String(r).split(",").map((s) => s.trim()).filter(Boolean)
+        [e.configValue]: String(i).split(",").map((r) => r.trim()).filter(Boolean)
       });
       return;
     }
-    if ((e.configValue === "tap_action" || e.configValue === "hold_action") && typeof r == "string" && r === "call-service") {
+    if ((e.configValue === "tap_action" || e.configValue === "hold_action") && typeof i == "string" && i === "call-service") {
       this.updateConfig({
         [e.configValue]: {
           action: "call-service",
@@ -5357,7 +5357,7 @@ const Gt = class Gt extends u {
       return;
     }
     this.updateConfig({
-      [e.configValue]: r
+      [e.configValue]: i
     });
   }
   renderEntityPicker(t, e) {
@@ -5411,21 +5411,20 @@ const Gt = class Gt extends u {
   renderSelect(t, e, i, r) {
     const n = this.config[e], s = typeof n == "string" ? n : (n == null ? void 0 : n.action) ?? r;
     return a`
-      <ha-select
-        .label=${t}
-        .value=${s}
-        .configValue=${e}
-        @selected=${this.valueChanged}
-        @closed=${(c) => c.stopPropagation()}
-        fixedMenuPosition
-        naturalMenuWidth
-      >
-        ${i.map(
+      <label>
+        <span>${t}</span>
+        <select
+          .value=${s}
+          .configValue=${e}
+          @change=${this.valueChanged}
+        >
+          ${i.map(
       (c) => a`
-            <mwc-list-item .value=${c}>${c}</mwc-list-item>
-          `
+              <option value=${c}>${c}</option>
+            `
     )}
-      </ha-select>
+        </select>
+      </label>
     `;
   }
   getActionValue(t) {
