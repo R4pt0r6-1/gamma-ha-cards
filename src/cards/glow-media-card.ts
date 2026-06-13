@@ -28,6 +28,7 @@ type ActionMode = 'toggle' | 'more-info' | 'none';
 
 type ActionObject = {
   action: ActionMode;
+  entity?: string;
 };
 
 type CallServiceAction = {
@@ -957,31 +958,95 @@ class GlowMediaCardEditor extends LitElement {
     };
   }
 
-  private renderCallServiceFields(
+  private renderActionFields(
     key: 'tap_action' | 'hold_action',
-  ): TemplateResult | typeof nothing {
+  ): TemplateResult {
     const action = this.getActionValue(key);
-    if (typeof action !== 'object' || action.action !== 'call-service') {
-      return nothing;
+    const actionType = typeof action === 'string' ? action : action?.action;
+
+    if (actionType === 'call-service') {
+      const callAction = this.getCallServiceAction(key);
+      return html`
+        <div class="grid full">
+          <div>
+            <ha-textfield
+              .label=${key === 'tap_action' ? 'Tap Service' : 'Hold Service'}
+              .placeholder=${'script.sony_source_test'}
+              .value=${callAction.service ?? ''}
+              data-action-key=${key}
+              data-action-field="service"
+              @input=${this.actionFieldChanged}
+            ></ha-textfield>
+          </div>
+          <div>
+            <ha-selector
+              .hass=${this.hass}
+              .label=${key === 'tap_action' ? 'Tap Target Entity' : 'Hold Target Entity'}
+              .selector=${{ entity: {} }}
+              .value=${String(callAction.target?.entity_id ?? '')}
+              data-action-key=${key}
+              data-action-field="target_entity"
+              @value-changed=${this.actionFieldChanged}
+            ></ha-selector>
+          </div>
+          <div class="full">
+            <label>
+              ${key === 'tap_action' ? 'Tap Data' : 'Hold Data'}
+              <textarea
+                .value=${this.actionDataToString(callAction)}
+                data-action-key=${key}
+                data-action-field="data"
+                @change=${this.actionFieldChanged}
+                rows="5"
+                style="width:100%;margin-top:6px;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:inherit;"
+              ></textarea>
+            </label>
+          </div>
+        </div>
+      `;
     }
 
-    const callAction = this.getCallServiceAction(key);
+    if (actionType === 'more-info') {
+      const existingEntity =
+        typeof action === 'object' && action.entity
+          ? action.entity
+          : this.config.entity;
+      return html`
+        <div class="grid full">
+          <ha-selector
+            .hass=${this.hass}
+            .label=${key === 'tap_action' ? 'Tap Entity' : 'Hold Entity'}
+            .selector=${{ entity: { domain: 'media_player' } }}
+            .value=${existingEntity ?? ''}
+            data-action-key=${key}
+            data-action-field="entity"
+            @value-changed=${this.actionFieldChanged}
+          ></ha-selector>
+        </div>
+      `;
+    }
 
-    return html`
-      <ha-textfield
-        .label=${key === 'tap_action' ? 'Tap Service' : 'Hold Service'}
-        .placeholder=${'script.sony_source_test'}
-        .value=${callAction.service ?? ''}
-        data-action-key=${key}
-        data-action-field="service"
-        @input=${this.serviceFieldChanged}
-      ></ha-textfield>
-    `;
+    return html``;
   }
 
-  private serviceFieldChanged(event: Event): void {
-    const target = event.target as HTMLInputElement & {
+  private actionDataToString(action: CallServiceAction): string {
+    const data = action.service_data ?? action.data;
+    if (!data || typeof data !== 'object') {
+      return '';
+    }
+
+    try {
+      return JSON.stringify(data, null, 2);
+    } catch {
+      return '';
+    }
+  }
+
+  private actionFieldChanged(event: Event): void {
+    const target = event.target as HTMLElement & {
+      value?: string;
       dataset?: { actionKey?: string; actionField?: string };
+      detail?: { value?: string };
     };
     const actionKey = target.dataset?.actionKey as
       | 'tap_action'
@@ -989,19 +1054,92 @@ class GlowMediaCardEditor extends LitElement {
       | undefined;
     const actionField = target.dataset?.actionField;
 
-    if (!actionKey || actionField !== 'service') {
+    if (!actionKey || !actionField) {
       return;
     }
 
-    const current = this.getCallServiceAction(actionKey);
-    const nextAction: CallServiceAction = {
-      action: 'call-service',
-      service: target.value,
-      target: current.target,
-      service_data: current.service_data,
-    };
+    const rawValue =
+      target.detail?.value ??
+      (typeof target.value === 'string' ? target.value : undefined);
 
-    this.updateConfig({ [actionKey]: nextAction } as Partial<GlowMediaCardConfig>);
+    if (rawValue === undefined) {
+      return;
+    }
+
+    const existing = this.getActionValue(actionKey);
+    const action =
+      typeof existing === 'object'
+        ? { ...existing }
+        : { action: existing ?? 'more-info' };
+
+    if (actionField === 'service') {
+      (action as CallServiceAction).service = rawValue;
+    } else if (actionField === 'target_entity') {
+      const targetObj = rawValue
+        ? { entity_id: rawValue }
+        : undefined;
+      if (targetObj) {
+        (action as CallServiceAction).target = {
+          ...(action as CallServiceAction).target,
+          ...targetObj,
+        };
+      } else {
+        delete (action as CallServiceAction).target;
+      }
+    } else if (actionField === 'data') {
+      const parsed = this.parseActionData(rawValue);
+      if (parsed === undefined && rawValue.trim().length > 0) {
+        return;
+      }
+      delete (action as CallServiceAction).service_data;
+      delete (action as CallServiceAction).data;
+      if (parsed && Object.keys(parsed).length) {
+        (action as CallServiceAction).data = parsed;
+      }
+    } else if (actionField === 'entity') {
+      if (rawValue) {
+        (action as ActionObject).entity = rawValue;
+      } else {
+        delete (action as ActionObject).entity;
+      }
+    }
+
+    this.updateConfig({ [actionKey]: action } as Partial<GlowMediaCardConfig>);
+  }
+
+  private parseActionData(value: string): Record<string, unknown> | undefined {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return undefined;
+    }
+
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      const lines = trimmed.split(/\r?\n/);
+      const result: Record<string, unknown> = {};
+      for (const line of lines) {
+        const match = line.match(/^\s*([a-zA-Z0-9_]+):\s*(.*)$/);
+        if (!match) {
+          return undefined;
+        }
+        const [, key, raw] = match;
+        let parsed: unknown = raw;
+        if (/^\d+$/.test(raw)) {
+          parsed = Number(raw);
+        } else if (/^(true|false)$/i.test(raw)) {
+          parsed = raw.toLowerCase() === 'true';
+        } else if (/^\[.*\]$/.test(raw) || /^\{.*\}$/.test(raw)) {
+          try {
+            parsed = JSON.parse(raw);
+          } catch {
+            parsed = raw;
+          }
+        }
+        result[key] = parsed;
+      }
+      return result;
+    }
   }
 
   private renderEntityForm(): TemplateResult {
@@ -1082,8 +1220,8 @@ class GlowMediaCardEditor extends LitElement {
               'more-info',
             )}
           </div>
-          ${this.renderCallServiceFields('tap_action')}
-          ${this.renderCallServiceFields('hold_action')}
+          ${this.renderActionFields('tap_action')}
+          ${this.renderActionFields('hold_action')}
         </section>
       </div>
     `;
