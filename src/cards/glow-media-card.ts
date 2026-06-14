@@ -24,7 +24,7 @@ type HomeAssistant = {
   ) => Promise<unknown> | void;
 };
 
-type ActionMode = 'toggle' | 'more-info' | 'none' | 'script';
+type ActionMode = 'toggle' | 'more-info' | 'none' | 'script' | 'navigate';
 
 type ActionObject = {
   action: ActionMode;
@@ -39,7 +39,19 @@ type CallServiceAction = {
   data?: Record<string, unknown>;
 };
 
-type ActionConfig = ActionMode | ActionObject | CallServiceAction;
+type NavigateAction = {
+  action: 'navigate';
+  navigation_path: string;
+};
+
+type SingleAction = ActionMode | ActionObject | CallServiceAction | NavigateAction;
+
+type MultiAction = {
+  action: 'multi';
+  actions: SingleAction[];
+};
+
+type ActionConfig = SingleAction | MultiAction;
 
 interface GlowMediaCardConfig {
   type?: string;
@@ -91,12 +103,14 @@ const DEFAULT_CONFIG: Omit<GlowMediaCardConfig, 'entity'> = {
   off_states: ['off', 'standby', 'unavailable', 'unknown'],
 };
 
-const ACTIONS: Array<ActionMode | 'call-service'> = [
+const ACTIONS: Array<ActionMode | 'call-service' | 'multi'> = [
   'more-info',
   'none',
   'toggle',
   'call-service',
   'script',
+  'navigate',
+  'multi',
 ];
 
 function fireConfigChanged(
@@ -518,6 +532,21 @@ export class GlowMediaCard extends LitElement {
       return;
     }
 
+    if (typeof action === 'object' && action.action === 'multi') {
+      this.performMultiAction(action);
+      return;
+    }
+
+    this.performSingleAction(action);
+  }
+
+  private performMultiAction(action: MultiAction): void {
+    for (const singleAction of action.actions) {
+      this.performSingleAction(singleAction);
+    }
+  }
+
+  private performSingleAction(action: SingleAction | string): void {
     if (typeof action === 'string') {
       if (action === 'more-info') {
         this.dispatchMoreInfo();
@@ -539,6 +568,21 @@ export class GlowMediaCard extends LitElement {
 
     if (action.action === 'toggle') {
       this.performToggle();
+      return;
+    }
+
+    if (action.action === 'navigate') {
+      const path = action.navigation_path;
+      if (path && window.location) {
+        window.history.pushState(null, '', path);
+        this.dispatchEvent(
+          new CustomEvent('location-changed', {
+            detail: { replace: false },
+            bubbles: true,
+            composed: true,
+          }),
+        );
+      }
       return;
     }
 
@@ -836,22 +880,42 @@ class GlowMediaCardEditor extends LitElement {
     if ((configValue === 'tap_action' || configValue === 'hold_action')) {
       const selectedAction = String(value);
       if (selectedAction === 'call-service') {
-        this.updateConfig({
+        this.updateConfig(({
           [configValue]: {
             action: 'call-service',
             service: '',
           },
-        } as Partial<GlowMediaCardConfig>);
+        } as unknown) as Partial<GlowMediaCardConfig>);
         return;
       }
 
       if (selectedAction === 'script') {
-        this.updateConfig({
+        this.updateConfig(({
           [configValue]: {
             action: 'call-service',
             service: 'script.turn_on',
           },
-        } as Partial<GlowMediaCardConfig>);
+        } as unknown) as Partial<GlowMediaCardConfig>);
+        return;
+      }
+
+      if (selectedAction === 'navigate') {
+        this.updateConfig(({
+          [configValue]: {
+            action: 'navigate',
+            navigation_path: '',
+          },
+        } as unknown) as Partial<GlowMediaCardConfig>);
+        return;
+      }
+
+      if (selectedAction === 'multi') {
+        this.updateConfig(({
+          [configValue]: {
+            action: 'multi',
+            actions: [],
+          },
+        } as unknown) as Partial<GlowMediaCardConfig>);
         return;
       }
 
@@ -1004,6 +1068,39 @@ class GlowMediaCardEditor extends LitElement {
   ): TemplateResult {
     const action = this.getActionValue(key);
     const actionType = typeof action === 'string' ? action : action?.action;
+
+    if (actionType === 'multi') {
+      const multiAction = action as MultiAction | undefined;
+      return html`
+        <div class="grid full">
+          <div style="padding: 10px; background: rgba(255,255,255,.05); border-radius: 8px; border: 1px solid rgba(255,255,255,.1);">
+            <div style="font-size: 12px; font-weight: 600; margin-bottom: 8px; color: var(--secondary-text-color);">Actions</div>
+            ${this.renderMultiActionSequence(key, multiAction)}
+            <button
+              @click=${() => this.addMultiAction(key)}
+              style="margin-top: 8px; padding: 6px 12px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 6px; color: inherit; cursor: pointer; font-size: 12px;"
+            >
+              + Add Action
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    if (actionType === 'navigate') {
+      return html`
+        <div class="grid full">
+          <ha-textfield
+            .label=${key === 'tap_action' ? 'Navigation Path' : 'Navigation Path'}
+            .placeholder=${'#/dashboard/main'}
+            .value=${String((action as NavigateAction)?.navigation_path ?? '')}
+            data-action-key=${key}
+            data-action-field="navigation_path"
+            @input=${this.actionFieldChanged}
+          ></ha-textfield>
+        </div>
+      `;
+    }
 
     if (actionType === 'call-service' && this.isScriptAction(action)) {
       return html`
@@ -1163,9 +1260,169 @@ class GlowMediaCardEditor extends LitElement {
       } else {
         delete (action as ActionObject).entity;
       }
+    } else if (actionField === 'navigation_path') {
+      (action as NavigateAction).navigation_path = rawValue;
     }
 
     this.updateConfig({ [actionKey]: action } as Partial<GlowMediaCardConfig>);
+  }
+
+  private renderMultiActionSequence(
+    key: 'tap_action' | 'hold_action',
+    multiAction: MultiAction | undefined,
+  ): TemplateResult {
+    if (!multiAction?.actions || multiAction.actions.length === 0) {
+      return html`<div style="font-size: 12px; color: var(--secondary-text-color); padding: 8px; text-align: center;">No actions added yet</div>`;
+    }
+
+    return html`
+      ${multiAction.actions.map(
+        (action, index) => html`
+          <div style="margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,.03); border-radius: 6px; border: 1px solid rgba(255,255,255,.08);">
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 11px; color: var(--secondary-text-color);">Step ${index + 1}</span>
+              <button
+                @click=${() => this.removeMultiAction(key, index)}
+                style="margin-left: auto; padding: 2px 6px; background: rgba(255,0,0,.2); border: 1px solid rgba(255,0,0,.4); border-radius: 4px; color: inherit; cursor: pointer; font-size: 11px;"
+              >
+                Remove
+              </button>
+            </div>
+            ${typeof action === 'string'
+              ? html`<div style="font-size: 12px;">Action: ${action}</div>`
+              : html`
+                  <div style="font-size: 12px;">
+                    Type:
+                    <select
+                      .value=${action.action}
+                      data-action-key=${key}
+                      data-action-index=${index}
+                      data-action-field="action"
+                      @change=${this.multiActionFieldChanged}
+                      style="width: auto; font-size: 12px;"
+                    >
+                      <option value="call-service">Call Service</option>
+                      <option value="navigate">Navigate</option>
+                    </select>
+                  </div>
+                  ${action.action === 'call-service'
+                    ? html`
+                        <div style="margin-top: 6px;">
+                          <ha-textfield
+                            .label=${'Service'}
+                            .value=${String((action as CallServiceAction).service ?? '')}
+                            data-action-key=${key}
+                            data-action-index=${index}
+                            data-action-field="service"
+                            @input=${this.multiActionFieldChanged}
+                            style="font-size: 12px;"
+                          ></ha-textfield>
+                        </div>
+                      `
+                    : action.action === 'navigate'
+                      ? html`
+                          <div style="margin-top: 6px;">
+                            <ha-textfield
+                              .label=${'Path'}
+                              .value=${String((action as NavigateAction).navigation_path ?? '')}
+                              data-action-key=${key}
+                              data-action-index=${index}
+                              data-action-field="navigation_path"
+                              @input=${this.multiActionFieldChanged}
+                              style="font-size: 12px;"
+                            ></ha-textfield>
+                          </div>
+                        `
+                      : nothing
+                  }
+                `
+            }
+          </div>
+        `,
+      )}
+    `;
+  }
+
+  private addMultiAction(key: 'tap_action' | 'hold_action'): void {
+    const action = this.getActionValue(key);
+    if (typeof action === 'object' && action.action === 'multi') {
+      const multiAction = action as MultiAction;
+      const newActions = [
+        ...multiAction.actions,
+        { action: 'call-service', service: '' },
+      ];
+      this.updateConfig({
+        [key]: { action: 'multi', actions: newActions },
+      } as Partial<GlowMediaCardConfig>);
+    }
+  }
+
+  private removeMultiAction(key: 'tap_action' | 'hold_action', index: number): void {
+    const action = this.getActionValue(key);
+    if (typeof action === 'object' && action.action === 'multi') {
+      const multiAction = action as MultiAction;
+      const newActions = multiAction.actions.filter((_, i) => i !== index);
+      this.updateConfig({
+        [key]: { action: 'multi', actions: newActions },
+      } as Partial<GlowMediaCardConfig>);
+    }
+  }
+
+  private multiActionFieldChanged(event: Event): void {
+    const target = event.target as HTMLElement & {
+      value?: string;
+      dataset?: { actionKey?: string; actionIndex?: string; actionField?: string };
+      detail?: { value?: string };
+    };
+    const actionKey = target.dataset?.actionKey as
+      | 'tap_action'
+      | 'hold_action'
+      | undefined;
+    const actionIndex = target.dataset?.actionIndex
+      ? Number(target.dataset.actionIndex)
+      : undefined;
+    const actionField = target.dataset?.actionField;
+
+    if (!actionKey || actionIndex === undefined || !actionField) {
+      return;
+    }
+
+    const rawValue =
+      target.detail?.value ??
+      (typeof target.value === 'string' ? target.value : undefined);
+
+    const action = this.getActionValue(actionKey);
+    if (typeof action !== 'object' || action.action !== 'multi') {
+      return;
+    }
+
+    const multiAction = action as MultiAction;
+    const newActions = [...multiAction.actions];
+    const targetAction = newActions[actionIndex];
+
+    if (!targetAction) {
+      return;
+    }
+
+    if (actionField === 'action') {
+      if (rawValue === 'call-service') {
+        newActions[actionIndex] = { action: 'call-service', service: '' };
+      } else if (rawValue === 'navigate') {
+        newActions[actionIndex] = { action: 'navigate', navigation_path: '' };
+      }
+    } else if (actionField === 'service') {
+      if (typeof targetAction === 'object' && targetAction.action === 'call-service') {
+        (targetAction as CallServiceAction).service = rawValue ?? '';
+      }
+    } else if (actionField === 'navigation_path') {
+      if (typeof targetAction === 'object' && targetAction.action === 'navigate') {
+        (targetAction as NavigateAction).navigation_path = rawValue ?? '';
+      }
+    }
+
+    this.updateConfig({
+      [actionKey]: { action: 'multi', actions: newActions },
+    } as Partial<GlowMediaCardConfig>);
   }
 
   private parseActionData(value: string): Record<string, unknown> | undefined {

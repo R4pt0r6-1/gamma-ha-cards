@@ -29,8 +29,35 @@ type HomeAssistant = {
 };
 
 type StateDisplayMode = 'state' | 'brightness' | 'auto';
-type ActionMode = 'toggle' | 'more-info' | 'none';
+type ActionMode = 'toggle' | 'more-info' | 'none' | 'script' | 'navigate';
 type LightControlMode = 'color' | 'temperature' | 'effect';
+
+type ActionObject = {
+  action: ActionMode;
+  entity?: string;
+};
+
+type CallServiceAction = {
+  action: 'call-service';
+  service: string;
+  target?: Record<string, unknown>;
+  service_data?: Record<string, unknown>; 
+  data?: Record<string, unknown>;
+};
+
+type NavigateAction = {
+  action: 'navigate';
+  navigation_path: string;
+};
+
+type SingleAction = ActionMode | ActionObject | CallServiceAction | NavigateAction;
+
+type MultiAction = {
+  action: 'multi';
+  actions: SingleAction[];
+};
+
+type ActionConfig = SingleAction | MultiAction;
 
 type LightColorPreset = {
   name: string;
@@ -58,8 +85,8 @@ interface GlowLightCardConfig {
   on_color?: string;
   off_color?: string;
   background?: string;
-  tap_action?: ActionMode;
-  hold_action?: ActionMode;
+  tap_action?: ActionConfig;
+  hold_action?: ActionConfig;
   animated?: boolean;
 }
 
@@ -89,7 +116,15 @@ const DEFAULT_CONFIG: Omit<GlowLightCardConfig, 'entity'> = {
   animated: true,
 };
 
-const ACTIONS: ActionMode[] = ['toggle', 'more-info', 'none'];
+const ACTIONS: Array<ActionMode | 'call-service' | 'multi'> = [
+  'toggle',
+  'more-info',
+  'none',
+  'call-service',
+  'script',
+  'navigate',
+  'multi',
+];
 const STATE_DISPLAY_MODES: StateDisplayMode[] = ['state', 'brightness', 'auto'];
 const LIGHT_CONTROL_LABELS: Record<LightControlMode, string> = {
   color: 'Color',
@@ -1065,28 +1100,123 @@ export class GlowLightCard extends LitElement {
     }
   }
 
-  private performAction(action: ActionMode | undefined): void {
-    if (this.isUnavailable || !action || action === 'none') {
+  private performAction(action: ActionConfig | undefined): void {
+    if (this.isUnavailable || !action) {
       return;
     }
 
-    if (action === 'more-info') {
+    if (typeof action === 'object' && action.action === 'multi') {
+      this.performMultiAction(action);
+      return;
+    }
+
+    this.performSingleAction(action);
+  }
+
+  private performMultiAction(action: MultiAction): void {
+    for (const singleAction of action.actions) {
+      this.performSingleAction(singleAction);
+    }
+  }
+
+  private performSingleAction(action: SingleAction | string): void {
+    if (this.isUnavailable || action === 'none') {
+      return;
+    }
+
+    if (typeof action === 'string') {
+      if (action === 'more-info') {
+        this.dispatchMoreInfo();
+        return;
+      }
+
+      if (action === 'toggle') {
+        if (this.hasDimmer) {
+          this.setOptimisticBrightness(
+            this.isOn ? 0 : this.brightnessPercent ?? 100,
+          );
+        } else {
+          this.setOptimisticOn(!this.isOn);
+        }
+        this.trackServiceResult(
+          this.hass?.callService(this.domain, 'toggle', {
+            entity_id: this.config.entity,
+          }),
+        );
+        return;
+      }
+
+      return;
+    }
+
+    if (action.action === 'more-info') {
       this.dispatchMoreInfo();
       return;
     }
 
-    if (this.hasDimmer) {
-      this.setOptimisticBrightness(
-        this.isOn ? 0 : this.brightnessPercent ?? 100,
+    if (action.action === 'toggle') {
+      if (this.hasDimmer) {
+        this.setOptimisticBrightness(
+          this.isOn ? 0 : this.brightnessPercent ?? 100,
+        );
+      } else {
+        this.setOptimisticOn(!this.isOn);
+      }
+      this.trackServiceResult(
+        this.hass?.callService(this.domain, 'toggle', {
+          entity_id: this.config.entity,
+        }),
       );
-    } else {
-      this.setOptimisticOn(!this.isOn);
+      return;
     }
-    this.trackServiceResult(
-      this.hass?.callService(this.domain, 'toggle', {
-        entity_id: this.config.entity,
-      }),
-    );
+
+    if (action.action === 'navigate') {
+      const path = action.navigation_path;
+      if (path && window.location) {
+        window.history.pushState(null, '', path);
+        this.dispatchEvent(
+          new CustomEvent('location-changed', {
+            detail: { replace: false },
+            bubbles: true,
+            composed: true,
+          }),
+        );
+      }
+      return;
+    }
+
+    if (action.action === 'call-service') {
+      const serviceValue = String(action.service || '').trim();
+      const [domain, service] = serviceValue.split('.');
+
+      if (!domain || !service) {
+        return;
+      }
+
+      const serviceData: Record<string, unknown> = {
+        ...(action.service_data ?? action.data ?? {}),
+      };
+
+      if (!Object.prototype.hasOwnProperty.call(serviceData, 'entity_id')) {
+        const scriptTarget = action.target?.entity_id;
+        if (typeof scriptTarget === 'string' && scriptTarget.startsWith('script.')) {
+          serviceData.entity_id = scriptTarget;
+        } else {
+          serviceData.entity_id = this.config.entity;
+        }
+      }
+
+      if (action.target) {
+        this.trackServiceResult(
+          this.hass?.callService(domain, service, serviceData, action.target),
+        );
+      } else {
+        this.trackServiceResult(
+          this.hass?.callService(domain, service, serviceData),
+        );
+      }
+      return;
+    }
   }
 
   private brightnessFromPointer(event: PointerEvent): number {
@@ -1693,22 +1823,76 @@ class GlowLightCardEditor extends LitElement {
   }
 
   private valueChanged(event: Event): void {
-    const target = event.target as HTMLElement &
-      Partial<ConfigElement> & {
-        dataset?: { configValue?: string };
-      };
-    const configValue = target.dataset?.configValue || target.configValue;
+    const target = (event.currentTarget as HTMLElement) ||
+      (event.target as HTMLElement);
+    const configValue =
+      target?.dataset?.configValue ||
+      (target as Partial<ConfigElement>).configValue;
 
     if (!configValue) {
       return;
     }
 
-    const inputValue = (target as HTMLInputElement).checked !== undefined
-      ? (target as HTMLInputElement).checked
-      : (target as HTMLSelectElement).value ?? (target as any).value;
+    let value: unknown;
+
+    if (target instanceof HTMLInputElement) {
+      value = target.type === 'checkbox' ? target.checked : target.value;
+    } else if (target instanceof HTMLSelectElement) {
+      value = target.value;
+    } else {
+      value = (target as any).value;
+    }
+
+    if ((configValue === 'tap_action' || configValue === 'hold_action')) {
+      const selectedAction = String(value);
+      if (selectedAction === 'call-service') {
+        this.updateConfig(({
+          [configValue]: {
+            action: 'call-service',
+            service: '',
+          },
+        } as unknown) as Partial<GlowLightCardConfig>);
+        return;
+      }
+
+      if (selectedAction === 'script') {
+        this.updateConfig(({
+          [configValue]: {
+            action: 'call-service',
+            service: 'script.turn_on',
+          },
+        } as unknown) as Partial<GlowLightCardConfig>);
+        return;
+      }
+
+      if (selectedAction === 'navigate') {
+        this.updateConfig(({
+          [configValue]: {
+            action: 'navigate',
+            navigation_path: '',
+          },
+        } as unknown) as Partial<GlowLightCardConfig>);
+        return;
+      }
+
+      if (selectedAction === 'multi') {
+        this.updateConfig(({
+          [configValue]: {
+            action: 'multi',
+            actions: [],
+          },
+        } as unknown) as Partial<GlowLightCardConfig>);
+        return;
+      }
+
+      this.updateConfig({
+        [configValue]: selectedAction,
+      } as Partial<GlowLightCardConfig>);
+      return;
+    }
 
     this.updateConfig({
-      [configValue]: inputValue,
+      [configValue]: value,
     } as Partial<GlowLightCardConfig>);
   }
 
@@ -1783,11 +1967,16 @@ class GlowLightCardEditor extends LitElement {
     options: string[],
     value: string,
   ): TemplateResult {
+    const currentValue =
+      key === 'tap_action' || key === 'hold_action'
+        ? this.getEditorActionType(key)
+        : (this.config[key] as string | undefined) ?? value;
+
     return html`
       <label>
         <span>${label}</span>
         <select
-          .value=${this.config[key] ?? value}
+          .value=${currentValue}
           data-config-value=${key}
           @change=${this.valueChanged}
         >
@@ -1799,6 +1988,303 @@ class GlowLightCardEditor extends LitElement {
         </select>
       </label>
     `;
+  }
+
+  private getActionValue(key: 'tap_action' | 'hold_action'): ActionConfig | undefined {
+    return this.config[key];
+  }
+
+  private getEditorActionType(key: 'tap_action' | 'hold_action'): string {
+    const action = this.getActionValue(key);
+    if (typeof action === 'object' && action.action === 'call-service' && action.service === 'script.turn_on') {
+      return 'script';
+    }
+    return typeof action === 'string' ? action : action?.action ?? 'more-info';
+  }
+
+  private isScriptAction(action: ActionConfig | undefined): boolean {
+    return (
+      typeof action === 'object' &&
+      action.action === 'call-service' &&
+      action.service === 'script.turn_on'
+    );
+  }
+
+  private renderActionFields(
+    key: 'tap_action' | 'hold_action',
+  ): TemplateResult {
+    const action = this.getActionValue(key);
+    const actionType = typeof action === 'string' ? action : action?.action;
+
+    if (actionType === 'multi') {
+      const multiAction = action as MultiAction | undefined;
+      return html`
+        <div class="grid full">
+          <div style="padding: 10px; background: rgba(255,255,255,.05); border-radius: 8px; border: 1px solid rgba(255,255,255,.1);">
+            <div style="font-size: 12px; font-weight: 600; margin-bottom: 8px; color: var(--secondary-text-color);">Actions</div>
+            ${this.renderMultiActionSequence(key, multiAction)}
+            <button
+              @click=${() => this.addMultiAction(key)}
+              style="margin-top: 8px; padding: 6px 12px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 6px; color: inherit; cursor: pointer; font-size: 12px;"
+            >
+              + Add Action
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    if (actionType === 'navigate') {
+      return html`
+        <div class="grid full">
+          <ha-textfield
+            .label=${key === 'tap_action' ? 'Navigation Path' : 'Navigation Path'}
+            .placeholder=${'#/dashboard/main'}
+            .value=${String((action as NavigateAction)?.navigation_path ?? '')}
+            data-action-key=${key}
+            data-action-field="navigation_path"
+            @input=${this.actionFieldChanged}
+          ></ha-textfield>
+        </div>
+      `;
+    }
+
+    if (actionType === 'call-service' && this.isScriptAction(action)) {
+      return html`
+        <div class="grid full">
+          <ha-selector
+            .hass=${this.hass}
+            .label=${key === 'tap_action' ? 'Tap Script' : 'Hold Script'}
+            .selector=${{ entity: { domain: 'script' } }}
+            .value=${String((action as CallServiceAction).target?.entity_id ?? '')}
+            data-action-key=${key}
+            data-action-field="script"
+            @value-changed=${this.actionFieldChanged}
+          ></ha-selector>
+        </div>
+      `;
+    }
+
+    if (actionType === 'call-service') {
+      return html`
+        <div class="grid full">
+          <ha-textfield
+            .label=${key === 'tap_action' ? 'Tap Service' : 'Hold Service'}
+            .placeholder=${'light.turn_on'}
+            .value=${String((action as CallServiceAction)?.service ?? '')}
+            data-action-key=${key}
+            data-action-field="service"
+            @input=${this.actionFieldChanged}
+          ></ha-textfield>
+        </div>
+      `;
+    }
+
+    return html``;
+  }
+
+  private renderMultiActionSequence(
+    key: 'tap_action' | 'hold_action',
+    multiAction: MultiAction | undefined,
+  ): TemplateResult {
+    if (!multiAction?.actions || multiAction.actions.length === 0) {
+      return html`<div style="font-size: 12px; color: var(--secondary-text-color); padding: 8px; text-align: center;">No actions added yet</div>`;
+    }
+
+    return html`
+      ${multiAction.actions.map(
+        (action, index) => html`
+          <div style="margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,.03); border-radius: 6px; border: 1px solid rgba(255,255,255,.08);">
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 11px; color: var(--secondary-text-color);">Step ${index + 1}</span>
+              <button
+                @click=${() => this.removeMultiAction(key, index)}
+                style="margin-left: auto; padding: 2px 6px; background: rgba(255,0,0,.2); border: 1px solid rgba(255,0,0,.4); border-radius: 4px; color: inherit; cursor: pointer; font-size: 11px;"
+              >
+                Remove
+              </button>
+            </div>
+            ${typeof action === 'string'
+              ? html`<div style="font-size: 12px;">Action: ${action}</div>`
+              : html`
+                  <div style="font-size: 12px;">
+                    Type:
+                    <select
+                      .value=${action.action}
+                      data-action-key=${key}
+                      data-action-index=${index}
+                      data-action-field="action"
+                      @change=${this.multiActionFieldChanged}
+                      style="width: auto; font-size: 12px;"
+                    >
+                      <option value="call-service">Call Service</option>
+                      <option value="navigate">Navigate</option>
+                    </select>
+                  </div>
+                  ${action.action === 'call-service'
+                    ? html`
+                        <div style="margin-top: 6px;">
+                          <ha-textfield
+                            .label=${'Service'}
+                            .value=${String((action as CallServiceAction).service ?? '')}
+                            data-action-key=${key}
+                            data-action-index=${index}
+                            data-action-field="service"
+                            @input=${this.multiActionFieldChanged}
+                            style="font-size: 12px;"
+                          ></ha-textfield>
+                        </div>
+                      `
+                    : action.action === 'navigate'
+                      ? html`
+                          <div style="margin-top: 6px;">
+                            <ha-textfield
+                              .label=${'Path'}
+                              .value=${String((action as NavigateAction).navigation_path ?? '')}
+                              data-action-key=${key}
+                              data-action-index=${index}
+                              data-action-field="navigation_path"
+                              @input=${this.multiActionFieldChanged}
+                              style="font-size: 12px;"
+                            ></ha-textfield>
+                          </div>
+                        `
+                      : nothing
+                  }
+                `
+            }
+          </div>
+        `,
+      )}
+    `;
+  }
+
+  private addMultiAction(key: 'tap_action' | 'hold_action'): void {
+    const action = this.getActionValue(key);
+    if (typeof action === 'object' && action.action === 'multi') {
+      const multiAction = action as MultiAction;
+      const newActions = [
+        ...multiAction.actions,
+        { action: 'call-service', service: '' },
+      ];
+      this.updateConfig({
+        [key]: { action: 'multi', actions: newActions },
+      } as Partial<GlowLightCardConfig>);
+    }
+  }
+
+  private removeMultiAction(key: 'tap_action' | 'hold_action', index: number): void {
+    const action = this.getActionValue(key);
+    if (typeof action === 'object' && action.action === 'multi') {
+      const multiAction = action as MultiAction;
+      const newActions = multiAction.actions.filter((_, i) => i !== index);
+      this.updateConfig({
+        [key]: { action: 'multi', actions: newActions },
+      } as Partial<GlowLightCardConfig>);
+    }
+  }
+
+  private actionFieldChanged(event: Event): void {
+    const target = event.target as HTMLElement & {
+      value?: string;
+      dataset?: { actionKey?: string; actionField?: string };
+      detail?: { value?: string };
+    };
+    const actionKey = target.dataset?.actionKey as
+      | 'tap_action'
+      | 'hold_action'
+      | undefined;
+    const actionField = target.dataset?.actionField;
+
+    if (!actionKey || !actionField) {
+      return;
+    }
+
+    const rawValue =
+      target.detail?.value ??
+      (typeof target.value === 'string' ? target.value : undefined);
+
+    if (rawValue === undefined) {
+      return;
+    }
+
+    const existing = this.getActionValue(actionKey);
+    const action =
+      typeof existing === 'object'
+        ? { ...existing }
+        : { action: existing ?? 'more-info' };
+
+    if (actionField === 'service') {
+      (action as CallServiceAction).service = rawValue;
+    } else if (actionField === 'script') {
+      (action as CallServiceAction).service = 'script.turn_on';
+      if (rawValue) {
+        (action as CallServiceAction).target = { entity_id: rawValue };
+      } else {
+        delete (action as CallServiceAction).target;
+      }
+    } else if (actionField === 'navigation_path') {
+      (action as NavigateAction).navigation_path = rawValue;
+    }
+
+    this.updateConfig({ [actionKey]: action } as Partial<GlowLightCardConfig>);
+  }
+
+  private multiActionFieldChanged(event: Event): void {
+    const target = event.target as HTMLElement & {
+      value?: string;
+      dataset?: { actionKey?: string; actionIndex?: string; actionField?: string };
+      detail?: { value?: string };
+    };
+    const actionKey = target.dataset?.actionKey as
+      | 'tap_action'
+      | 'hold_action'
+      | undefined;
+    const actionIndex = target.dataset?.actionIndex
+      ? Number(target.dataset.actionIndex)
+      : undefined;
+    const actionField = target.dataset?.actionField;
+
+    if (!actionKey || actionIndex === undefined || !actionField) {
+      return;
+    }
+
+    const rawValue =
+      target.detail?.value ??
+      (typeof target.value === 'string' ? target.value : undefined);
+
+    const action = this.getActionValue(actionKey);
+    if (typeof action !== 'object' || action.action !== 'multi') {
+      return;
+    }
+
+    const multiAction = action as MultiAction;
+    const newActions = [...multiAction.actions];
+    const targetAction = newActions[actionIndex];
+
+    if (!targetAction) {
+      return;
+    }
+
+    if (actionField === 'action') {
+      if (rawValue === 'call-service') {
+        newActions[actionIndex] = { action: 'call-service', service: '' };
+      } else if (rawValue === 'navigate') {
+        newActions[actionIndex] = { action: 'navigate', navigation_path: '' };
+      }
+    } else if (actionField === 'service') {
+      if (typeof targetAction === 'object' && targetAction.action === 'call-service') {
+        (targetAction as CallServiceAction).service = rawValue ?? '';
+      }
+    } else if (actionField === 'navigation_path') {
+      if (typeof targetAction === 'object' && targetAction.action === 'navigate') {
+        (targetAction as NavigateAction).navigation_path = rawValue ?? '';
+      }
+    }
+
+    this.updateConfig({
+      [actionKey]: { action: 'multi', actions: newActions },
+    } as Partial<GlowLightCardConfig>);
   }
 
   private renderEntityForm(): TemplateResult {
@@ -1878,6 +2364,8 @@ class GlowLightCardEditor extends LitElement {
               'more-info',
             )}
           </div>
+          ${this.renderActionFields('tap_action')}
+          ${this.renderActionFields('hold_action')}
         </section>
       </div>
     `;
