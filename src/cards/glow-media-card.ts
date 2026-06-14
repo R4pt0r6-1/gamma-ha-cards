@@ -24,7 +24,7 @@ type HomeAssistant = {
   ) => Promise<unknown> | void;
 };
 
-type ActionMode = 'toggle' | 'more-info' | 'none';
+type ActionMode = 'toggle' | 'more-info' | 'none' | 'script';
 
 type ActionObject = {
   action: ActionMode;
@@ -96,6 +96,7 @@ const ACTIONS: Array<ActionMode | 'call-service'> = [
   'none',
   'toggle',
   'call-service',
+  'script',
 ];
 
 function fireConfigChanged(
@@ -844,6 +845,16 @@ class GlowMediaCardEditor extends LitElement {
         return;
       }
 
+      if (selectedAction === 'script') {
+        this.updateConfig({
+          [configValue]: {
+            action: 'call-service',
+            service: 'script.turn_on',
+          },
+        } as Partial<GlowMediaCardConfig>);
+        return;
+      }
+
       this.updateConfig({
         [configValue]: selectedAction,
       } as Partial<GlowMediaCardConfig>);
@@ -980,11 +991,35 @@ class GlowMediaCardEditor extends LitElement {
     };
   }
 
+  private isScriptAction(action: ActionConfig | undefined): boolean {
+    return (
+      typeof action === 'object' &&
+      action.action === 'call-service' &&
+      action.service === 'script.turn_on'
+    );
+  }
+
   private renderActionFields(
     key: 'tap_action' | 'hold_action',
   ): TemplateResult {
     const action = this.getActionValue(key);
     const actionType = typeof action === 'string' ? action : action?.action;
+
+    if (actionType === 'call-service' && this.isScriptAction(action)) {
+      return html`
+        <div class="grid full">
+          <ha-selector
+            .hass=${this.hass}
+            .label=${key === 'tap_action' ? 'Tap Script' : 'Hold Script'}
+            .selector=${{ entity: { domain: 'script' } }}
+            .value=${String((action as CallServiceAction).target?.entity_id ?? '')}
+            data-action-key=${key}
+            data-action-field="script"
+            @value-changed=${this.actionFieldChanged}
+          ></ha-selector>
+        </div>
+      `;
+    }
 
     if (actionType === 'call-service') {
       const callAction = this.getCallServiceAction(key);
@@ -1093,6 +1128,13 @@ class GlowMediaCardEditor extends LitElement {
 
     if (actionField === 'service') {
       (action as CallServiceAction).service = rawValue;
+    } else if (actionField === 'script') {
+      (action as CallServiceAction).service = 'script.turn_on';
+      if (rawValue) {
+        (action as CallServiceAction).target = { entity_id: rawValue };
+      } else {
+        delete (action as CallServiceAction).target;
+      }
     } else if (actionField === 'target_entity') {
       const targetObj = rawValue
         ? { entity_id: rawValue }

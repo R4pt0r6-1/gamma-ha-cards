@@ -4781,7 +4781,8 @@ const K = {
   "more-info",
   "none",
   "toggle",
-  "call-service"
+  "call-service",
+  "script"
 ];
 function mi(o, t) {
   o.dispatchEvent(
@@ -5362,6 +5363,15 @@ const Gt = class Gt extends u {
         });
         return;
       }
+      if (s === "script") {
+        this.updateConfig({
+          [i]: {
+            action: "call-service",
+            service: "script.turn_on"
+          }
+        });
+        return;
+      }
       this.updateConfig({
         [i]: s
       });
@@ -5458,18 +5468,35 @@ const Gt = class Gt extends u {
       service: ""
     };
   }
+  isScriptAction(t) {
+    return typeof t == "object" && t.action === "call-service" && t.service === "script.turn_on";
+  }
   renderActionFields(t) {
-    var r;
+    var r, n;
     const e = this.getActionValue(t), i = typeof e == "string" ? e : e == null ? void 0 : e.action;
+    if (i === "call-service" && this.isScriptAction(e))
+      return a`
+        <div class="grid full">
+          <ha-selector
+            .hass=${this.hass}
+            .label=${t === "tap_action" ? "Tap Script" : "Hold Script"}
+            .selector=${{ entity: { domain: "script" } }}
+            .value=${String(((r = e.target) == null ? void 0 : r.entity_id) ?? "")}
+            data-action-key=${t}
+            data-action-field="script"
+            @value-changed=${this.actionFieldChanged}
+          ></ha-selector>
+        </div>
+      `;
     if (i === "call-service") {
-      const n = this.getCallServiceAction(t);
+      const s = this.getCallServiceAction(t);
       return a`
         <div class="grid full">
           <div>
             <ha-textfield
               .label=${t === "tap_action" ? "Tap Service" : "Hold Service"}
               .placeholder=${"script.sony_source_test"}
-              .value=${n.service ?? ""}
+              .value=${s.service ?? ""}
               data-action-key=${t}
               data-action-field="service"
               @input=${this.actionFieldChanged}
@@ -5480,7 +5507,7 @@ const Gt = class Gt extends u {
               .hass=${this.hass}
               .label=${t === "tap_action" ? "Tap Target Entity" : "Hold Target Entity"}
               .selector=${{ entity: {} }}
-              .value=${String(((r = n.target) == null ? void 0 : r.entity_id) ?? "")}
+              .value=${String(((n = s.target) == null ? void 0 : n.entity_id) ?? "")}
               data-action-key=${t}
               data-action-field="target_entity"
               @value-changed=${this.actionFieldChanged}
@@ -5490,7 +5517,7 @@ const Gt = class Gt extends u {
             <label>
               ${t === "tap_action" ? "Tap Data" : "Hold Data"}
               <textarea
-                .value=${this.actionDataToString(n)}
+                .value=${this.actionDataToString(s)}
                 data-action-key=${t}
                 data-action-field="data"
                 @change=${this.actionFieldChanged}
@@ -5503,14 +5530,14 @@ const Gt = class Gt extends u {
       `;
     }
     if (i === "more-info") {
-      const n = this.config.entity;
+      const s = this.config.entity;
       return a`
         <div class="grid full">
           <ha-selector
             .hass=${this.hass}
             .label=${t === "tap_action" ? "Tap Entity" : "Hold Entity"}
             .selector=${{ entity: { domain: "media_player" } }}
-            .value=${n ?? ""}
+            .value=${s ?? ""}
             data-action-key=${t}
             data-action-field="entity"
             @value-changed=${this.actionFieldChanged}
@@ -5541,6 +5568,8 @@ const Gt = class Gt extends u {
     const s = this.getActionValue(i), c = typeof s == "object" ? { ...s } : { action: s ?? "more-info" };
     if (r === "service")
       c.service = n;
+    else if (r === "script")
+      c.service = "script.turn_on", n ? c.target = { entity_id: n } : delete c.target;
     else if (r === "target_entity") {
       const g = n ? { entity_id: n } : void 0;
       g ? c.target = {
