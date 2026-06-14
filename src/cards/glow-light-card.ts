@@ -1693,11 +1693,9 @@ class GlowLightCardEditor extends LitElement {
   }
 
   private valueChanged(event: Event): void {
-    const target = event.target as HTMLElement &
-      Partial<ConfigElement> & {
-        dataset?: { configValue?: string };
-      };
-    const configValue = target.dataset?.configValue || target.configValue;
+    const target = (event.currentTarget as HTMLElement) || (event.target as HTMLElement);
+    const configValue =
+      target?.dataset?.configValue || (target as Partial<ConfigElement>).configValue;
 
     if (!configValue) {
       return;

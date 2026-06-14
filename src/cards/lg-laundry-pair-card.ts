@@ -2034,19 +2034,21 @@ class LgLaundryPairCardEditor extends LitElement {
   }
 
   private valueChanged(event: Event): void {
-    const target = event.target as PairConfigElement;
+    const target = (event.currentTarget as HTMLElement) || (event.target as HTMLElement);
     const customEvent = event as CustomEvent<{ value?: string }>;
 
-    if (!target.configPath) {
+    const configPath = (target as any).configPath || target?.dataset?.configPath;
+
+    if (!configPath) {
       return;
     }
 
-    this.updatePath(
-      target.configPath,
-      target.checked !== undefined
-        ? target.checked
-        : customEvent.detail?.value ?? target.value,
-    );
+    const checked = (target as HTMLInputElement).checked;
+    const value = checked !== undefined
+      ? checked
+      : customEvent.detail?.value ?? (target as any).value;
+
+    this.updatePath(configPath, value);
   }
 
   private valueFor(path: string): unknown {

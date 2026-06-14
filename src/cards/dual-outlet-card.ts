@@ -1144,18 +1144,22 @@ class DualOutletCardEditor extends LitElement {
   }
 
   private valueChanged(event: Event): void {
-    const target = event.target as ConfigElement;
+    const target = (event.currentTarget as HTMLElement) || (event.target as HTMLElement);
     const customEvent = event as CustomEvent<{ value?: string }>;
 
-    if (!target.configValue) {
+    const configValue = (target as any).configValue || target?.dataset?.configValue;
+
+    if (!configValue) {
       return;
     }
 
+    const checked = (target as HTMLInputElement).checked;
+    const value = checked !== undefined
+      ? checked
+      : customEvent.detail?.value ?? (target as any).value;
+
     this.updateConfig({
-      [target.configValue]:
-        target.checked !== undefined
-          ? target.checked
-          : customEvent.detail?.value ?? target.value,
+      [configValue]: value,
     } as Partial<DualOutletCardConfig>);
   }
 
