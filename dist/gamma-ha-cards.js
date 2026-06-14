@@ -570,7 +570,13 @@ const be = {
   tap_action: "toggle",
   hold_action: "more-info",
   animated: !0
-}, xe = ["toggle", "more-info", "none"], oi = ["state", "brightness", "auto"], si = {
+}, xe = [
+  "toggle",
+  "more-info",
+  "none",
+  "call-service",
+  "script"
+], oi = ["state", "brightness", "auto"], si = {
   color: "Color",
   temperature: "Temp",
   effect: "Effect"
@@ -1334,19 +1340,57 @@ const Dt = class Dt extends u {
     t && typeof t.catch == "function" && t.catch(() => this.clearOptimisticState());
   }
   performAction(t) {
-    var e;
+    var e, i, r, n, s;
     if (!(this.isUnavailable || !t || t === "none")) {
-      if (t === "more-info") {
+      if (typeof t == "string") {
+        if (t === "more-info") {
+          this.dispatchMoreInfo();
+          return;
+        }
+        if (t === "toggle") {
+          this.hasDimmer ? this.setOptimisticBrightness(
+            this.isOn ? 0 : this.brightnessPercent ?? 100
+          ) : this.setOptimisticOn(!this.isOn), this.trackServiceResult(
+            (e = this.hass) == null ? void 0 : e.callService(this.domain, "toggle", {
+              entity_id: this.config.entity
+            })
+          );
+          return;
+        }
+        return;
+      }
+      if (t.action === "more-info") {
         this.dispatchMoreInfo();
         return;
       }
-      this.hasDimmer ? this.setOptimisticBrightness(
-        this.isOn ? 0 : this.brightnessPercent ?? 100
-      ) : this.setOptimisticOn(!this.isOn), this.trackServiceResult(
-        (e = this.hass) == null ? void 0 : e.callService(this.domain, "toggle", {
-          entity_id: this.config.entity
-        })
-      );
+      if (t.action === "toggle") {
+        this.hasDimmer ? this.setOptimisticBrightness(
+          this.isOn ? 0 : this.brightnessPercent ?? 100
+        ) : this.setOptimisticOn(!this.isOn), this.trackServiceResult(
+          (i = this.hass) == null ? void 0 : i.callService(this.domain, "toggle", {
+            entity_id: this.config.entity
+          })
+        );
+        return;
+      }
+      if (t.action === "call-service") {
+        const c = String(t.service || "").trim(), [l, h] = c.split(".");
+        if (!l || !h)
+          return;
+        const p = {
+          ...t.service_data ?? t.data ?? {}
+        };
+        if (!Object.prototype.hasOwnProperty.call(p, "entity_id")) {
+          const g = (r = t.target) == null ? void 0 : r.entity_id;
+          typeof g == "string" && g.startsWith("script.") ? p.entity_id = g : p.entity_id = this.config.entity;
+        }
+        t.target ? this.trackServiceResult(
+          (n = this.hass) == null ? void 0 : n.callService(l, h, p, t.target)
+        ) : this.trackServiceResult(
+          (s = this.hass) == null ? void 0 : s.callService(l, h, p)
+        );
+        return;
+      }
     }
   }
   brightnessFromPointer(t) {
@@ -1761,10 +1805,35 @@ const Nt = class Nt extends u {
   }
   valueChanged(t) {
     var n;
-    const e = t.target, i = ((n = e.dataset) == null ? void 0 : n.configValue) || e.configValue;
+    const e = t.currentTarget || t.target, i = ((n = e == null ? void 0 : e.dataset) == null ? void 0 : n.configValue) || e.configValue;
     if (!i)
       return;
-    const r = e.checked !== void 0 ? e.checked : e.value ?? e.value;
+    let r;
+    if (e instanceof HTMLInputElement ? r = e.type === "checkbox" ? e.checked : e.value : (e instanceof HTMLSelectElement, r = e.value), i === "tap_action" || i === "hold_action") {
+      const s = String(r);
+      if (s === "script") {
+        this.updateConfig({
+          [i]: {
+            action: "call-service",
+            service: "script.turn_on"
+          }
+        });
+        return;
+      }
+      if (s === "call-service") {
+        this.updateConfig({
+          [i]: {
+            action: "call-service",
+            service: ""
+          }
+        });
+        return;
+      }
+      this.updateConfig({
+        [i]: s
+      });
+      return;
+    }
     this.updateConfig({
       [i]: r
     });
@@ -1816,18 +1885,24 @@ const Nt = class Nt extends u {
       </label>
     `;
   }
+  getEditorActionType(t) {
+    var i;
+    const e = this.config[t];
+    return typeof e == "object" ? e.action === "call-service" && e.service === "script.turn_on" && typeof ((i = e.target) == null ? void 0 : i.entity_id) == "string" && e.target.entity_id.startsWith("script.") ? "script" : e.action : String(e ?? "more-info");
+  }
   renderSelect(t, e, i, r) {
+    const n = e === "tap_action" || e === "hold_action" ? this.getEditorActionType(e) : this.config[e] ?? r;
     return a`
       <label>
         <span>${t}</span>
         <select
-          .value=${this.config[e] ?? r}
+          .value=${n}
           data-config-value=${e}
           @change=${this.valueChanged}
         >
           ${i.map(
-      (n) => a`
-              <option value=${n}>${n}</option>
+      (s) => a`
+              <option value=${s}>${s}</option>
             `
     )}
         </select>
@@ -4781,7 +4856,8 @@ const K = {
   "more-info",
   "none",
   "toggle",
-  "call-service"
+  "call-service",
+  "script"
 ];
 function mi(o, t) {
   o.dispatchEvent(
@@ -5362,6 +5438,15 @@ const Gt = class Gt extends u {
         });
         return;
       }
+      if (s === "script") {
+        this.updateConfig({
+          [i]: {
+            action: "call-service",
+            service: "script.turn_on"
+          }
+        });
+        return;
+      }
       this.updateConfig({
         [i]: s
       });
@@ -5420,7 +5505,7 @@ const Gt = class Gt extends u {
     `;
   }
   renderSelect(t, e, i, r) {
-    const n = this.config[e], s = typeof n == "string" ? n : (n == null ? void 0 : n.action) ?? r;
+    const n = this.config[e], s = e === "tap_action" || e === "hold_action" ? this.getEditorActionType(e) : typeof n == "string" ? n : (n == null ? void 0 : n.action) ?? r;
     return a`
       <label>
         <span>${t}</span>
@@ -5446,6 +5531,16 @@ const Gt = class Gt extends u {
   getActionValue(t) {
     return this.config[t];
   }
+  isScriptAction(t) {
+    var e, i;
+    return typeof t == "object" && t.action === "call-service" && String(t.service) === "script.turn_on" && typeof ((e = t.target) == null ? void 0 : e.entity_id) == "string" && String((i = t.target) == null ? void 0 : i.entity_id).startsWith("script.");
+  }
+  getScriptEntityId(t) {
+    var i;
+    const e = this.getActionValue(t);
+    if (this.isScriptAction(e))
+      return String(((i = e.target) == null ? void 0 : i.entity_id) || "");
+  }
   getCallServiceAction(t) {
     const e = this.getActionValue(t);
     return typeof e == "object" && e.action === "call-service" ? {
@@ -5458,18 +5553,36 @@ const Gt = class Gt extends u {
       service: ""
     };
   }
+  getEditorActionType(t) {
+    const e = this.getActionValue(t);
+    return this.isScriptAction(e) ? "script" : typeof e == "string" ? e : (e == null ? void 0 : e.action) ?? "more-info";
+  }
   renderActionFields(t) {
-    var r;
-    const e = this.getActionValue(t), i = typeof e == "string" ? e : e == null ? void 0 : e.action;
-    if (i === "call-service") {
-      const n = this.getCallServiceAction(t);
+    var i;
+    const e = this.getEditorActionType(t);
+    if (e === "script")
+      return a`
+        <div class="grid full">
+          <ha-selector
+            .hass=${this.hass}
+            .label=${t === "tap_action" ? "Tap Script" : "Hold Script"}
+            .selector=${{ entity: { domain: "script" } }}
+            .value=${this.getScriptEntityId(t) ?? ""}
+            data-action-key=${t}
+            data-action-field="script"
+            @value-changed=${this.actionFieldChanged}
+          ></ha-selector>
+        </div>
+      `;
+    if (e === "call-service") {
+      const r = this.getCallServiceAction(t);
       return a`
         <div class="grid full">
           <div>
             <ha-textfield
               .label=${t === "tap_action" ? "Tap Service" : "Hold Service"}
               .placeholder=${"script.sony_source_test"}
-              .value=${n.service ?? ""}
+              .value=${r.service ?? ""}
               data-action-key=${t}
               data-action-field="service"
               @input=${this.actionFieldChanged}
@@ -5480,7 +5593,7 @@ const Gt = class Gt extends u {
               .hass=${this.hass}
               .label=${t === "tap_action" ? "Tap Target Entity" : "Hold Target Entity"}
               .selector=${{ entity: {} }}
-              .value=${String(((r = n.target) == null ? void 0 : r.entity_id) ?? "")}
+              .value=${String(((i = r.target) == null ? void 0 : i.entity_id) ?? "")}
               data-action-key=${t}
               data-action-field="target_entity"
               @value-changed=${this.actionFieldChanged}
@@ -5490,7 +5603,7 @@ const Gt = class Gt extends u {
             <label>
               ${t === "tap_action" ? "Tap Data" : "Hold Data"}
               <textarea
-                .value=${this.actionDataToString(n)}
+                .value=${this.actionDataToString(r)}
                 data-action-key=${t}
                 data-action-field="data"
                 @change=${this.actionFieldChanged}
@@ -5502,15 +5615,15 @@ const Gt = class Gt extends u {
         </div>
       `;
     }
-    if (i === "more-info") {
-      const n = this.config.entity;
+    if (e === "more-info") {
+      const r = this.config.entity;
       return a`
         <div class="grid full">
           <ha-selector
             .hass=${this.hass}
             .label=${t === "tap_action" ? "Tap Entity" : "Hold Entity"}
             .selector=${{ entity: { domain: "media_player" } }}
-            .value=${n ?? ""}
+            .value=${r ?? ""}
             data-action-key=${t}
             data-action-field="entity"
             @value-changed=${this.actionFieldChanged}
@@ -5541,6 +5654,8 @@ const Gt = class Gt extends u {
     const s = this.getActionValue(i), c = typeof s == "object" ? { ...s } : { action: s ?? "more-info" };
     if (r === "service")
       c.service = n;
+    else if (r === "script")
+      c.service = "script.turn_on", c.target = n ? { ...c.target, entity_id: n } : void 0;
     else if (r === "target_entity") {
       const g = n ? { entity_id: n } : void 0;
       g ? c.target = {

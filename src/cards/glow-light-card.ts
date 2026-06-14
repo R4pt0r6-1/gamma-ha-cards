@@ -29,7 +29,23 @@ type HomeAssistant = {
 };
 
 type StateDisplayMode = 'state' | 'brightness' | 'auto';
-type ActionMode = 'toggle' | 'more-info' | 'none';
+type ActionMode = 'toggle' | 'more-info' | 'none' | 'script';
+
+type ActionObject = {
+  action: ActionMode;
+  entity?: string;
+};
+
+type CallServiceAction = {
+  action: 'call-service';
+  service: string;
+  target?: Record<string, unknown>;
+  service_data?: Record<string, unknown>;
+  data?: Record<string, unknown>;
+};
+
+type ActionConfig = ActionMode | ActionObject | CallServiceAction;
+
 type LightControlMode = 'color' | 'temperature' | 'effect';
 
 type LightColorPreset = {
@@ -58,8 +74,8 @@ interface GlowLightCardConfig {
   on_color?: string;
   off_color?: string;
   background?: string;
-  tap_action?: ActionMode;
-  hold_action?: ActionMode;
+  tap_action?: ActionConfig;
+  hold_action?: ActionConfig;
   animated?: boolean;
 }
 
@@ -89,7 +105,13 @@ const DEFAULT_CONFIG: Omit<GlowLightCardConfig, 'entity'> = {
   animated: true,
 };
 
-const ACTIONS: ActionMode[] = ['toggle', 'more-info', 'none'];
+const ACTIONS: Array<ActionMode | 'call-service'> = [
+  'toggle',
+  'more-info',
+  'none',
+  'call-service',
+  'script',
+];
 const STATE_DISPLAY_MODES: StateDisplayMode[] = ['state', 'brightness', 'auto'];
 const LIGHT_CONTROL_LABELS: Record<LightControlMode, string> = {
   color: 'Color',
@@ -1065,28 +1087,89 @@ export class GlowLightCard extends LitElement {
     }
   }
 
-  private performAction(action: ActionMode | undefined): void {
+  private performAction(action: ActionConfig | undefined): void {
     if (this.isUnavailable || !action || action === 'none') {
       return;
     }
 
-    if (action === 'more-info') {
+    if (typeof action === 'string') {
+      if (action === 'more-info') {
+        this.dispatchMoreInfo();
+        return;
+      }
+
+      if (action === 'toggle') {
+        if (this.hasDimmer) {
+          this.setOptimisticBrightness(
+            this.isOn ? 0 : this.brightnessPercent ?? 100,
+          );
+        } else {
+          this.setOptimisticOn(!this.isOn);
+        }
+        this.trackServiceResult(
+          this.hass?.callService(this.domain, 'toggle', {
+            entity_id: this.config.entity,
+          }),
+        );
+        return;
+      }
+
+      return;
+    }
+
+    if (action.action === 'more-info') {
       this.dispatchMoreInfo();
       return;
     }
 
-    if (this.hasDimmer) {
-      this.setOptimisticBrightness(
-        this.isOn ? 0 : this.brightnessPercent ?? 100,
+    if (action.action === 'toggle') {
+      if (this.hasDimmer) {
+        this.setOptimisticBrightness(
+          this.isOn ? 0 : this.brightnessPercent ?? 100,
+        );
+      } else {
+        this.setOptimisticOn(!this.isOn);
+      }
+      this.trackServiceResult(
+        this.hass?.callService(this.domain, 'toggle', {
+          entity_id: this.config.entity,
+        }),
       );
-    } else {
-      this.setOptimisticOn(!this.isOn);
+      return;
     }
-    this.trackServiceResult(
-      this.hass?.callService(this.domain, 'toggle', {
-        entity_id: this.config.entity,
-      }),
-    );
+
+    if (action.action === 'call-service') {
+      const serviceValue = String(action.service || '').trim();
+      const [domain, service] = serviceValue.split('.');
+
+      if (!domain || !service) {
+        return;
+      }
+
+      const serviceData: Record<string, unknown> = {
+        ...(action.service_data ?? action.data ?? {}),
+      };
+
+      if (!Object.prototype.hasOwnProperty.call(serviceData, 'entity_id')) {
+        const scriptTarget = action.target?.entity_id;
+        if (typeof scriptTarget === 'string' && scriptTarget.startsWith('script.')) {
+          serviceData.entity_id = scriptTarget;
+        } else {
+          serviceData.entity_id = this.config.entity;
+        }
+      }
+
+      if (action.target) {
+        this.trackServiceResult(
+          this.hass?.callService(domain, service, serviceData, action.target),
+        );
+      } else {
+        this.trackServiceResult(
+          this.hass?.callService(domain, service, serviceData),
+        );
+      }
+      return;
+    }
   }
 
   private brightnessFromPointer(event: PointerEvent): number {
@@ -1693,19 +1776,52 @@ class GlowLightCardEditor extends LitElement {
   }
 
   private valueChanged(event: Event): void {
-    const target = event.target as HTMLElement &
-      Partial<ConfigElement> & {
-        dataset?: { configValue?: string };
-      };
-    const configValue = target.dataset?.configValue || target.configValue;
+    const target = (event.currentTarget as HTMLElement) ||
+      (event.target as HTMLElement);
+    const configValue =
+      target?.dataset?.configValue ||
+      (target as Partial<ConfigElement>).configValue;
 
     if (!configValue) {
       return;
     }
 
-    const inputValue = (target as HTMLInputElement).checked !== undefined
-      ? (target as HTMLInputElement).checked
-      : (target as HTMLSelectElement).value ?? (target as any).value;
+    let inputValue: unknown;
+    if (target instanceof HTMLInputElement) {
+      inputValue = target.type === 'checkbox' ? target.checked : target.value;
+    } else if (target instanceof HTMLSelectElement) {
+      inputValue = target.value;
+    } else {
+      inputValue = (target as any).value;
+    }
+
+    if (configValue === 'tap_action' || configValue === 'hold_action') {
+      const selectedAction = String(inputValue);
+      if (selectedAction === 'script') {
+        this.updateConfig({
+          [configValue]: {
+            action: 'call-service',
+            service: 'script.turn_on',
+          },
+        } as Partial<GlowLightCardConfig>);
+        return;
+      }
+
+      if (selectedAction === 'call-service') {
+        this.updateConfig({
+          [configValue]: {
+            action: 'call-service',
+            service: '',
+          },
+        } as Partial<GlowLightCardConfig>);
+        return;
+      }
+
+      this.updateConfig({
+        [configValue]: selectedAction,
+      } as Partial<GlowLightCardConfig>);
+      return;
+    }
 
     this.updateConfig({
       [configValue]: inputValue,
@@ -1777,17 +1893,38 @@ class GlowLightCardEditor extends LitElement {
     `;
   }
 
+  private getEditorActionType(key: 'tap_action' | 'hold_action'): string {
+    const action = this.config[key];
+    if (typeof action === 'object') {
+      if (
+        action.action === 'call-service' &&
+        action.service === 'script.turn_on' &&
+        typeof action.target?.entity_id === 'string' &&
+        action.target.entity_id.startsWith('script.')
+      ) {
+        return 'script';
+      }
+      return action.action;
+    }
+    return String(action ?? 'more-info');
+  }
+
   private renderSelect(
     label: string,
     key: keyof GlowLightCardConfig,
     options: string[],
     value: string,
   ): TemplateResult {
+    const currentValue =
+      key === 'tap_action' || key === 'hold_action'
+        ? this.getEditorActionType(key)
+        : (this.config[key] as string | undefined) ?? value;
+
     return html`
       <label>
         <span>${label}</span>
         <select
-          .value=${this.config[key] ?? value}
+          .value=${currentValue}
           data-config-value=${key}
           @change=${this.valueChanged}
         >
