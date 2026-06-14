@@ -810,11 +810,17 @@ class GlowMediaCardEditor extends LitElement {
       return;
     }
 
-    const checkboxTarget = target as HTMLInputElement;
-    const selectTarget = target as HTMLSelectElement;
-    const value = checkboxTarget.checked !== undefined
-      ? checkboxTarget.checked
-      : selectTarget.value ?? (target as any).value;
+    let value: unknown;
+
+    if (target instanceof HTMLInputElement) {
+      value = target.type === 'checkbox' ? target.checked : target.value;
+    } else if (target instanceof HTMLSelectElement) {
+      value = target.value;
+    } else if (target instanceof HTMLTextAreaElement) {
+      value = target.value;
+    } else {
+      value = (target as any).value;
+    }
 
     if (configValue === 'active_states' || configValue === 'off_states') {
       this.updateConfig({
@@ -826,16 +832,20 @@ class GlowMediaCardEditor extends LitElement {
       return;
     }
 
-    if (
-      (configValue === 'tap_action' || configValue === 'hold_action') &&
-      typeof value === 'string' &&
-      value === 'call-service'
-    ) {
+    if ((configValue === 'tap_action' || configValue === 'hold_action')) {
+      const selectedAction = String(value);
+      if (selectedAction === 'call-service') {
+        this.updateConfig({
+          [configValue]: {
+            action: 'call-service',
+            service: '',
+          },
+        } as Partial<GlowMediaCardConfig>);
+        return;
+      }
+
       this.updateConfig({
-        [configValue]: {
-          action: 'call-service',
-          service: '',
-        },
+        [configValue]: selectedAction,
       } as Partial<GlowMediaCardConfig>);
       return;
     }

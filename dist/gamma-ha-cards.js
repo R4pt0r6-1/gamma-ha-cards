@@ -5340,28 +5340,35 @@ const Gt = class Gt extends u {
     (i = e.detail) != null && i.value && this.updateConfig(e.detail.value);
   }
   valueChanged(t) {
-    var c;
-    const e = t.currentTarget || t.target, i = ((c = e == null ? void 0 : e.dataset) == null ? void 0 : c.configValue) || e.configValue;
+    var n;
+    const e = t.currentTarget || t.target, i = ((n = e == null ? void 0 : e.dataset) == null ? void 0 : n.configValue) || e.configValue;
     if (!i)
       return;
-    const r = e, n = e, s = r.checked !== void 0 ? r.checked : n.value ?? e.value;
-    if (i === "active_states" || i === "off_states") {
+    let r;
+    if (e instanceof HTMLInputElement ? r = e.type === "checkbox" ? e.checked : e.value : (e instanceof HTMLSelectElement || e instanceof HTMLTextAreaElement, r = e.value), i === "active_states" || i === "off_states") {
       this.updateConfig({
-        [i]: String(s).split(",").map((l) => l.trim()).filter(Boolean)
+        [i]: String(r).split(",").map((s) => s.trim()).filter(Boolean)
       });
       return;
     }
-    if ((i === "tap_action" || i === "hold_action") && typeof s == "string" && s === "call-service") {
+    if (i === "tap_action" || i === "hold_action") {
+      const s = String(r);
+      if (s === "call-service") {
+        this.updateConfig({
+          [i]: {
+            action: "call-service",
+            service: ""
+          }
+        });
+        return;
+      }
       this.updateConfig({
-        [i]: {
-          action: "call-service",
-          service: ""
-        }
+        [i]: s
       });
       return;
     }
     this.updateConfig({
-      [i]: s
+      [i]: r
     });
   }
   renderEntityPicker(t, e) {
