@@ -113,25 +113,6 @@ const ACTIONS: Array<ActionMode | 'call-service' | 'multi'> = [
   'multi',
 ];
 
-const MULTI_ACTIONS: Array<ActionMode | 'call-service'> = [
-  'more-info',
-  'none',
-  'toggle',
-  'call-service',
-  'script',
-  'navigate',
-];
-
-const ACTION_LABELS: Record<string, string> = {
-  'more-info': 'More Info',
-  none: 'None',
-  toggle: 'Toggle',
-  'call-service': 'Call Service',
-  script: 'Script',
-  navigate: 'Navigate',
-  multi: 'Multi',
-};
-
 function fireConfigChanged(
   element: HTMLElement,
   config: Partial<GlowMediaCardConfig>,
@@ -581,7 +562,7 @@ export class GlowMediaCard extends LitElement {
     }
 
     if (action.action === 'more-info') {
-      this.dispatchMoreInfo(action.entity);
+      this.dispatchMoreInfo();
       return;
     }
 
@@ -616,18 +597,12 @@ export class GlowMediaCard extends LitElement {
       const serviceData: Record<string, unknown> = {
         ...(action.service_data ?? action.data ?? {}),
       };
-      const hasTarget = Boolean(
-        action.target && Object.keys(action.target).length,
-      );
 
-      if (
-        !hasTarget &&
-        !Object.prototype.hasOwnProperty.call(serviceData, 'entity_id')
-      ) {
+      if (!Object.prototype.hasOwnProperty.call(serviceData, 'entity_id')) {
         serviceData.entity_id = this.config.entity;
       }
 
-      if (hasTarget) {
+      if (action.target) {
         this.hass?.callService(domain, service, serviceData, action.target);
       } else {
         this.hass?.callService(domain, service, serviceData);
@@ -636,10 +611,10 @@ export class GlowMediaCard extends LitElement {
     }
   }
 
-  private dispatchMoreInfo(entityId = this.config.entity): void {
+  private dispatchMoreInfo(): void {
     this.dispatchEvent(
       new CustomEvent('hass-more-info', {
-        detail: { entityId },
+        detail: { entityId: this.config.entity },
         bubbles: true,
         composed: true,
       }),
@@ -1028,15 +1003,17 @@ class GlowMediaCardEditor extends LitElement {
     value: string,
   ): TemplateResult {
     const currentValue = this.config[key];
-    const selectedValue =
-      key === 'tap_action' || key === 'hold_action'
-        ? this.getActionSelectValue(
-            currentValue as ActionConfig | undefined,
-            value,
-          )
-        : typeof currentValue === 'string'
-          ? currentValue
-          : value;
+    let selectedValue =
+      typeof currentValue === 'string'
+        ? currentValue
+        : (currentValue as CallServiceAction | undefined)?.action ?? value;
+
+    if (
+      (key === 'tap_action' || key === 'hold_action') &&
+      this.isScriptAction(currentValue as ActionConfig | undefined)
+    ) {
+      selectedValue = 'script';
+    }
 
     return html`
       <label>
@@ -1052,7 +1029,7 @@ class GlowMediaCardEditor extends LitElement {
                 value=${option}
                 ?selected=${option === selectedValue}
               >
-                ${ACTION_LABELS[option] ?? option}
+                ${option}
               </option>
             `,
           )}
@@ -1094,8 +1071,8 @@ class GlowMediaCardEditor extends LitElement {
   }
 
   private getActionSelectValue(
-    action: ActionConfig | undefined,
-    fallback: string,
+    action: SingleAction | undefined,
+    fallback = 'call-service',
   ): string {
     if (!action) {
       return fallback;
@@ -1105,155 +1082,14 @@ class GlowMediaCardEditor extends LitElement {
       return action;
     }
 
-    if (this.isScriptAction(action)) {
+    if (
+      action.action === 'call-service' &&
+      action.service === 'script.turn_on'
+    ) {
       return 'script';
     }
 
     return action.action;
-  }
-
-  private createSingleAction(actionType: string): SingleAction {
-    if (actionType === 'call-service') {
-      return { action: 'call-service', service: '' };
-    }
-
-    if (actionType === 'script') {
-      return { action: 'call-service', service: 'script.turn_on' };
-    }
-
-    if (actionType === 'navigate') {
-      return { action: 'navigate', navigation_path: '' };
-    }
-
-    if (
-      actionType === 'more-info' ||
-      actionType === 'none' ||
-      actionType === 'toggle'
-    ) {
-      return { action: actionType };
-    }
-
-    return { action: 'call-service', service: '' };
-  }
-
-  private cloneCallServiceAction(action: CallServiceAction): CallServiceAction {
-    return {
-      action: 'call-service',
-      service: action.service ?? '',
-      target: action.target ? { ...action.target } : undefined,
-      service_data: action.service_data
-        ? { ...action.service_data }
-        : undefined,
-      data: action.data ? { ...action.data } : undefined,
-    };
-  }
-
-  private cloneSingleAction(action: SingleAction): SingleAction {
-    if (typeof action === 'string') {
-      return action;
-    }
-
-    if (action.action === 'call-service') {
-      return this.cloneCallServiceAction(action);
-    }
-
-    if (action.action === 'navigate') {
-      return { ...action };
-    }
-
-    return { ...action };
-  }
-
-  private updateCallServiceActionField(
-    action: CallServiceAction,
-    actionField: string,
-    rawValue: string,
-  ): CallServiceAction | undefined {
-    const next = this.cloneCallServiceAction(action);
-
-    if (actionField === 'service') {
-      next.service = rawValue;
-    } else if (actionField === 'script') {
-      next.service = 'script.turn_on';
-      if (rawValue) {
-        next.target = { entity_id: rawValue };
-      } else {
-        delete next.target;
-      }
-    } else if (actionField === 'target_entity') {
-      if (rawValue) {
-        next.target = {
-          ...(next.target ?? {}),
-          entity_id: rawValue,
-        };
-      } else {
-        delete next.target;
-      }
-    } else if (actionField === 'data') {
-      const parsed = this.parseActionData(rawValue);
-      if (parsed === undefined && rawValue.trim().length > 0) {
-        return undefined;
-      }
-      delete next.service_data;
-      delete next.data;
-      if (parsed && Object.keys(parsed).length) {
-        next.data = parsed;
-      }
-    }
-
-    return next;
-  }
-
-  private updateSingleActionField(
-    action: SingleAction,
-    actionField: string,
-    rawValue: string,
-  ): SingleAction | undefined {
-    if (
-      actionField === 'service' ||
-      actionField === 'script' ||
-      actionField === 'target_entity' ||
-      actionField === 'data'
-    ) {
-      const callAction =
-        typeof action === 'object' && action.action === 'call-service'
-          ? action
-          : { action: 'call-service', service: '' };
-
-      return this.updateCallServiceActionField(
-        callAction as CallServiceAction,
-        actionField,
-        rawValue,
-      );
-    }
-
-    if (actionField === 'entity') {
-      const next: ActionObject =
-        typeof action === 'object' &&
-        action.action !== 'call-service' &&
-        action.action !== 'navigate'
-          ? { ...action }
-          : { action: 'more-info' };
-
-      if (rawValue) {
-        next.entity = rawValue;
-      } else {
-        delete next.entity;
-      }
-
-      return next;
-    }
-
-    if (actionField === 'navigation_path') {
-      const next: NavigateAction =
-        typeof action === 'object' && action.action === 'navigate'
-          ? { ...action }
-          : { action: 'navigate', navigation_path: '' };
-      next.navigation_path = rawValue;
-      return next;
-    }
-
-    return action;
   }
 
   private renderActionFields(
@@ -1412,24 +1248,52 @@ class GlowMediaCardEditor extends LitElement {
 
     const existing = this.getActionValue(actionKey);
     const action =
-      typeof existing === 'object' && existing.action !== 'multi'
-        ? this.cloneSingleAction(existing)
-        : this.createSingleAction(
-            typeof existing === 'string' ? existing : 'more-info',
-          );
-    const nextAction = this.updateSingleActionField(
-      action,
-      actionField,
-      rawValue,
-    );
+      typeof existing === 'object'
+        ? { ...existing }
+        : { action: existing ?? 'more-info' };
 
-    if (!nextAction) {
-      return;
+    if (actionField === 'service') {
+      (action as CallServiceAction).service = rawValue;
+    } else if (actionField === 'script') {
+      (action as CallServiceAction).service = 'script.turn_on';
+      if (rawValue) {
+        (action as CallServiceAction).target = { entity_id: rawValue };
+      } else {
+        delete (action as CallServiceAction).target;
+      }
+    } else if (actionField === 'target_entity') {
+      const targetObj = rawValue
+        ? { entity_id: rawValue }
+        : undefined;
+      if (targetObj) {
+        (action as CallServiceAction).target = {
+          ...(action as CallServiceAction).target,
+          ...targetObj,
+        };
+      } else {
+        delete (action as CallServiceAction).target;
+      }
+    } else if (actionField === 'data') {
+      const parsed = this.parseActionData(rawValue);
+      if (parsed === undefined && rawValue.trim().length > 0) {
+        return;
+      }
+      delete (action as CallServiceAction).service_data;
+      delete (action as CallServiceAction).data;
+      if (parsed && Object.keys(parsed).length) {
+        (action as CallServiceAction).data = parsed;
+      }
+    } else if (actionField === 'entity') {
+      if (rawValue) {
+        (action as ActionObject).entity = rawValue;
+      } else {
+        delete (action as ActionObject).entity;
+      }
+    } else if (actionField === 'navigation_path') {
+      (action as NavigateAction).navigation_path = rawValue;
     }
 
-    this.updateConfig({
-      [actionKey]: nextAction,
-    } as Partial<GlowMediaCardConfig>);
+    this.updateConfig({ [actionKey]: action } as Partial<GlowMediaCardConfig>);
   }
 
   private renderMultiActionSequence(
@@ -1443,19 +1307,10 @@ class GlowMediaCardEditor extends LitElement {
     return html`
       ${multiAction.actions.map(
         (action, index) => {
-          const selectedAction = this.getActionSelectValue(
-            action,
-            'call-service',
-          );
+          const actionType = this.getActionSelectValue(action);
           const callAction =
             typeof action === 'object' && action.action === 'call-service'
               ? action
-              : undefined;
-          const moreInfoEntity =
-            typeof action === 'object' &&
-            action.action !== 'call-service' &&
-            action.action !== 'navigate'
-              ? action.entity
               : undefined;
 
           return html`
@@ -1472,26 +1327,22 @@ class GlowMediaCardEditor extends LitElement {
               <div style="font-size: 12px;">
                 Type:
                 <select
-                  .value=${selectedAction}
+                  .value=${actionType}
                   data-action-key=${key}
                   data-action-index=${index}
                   data-action-field="action"
                   @change=${this.multiActionFieldChanged}
                   style="width: auto; font-size: 12px;"
                 >
-                  ${MULTI_ACTIONS.map(
-                    (option) => html`
-                      <option
-                        value=${option}
-                        ?selected=${option === selectedAction}
-                      >
-                        ${ACTION_LABELS[option] ?? option}
-                      </option>
-                    `,
-                  )}
+                  <option value="more-info">more-info</option>
+                  <option value="none">none</option>
+                  <option value="toggle">toggle</option>
+                  <option value="call-service">call-service</option>
+                  <option value="script">script</option>
+                  <option value="navigate">navigate</option>
                 </select>
               </div>
-              ${selectedAction === 'script'
+              ${actionType === 'script'
                 ? html`
                     <div style="margin-top: 6px;">
                       <ha-selector
@@ -1506,7 +1357,7 @@ class GlowMediaCardEditor extends LitElement {
                       ></ha-selector>
                     </div>
                   `
-                : selectedAction === 'call-service'
+                : actionType === 'call-service'
                   ? html`
                       <div style="margin-top: 6px;">
                         <ha-textfield
@@ -1519,34 +1370,8 @@ class GlowMediaCardEditor extends LitElement {
                           style="font-size: 12px;"
                         ></ha-textfield>
                       </div>
-                      <div style="margin-top: 6px;">
-                        <ha-selector
-                          .hass=${this.hass}
-                          .label=${'Target Entity'}
-                          .selector=${{ entity: {} }}
-                          .value=${String(callAction?.target?.entity_id ?? '')}
-                          data-action-key=${key}
-                          data-action-index=${index}
-                          data-action-field="target_entity"
-                          @value-changed=${this.multiActionFieldChanged}
-                        ></ha-selector>
-                      </div>
-                      <label style="display:block;margin-top:6px;">
-                        Data
-                        <textarea
-                          .value=${callAction
-                            ? this.actionDataToString(callAction)
-                            : ''}
-                          data-action-key=${key}
-                          data-action-index=${index}
-                          data-action-field="data"
-                          @change=${this.multiActionFieldChanged}
-                          rows="4"
-                          style="width:100%;margin-top:6px;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:inherit;"
-                        ></textarea>
-                      </label>
                     `
-                  : selectedAction === 'navigate'
+                  : actionType === 'navigate'
                     ? html`
                         <div style="margin-top: 6px;">
                           <ha-textfield
@@ -1565,22 +1390,7 @@ class GlowMediaCardEditor extends LitElement {
                           ></ha-textfield>
                         </div>
                       `
-                    : selectedAction === 'more-info'
-                      ? html`
-                          <div style="margin-top: 6px;">
-                            <ha-selector
-                              .hass=${this.hass}
-                              .label=${'Entity'}
-                              .selector=${{ entity: { domain: 'media_player' } }}
-                              .value=${String(moreInfoEntity ?? this.config.entity ?? '')}
-                              data-action-key=${key}
-                              data-action-index=${index}
-                              data-action-field="entity"
-                              @value-changed=${this.multiActionFieldChanged}
-                            ></ha-selector>
-                          </div>
-                        `
-                      : nothing}
+                    : nothing}
             </div>
           `;
         },
@@ -1623,17 +1433,18 @@ class GlowMediaCardEditor extends LitElement {
       | 'tap_action'
       | 'hold_action'
       | undefined;
-    const parsedActionIndex =
+    const actionIndex =
       target.dataset?.actionIndex !== undefined
         ? Number(target.dataset.actionIndex)
         : undefined;
-    const actionIndex =
-      parsedActionIndex !== undefined && Number.isInteger(parsedActionIndex)
-        ? parsedActionIndex
-        : undefined;
     const actionField = target.dataset?.actionField;
 
-    if (!actionKey || actionIndex === undefined || !actionField) {
+    if (
+      !actionKey ||
+      actionIndex === undefined ||
+      !Number.isInteger(actionIndex) ||
+      !actionField
+    ) {
       return;
     }
 
@@ -1655,22 +1466,42 @@ class GlowMediaCardEditor extends LitElement {
     }
 
     if (actionField === 'action') {
-      if (!rawValue) {
-        return;
+      if (rawValue === 'call-service') {
+        newActions[actionIndex] = { action: 'call-service', service: '' };
+      } else if (rawValue === 'script') {
+        newActions[actionIndex] = {
+          action: 'call-service',
+          service: 'script.turn_on',
+        };
+      } else if (rawValue === 'navigate') {
+        newActions[actionIndex] = { action: 'navigate', navigation_path: '' };
+      } else if (
+        rawValue === 'more-info' ||
+        rawValue === 'none' ||
+        rawValue === 'toggle'
+      ) {
+        newActions[actionIndex] = rawValue;
       }
-      newActions[actionIndex] = this.createSingleAction(rawValue);
-    } else {
-      const nextAction = this.updateSingleActionField(
-        this.cloneSingleAction(targetAction),
-        actionField,
-        rawValue ?? '',
-      );
-
-      if (!nextAction) {
-        return;
+    } else if (actionField === 'service') {
+      if (typeof targetAction === 'object' && targetAction.action === 'call-service') {
+        newActions[actionIndex] = {
+          ...targetAction,
+          service: rawValue ?? '',
+        };
       }
-
-      newActions[actionIndex] = nextAction;
+    } else if (actionField === 'script') {
+      newActions[actionIndex] = {
+        action: 'call-service',
+        service: 'script.turn_on',
+        ...(rawValue ? { target: { entity_id: rawValue } } : {}),
+      };
+    } else if (actionField === 'navigation_path') {
+      if (typeof targetAction === 'object' && targetAction.action === 'navigate') {
+        newActions[actionIndex] = {
+          ...targetAction,
+          navigation_path: rawValue ?? '',
+        };
+      }
     }
 
     this.updateConfig({
