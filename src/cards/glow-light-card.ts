@@ -33,7 +33,7 @@ type ActionMode = 'toggle' | 'more-info' | 'none' | 'script' | 'navigate';
 type LightControlMode = 'color' | 'temperature' | 'effect';
 
 type ActionObject = {
-  action: ActionMode;
+  action: Exclude<ActionMode, 'navigate'>;
   entity?: string;
 };
 
