@@ -1179,28 +1179,22 @@ class GlowMediaCardEditor extends LitElement {
     }
 
     return html`
-      <ha-select
+      <ha-selector
+        .hass=${this.hass}
         .label=${label}
+        .selector=${{
+          select: {
+            mode: 'dropdown',
+            options: options.map((option) => ({
+              label: option,
+              value: option,
+            })),
+          },
+        }}
         .value=${selectedValue}
-        value=${selectedValue}
         data-config-value=${key}
-        @change=${this.valueChanged}
-        @closed=${(event: Event) => event.stopPropagation()}
-        fixedMenuPosition
-        naturalMenuWidth
-      >
-        ${options.map(
-          (option) => html`
-            <mwc-list-item
-              .value=${option}
-              value=${option}
-              ?selected=${option === selectedValue}
-            >
-              ${option}
-            </mwc-list-item>
-          `,
-        )}
-      </ha-select>
+        @value-changed=${this.valueChanged}
+      ></ha-selector>
     `;
   }
 
@@ -1548,31 +1542,25 @@ class GlowMediaCardEditor extends LitElement {
                 </button>
               </div>
               <div style="font-size: 12px;">
-                Type:
-                <ha-select
+                <ha-selector
+                  .hass=${this.hass}
+                  .label=${'Type'}
+                  .selector=${{
+                    select: {
+                      mode: 'dropdown',
+                      options: MULTI_ACTIONS.map((option) => ({
+                        label: option,
+                        value: option,
+                      })),
+                    },
+                  }}
                   .value=${actionType}
-                  value=${actionType}
                   data-action-key=${key}
                   data-action-index=${index}
                   data-action-field="action"
-                  @change=${this.multiActionFieldChanged}
-                  @closed=${(event: Event) => event.stopPropagation()}
+                  @value-changed=${this.multiActionFieldChanged}
                   style="width: auto; font-size: 12px;"
-                  fixedMenuPosition
-                  naturalMenuWidth
-                >
-                  ${MULTI_ACTIONS.map(
-                    (option) => html`
-                      <mwc-list-item
-                        .value=${option}
-                        value=${option}
-                        ?selected=${option === actionType}
-                      >
-                        ${option}
-                      </mwc-list-item>
-                    `,
-                  )}
-                </ha-select>
+                ></ha-selector>
               </div>
               ${actionType === 'script'
                 ? html`

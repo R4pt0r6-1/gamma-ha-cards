@@ -22,14 +22,14 @@ let Ie = class {
     return this.cssText;
   }
 };
-const We = (s) => new Ie(typeof s == "string" ? s : s + "", void 0, Dt), x = (s, ...t) => {
+const He = (s) => new Ie(typeof s == "string" ? s : s + "", void 0, Dt), x = (s, ...t) => {
   const e = s.length === 1 ? s[0] : t.reduce((i, r, n) => i + ((o) => {
     if (o._$cssResult$ === !0) return o.cssText;
     if (typeof o == "number") return o;
     throw Error("Value passed to 'css' function must be a 'css' function result: " + o + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
   })(r) + s[n + 1], s[0]);
   return new Ie(e, s, Dt);
-}, He = (s, t) => {
+}, We = (s, t) => {
   if (Nt) s.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
   else for (const e of t) {
     const i = document.createElement("style"), r = et.litNonce;
@@ -38,7 +38,7 @@ const We = (s) => new Ie(typeof s == "string" ? s : s + "", void 0, Dt), x = (s,
 }, he = Nt ? (s) => s : (s) => s instanceof CSSStyleSheet ? ((t) => {
   let e = "";
   for (const i of t.cssRules) e += i.cssText;
-  return We(e);
+  return He(e);
 })(s) : s;
 /**
  * @license
@@ -159,7 +159,7 @@ let O = class extends HTMLElement {
   }
   createRenderRoot() {
     const t = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
-    return He(t, this.constructor.elementStyles), t;
+    return We(t, this.constructor.elementStyles), t;
   }
   connectedCallback() {
     var t;
@@ -284,7 +284,7 @@ O.elementStyles = [], O.shadowRootOptions = { mode: "open" }, O[j("elementProper
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const B = globalThis, ue = (s) => s, it = B.trustedTypes, fe = it ? it.createPolicy("lit-html", { createHTML: (s) => s }) : void 0, De = "$lit$", w = `lit$${Math.random().toFixed(9).slice(2)}$`, Ue = "?" + w, Qe = `<${Ue}>`, A = document, W = () => A.createComment(""), H = (s) => s === null || typeof s != "object" && typeof s != "function", Ut = Array.isArray, ti = (s) => Ut(s) || typeof (s == null ? void 0 : s[Symbol.iterator]) == "function", st = `[ 	
+const B = globalThis, ue = (s) => s, it = B.trustedTypes, fe = it ? it.createPolicy("lit-html", { createHTML: (s) => s }) : void 0, De = "$lit$", w = `lit$${Math.random().toFixed(9).slice(2)}$`, Ue = "?" + w, Qe = `<${Ue}>`, A = document, H = () => A.createComment(""), W = (s) => s === null || typeof s != "object" && typeof s != "function", Ut = Array.isArray, ti = (s) => Ut(s) || typeof (s == null ? void 0 : s[Symbol.iterator]) == "function", st = `[ 	
 \f\r]`, D = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, me = /-->/g, be = />/g, k = RegExp(`>|${st}(?:([^\\s"'>=/]+)(${st}*=${st}*(?:[^ 	
 \f\r"'\`<>=]|("|')|))|$)`, "g"), xe = /'/g, ve = /"/g, Le = /^(?:script|style|textarea|title)$/i, ei = (s) => (t, ...e) => ({ _$litType$: s, strings: t, values: e }), a = ei(1), M = Symbol.for("lit-noChange"), p = Symbol.for("lit-nothing"), ye = /* @__PURE__ */ new WeakMap(), C = A.createTreeWalker(A, 129);
 function Re(s, t) {
@@ -323,8 +323,8 @@ class G {
           const g = r.textContent.split(w), u = g.length - 1;
           if (u > 0) {
             r.textContent = it ? it.emptyScript : "";
-            for (let f = 0; f < u; f++) r.append(g[f], W()), C.nextNode(), l.push({ type: 2, index: ++n });
-            r.append(g[u], W());
+            for (let f = 0; f < u; f++) r.append(g[f], H()), C.nextNode(), l.push({ type: 2, index: ++n });
+            r.append(g[u], H());
           }
         }
       } else if (r.nodeType === 8) if (r.data === Ue) l.push({ type: 2, index: n });
@@ -344,7 +344,7 @@ function z(s, t, e = s, i) {
   var o, c;
   if (t === M) return t;
   let r = i !== void 0 ? (o = e._$Co) == null ? void 0 : o[i] : e._$Cl;
-  const n = H(t) ? void 0 : t._$litDirective$;
+  const n = W(t) ? void 0 : t._$litDirective$;
   return (r == null ? void 0 : r.constructor) !== n && ((c = r == null ? void 0 : r._$AO) == null || c.call(r, !1), n === void 0 ? r = void 0 : (r = new n(s), r._$AT(s, e, i)), i !== void 0 ? (e._$Co ?? (e._$Co = []))[i] = r : e._$Cl = r), r !== void 0 && (t = z(s, r._$AS(s, t.values), r, i)), t;
 }
 class ri {
@@ -395,7 +395,7 @@ class J {
     return this._$AB;
   }
   _$AI(t, e = this) {
-    t = z(this, t, e), H(t) ? t === p || t == null || t === "" ? (this._$AH !== p && this._$AR(), this._$AH = p) : t !== this._$AH && t !== M && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : ti(t) ? this.k(t) : this._(t);
+    t = z(this, t, e), W(t) ? t === p || t == null || t === "" ? (this._$AH !== p && this._$AR(), this._$AH = p) : t !== this._$AH && t !== M && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : ti(t) ? this.k(t) : this._(t);
   }
   O(t) {
     return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -404,7 +404,7 @@ class J {
     this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
   }
   _(t) {
-    this._$AH !== p && H(this._$AH) ? this._$AA.nextSibling.data = t : this.T(A.createTextNode(t)), this._$AH = t;
+    this._$AH !== p && W(this._$AH) ? this._$AA.nextSibling.data = t : this.T(A.createTextNode(t)), this._$AH = t;
   }
   $(t) {
     var n;
@@ -423,7 +423,7 @@ class J {
     Ut(this._$AH) || (this._$AH = [], this._$AR());
     const e = this._$AH;
     let i, r = 0;
-    for (const n of t) r === e.length ? e.push(i = new J(this.O(W()), this.O(W()), this, this.options)) : i = e[r], i._$AI(n), r++;
+    for (const n of t) r === e.length ? e.push(i = new J(this.O(H()), this.O(H()), this, this.options)) : i = e[r], i._$AI(n), r++;
     r < e.length && (this._$AR(i && i._$AB.nextSibling, r), e.length = r);
   }
   _$AR(t = this._$AA.nextSibling, e) {
@@ -451,11 +451,11 @@ class nt {
   _$AI(t, e = this, i, r) {
     const n = this.strings;
     let o = !1;
-    if (n === void 0) t = z(this, t, e, 0), o = !H(t) || t !== this._$AH && t !== M, o && (this._$AH = t);
+    if (n === void 0) t = z(this, t, e, 0), o = !W(t) || t !== this._$AH && t !== M, o && (this._$AH = t);
     else {
       const c = t;
       let l, h;
-      for (t = n[0], l = 0; l < n.length - 1; l++) h = z(this, c[i + l], e, l), h === M && (h = this._$AH[l]), o || (o = !H(h) || h !== this._$AH[l]), h === p ? t = p : t !== p && (t += (h ?? "") + n[l + 1]), this._$AH[l] = h;
+      for (t = n[0], l = 0; l < n.length - 1; l++) h = z(this, c[i + l], e, l), h === M && (h = this._$AH[l]), o || (o = !W(h) || h !== this._$AH[l]), h === p ? t = p : t !== p && (t += (h ?? "") + n[l + 1]), this._$AH[l] = h;
     }
     o && !r && this.j(t);
   }
@@ -511,7 +511,7 @@ const ci = (s, t, e) => {
   let r = i._$litPart$;
   if (r === void 0) {
     const n = (e == null ? void 0 : e.renderBefore) ?? null;
-    i._$litPart$ = r = new J(t.insertBefore(W(), n), n, void 0, e ?? {});
+    i._$litPart$ = r = new J(t.insertBefore(H(), n), n, void 0, e ?? {});
   }
   return r._$AI(s), r;
 };
@@ -2004,28 +2004,22 @@ const Bt = class Bt extends m {
   renderSelect(t, e, i, r) {
     const n = e === "tap_action" || e === "hold_action" ? this.getEditorActionType(e) : this.config[e] ?? r;
     return a`
-      <ha-select
+      <ha-selector
+        .hass=${this.hass}
         .label=${t}
+        .selector=${{
+      select: {
+        mode: "dropdown",
+        options: i.map((o) => ({
+          label: o,
+          value: o
+        }))
+      }
+    }}
         .value=${n}
-        value=${n}
         data-config-value=${e}
-        @change=${this.valueChanged}
-        @closed=${(o) => o.stopPropagation()}
-        fixedMenuPosition
-        naturalMenuWidth
-      >
-        ${i.map(
-      (o) => a`
-            <mwc-list-item
-              .value=${o}
-              value=${o}
-              ?selected=${o === n}
-            >
-              ${o}
-            </mwc-list-item>
-          `
-    )}
-      </ha-select>
+        @value-changed=${this.valueChanged}
+      ></ha-selector>
     `;
   }
   getActionValue(t) {
@@ -2152,31 +2146,25 @@ const Bt = class Bt extends m {
                 </button>
               </div>
               <div style="font-size: 12px;">
-                Type:
-                <ha-select
+                <ha-selector
+                  .hass=${this.hass}
+                  .label=${"Type"}
+                  .selector=${{
+          select: {
+            mode: "dropdown",
+            options: li.map((l) => ({
+              label: l,
+              value: l
+            }))
+          }
+        }}
                   .value=${n}
-                  value=${n}
                   data-action-key=${t}
                   data-action-index=${r}
                   data-action-field="action"
-                  @change=${this.multiActionFieldChanged}
-                  @closed=${(l) => l.stopPropagation()}
+                  @value-changed=${this.multiActionFieldChanged}
                   style="width: auto; font-size: 12px;"
-                  fixedMenuPosition
-                  naturalMenuWidth
-                >
-                  ${li.map(
-          (l) => a`
-                      <mwc-list-item
-                        .value=${l}
-                        value=${l}
-                        ?selected=${l === n}
-                      >
-                        ${l}
-                      </mwc-list-item>
-                    `
-        )}
-                </ha-select>
+                ></ha-selector>
               </div>
               ${n === "script" ? a`
                     <div style="margin-top: 6px;">
@@ -2833,7 +2821,7 @@ Vt.properties = {
 };
 let ut = Vt;
 customElements.get("glow-switch-card") || customElements.define("glow-switch-card", ut);
-const Wt = class Wt extends m {
+const Ht = class Ht extends m {
   constructor() {
     super(...arguments), this.config = {};
   }
@@ -3027,11 +3015,11 @@ const Wt = class Wt extends m {
     `;
   }
 };
-Wt.properties = {
+Ht.properties = {
   hass: { attribute: !1 },
   config: { state: !0 }
 };
-let ft = Wt;
+let ft = Ht;
 customElements.get("glow-switch-card-editor") || customElements.define("glow-switch-card-editor", ft);
 window.customCards = window.customCards || [];
 window.customCards.push({
@@ -3068,7 +3056,7 @@ function bi(s, t) {
     })
   );
 }
-const Ht = class Ht extends m {
+const Wt = class Wt extends m {
   constructor() {
     super(...arguments), this.holdActive = !1;
   }
@@ -3525,14 +3513,14 @@ const Ht = class Ht extends m {
     `;
   }
 };
-Ht.properties = {
+Wt.properties = {
   hass: { attribute: !1 },
   config: { state: !0 },
   holdActive: { state: !0 },
   optimisticLocked: { state: !0 },
   optimisticState: { state: !0 }
 };
-let mt = Ht;
+let mt = Wt;
 customElements.get("glow-lock-card") || customElements.define("glow-lock-card", mt);
 const Gt = class Gt extends m {
   constructor() {
@@ -6000,28 +5988,22 @@ const Yt = class Yt extends m {
     const n = this.config[e];
     let o = typeof n == "string" ? n : (n == null ? void 0 : n.action) ?? r;
     return (e === "tap_action" || e === "hold_action") && this.isScriptAction(n) && (o = "script"), a`
-      <ha-select
+      <ha-selector
+        .hass=${this.hass}
         .label=${t}
+        .selector=${{
+      select: {
+        mode: "dropdown",
+        options: i.map((c) => ({
+          label: c,
+          value: c
+        }))
+      }
+    }}
         .value=${o}
-        value=${o}
         data-config-value=${e}
-        @change=${this.valueChanged}
-        @closed=${(c) => c.stopPropagation()}
-        fixedMenuPosition
-        naturalMenuWidth
-      >
-        ${i.map(
-      (c) => a`
-            <mwc-list-item
-              .value=${c}
-              value=${c}
-              ?selected=${c === o}
-            >
-              ${c}
-            </mwc-list-item>
-          `
-    )}
-      </ha-select>
+        @value-changed=${this.valueChanged}
+      ></ha-selector>
     `;
   }
   getActionValue(t) {
@@ -6243,31 +6225,25 @@ const Yt = class Yt extends m {
                 </button>
               </div>
               <div style="font-size: 12px;">
-                Type:
-                <ha-select
+                <ha-selector
+                  .hass=${this.hass}
+                  .label=${"Type"}
+                  .selector=${{
+          select: {
+            mode: "dropdown",
+            options: wi.map((l) => ({
+              label: l,
+              value: l
+            }))
+          }
+        }}
                   .value=${n}
-                  value=${n}
                   data-action-key=${t}
                   data-action-index=${r}
                   data-action-field="action"
-                  @change=${this.multiActionFieldChanged}
-                  @closed=${(l) => l.stopPropagation()}
+                  @value-changed=${this.multiActionFieldChanged}
                   style="width: auto; font-size: 12px;"
-                  fixedMenuPosition
-                  naturalMenuWidth
-                >
-                  ${wi.map(
-          (l) => a`
-                      <mwc-list-item
-                        .value=${l}
-                        value=${l}
-                        ?selected=${l === n}
-                      >
-                        ${l}
-                      </mwc-list-item>
-                    `
-        )}
-                </ha-select>
+                ></ha-selector>
               </div>
               ${n === "script" ? a`
                     <div style="margin-top: 6px;">
@@ -10039,7 +10015,7 @@ const Be = {
   "steam_softening",
   "wrinkle_care"
 ]), Ri = /* @__PURE__ */ new Set(["end"]), ji = /* @__PURE__ */ new Set(["pause", "reserved", "rinse_hold"]), Bi = /* @__PURE__ */ new Set(["power_off", "initial"]), Vi = /* @__PURE__ */ new Set(["error"]);
-function Wi(s, t) {
+function Hi(s, t) {
   s.dispatchEvent(
     new CustomEvent("config-changed", {
       detail: { config: t },
@@ -10051,7 +10027,7 @@ function Wi(s, t) {
 function Q(s) {
   return s === "dryer" ? "#ff5a2f" : "#2f8cff";
 }
-function Hi(s) {
+function Wi(s) {
   return s === "dryer" ? "#ff9a1f" : "#4ad7ff";
 }
 function Ve(s) {
@@ -11377,7 +11353,7 @@ const re = class re extends m {
         style="
           --machine-state-color: ${this.stateColor(t, e, i)};
           --machine-accent-color: ${Q(t)};
-          --machine-contrast-color: ${Hi(t)};
+          --machine-contrast-color: ${Wi(t)};
           --machine-progress: ${this.progress(t, e, i)}%;
           --machine-active-opacity: ${i === "off" ? "0.08" : "0.42"};
           --machine-status-opacity: ${i === "off" ? "0.38" : "1"};
@@ -11535,7 +11511,7 @@ const ne = class ne extends m {
     this.config = {
       ...this.config,
       ...t
-    }, Wi(this, this.config);
+    }, Hi(this, this.config);
   }
   updatePath(t, e) {
     const [i, r] = t.split(".");
