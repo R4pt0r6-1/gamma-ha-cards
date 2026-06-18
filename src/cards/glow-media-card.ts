@@ -22,6 +22,7 @@ type HomeAssistant = {
     serviceData?: Record<string, unknown>,
     target?: Record<string, unknown>,
   ) => Promise<unknown> | void;
+  callWS?: <T = unknown>(message: Record<string, unknown>) => Promise<T>;
 };
 
 type ActionMode = 'toggle' | 'more-info' | 'none' | 'script' | 'navigate';
@@ -52,6 +53,26 @@ type MultiAction = {
 };
 
 type ActionConfig = SingleAction | MultiAction;
+
+type LovelaceDashboard = {
+  id?: string;
+  title?: string;
+  url_path?: string;
+};
+
+type LovelaceView = {
+  title?: string;
+  path?: string;
+};
+
+type LovelaceConfig = {
+  views?: LovelaceView[];
+};
+
+type NavigationOption = {
+  label: string;
+  path: string;
+};
 
 interface GlowMediaCardConfig {
   type?: string;
@@ -772,10 +793,14 @@ class GlowMediaCardEditor extends LitElement {
   static properties = {
     hass: { attribute: false },
     config: { state: true },
+    navigationOptions: { state: true },
   };
 
   public hass?: HomeAssistant;
   private config: Partial<GlowMediaCardConfig> = {};
+  private navigationOptions: NavigationOption[] = [];
+  private navigationOptionsLoaded = false;
+  private navigationOptionsLoading = false;
 
   static get styles(): CSSResultGroup {
     return css`
@@ -835,6 +860,12 @@ class GlowMediaCardEditor extends LitElement {
     this.config = { ...config };
   }
 
+  protected updated(changedProperties: Map<string, unknown>): void {
+    if (changedProperties.has('hass')) {
+      void this.loadNavigationOptions();
+    }
+  }
+
   private updateConfig(patch: Partial<GlowMediaCardConfig>): void {
     const next = { ...this.config, ...patch };
     Object.keys(next).forEach((key) => {
@@ -845,6 +876,116 @@ class GlowMediaCardEditor extends LitElement {
     });
     this.config = next;
     fireConfigChanged(this, next);
+  }
+
+  private async loadNavigationOptions(): Promise<void> {
+    if (
+      this.navigationOptionsLoaded ||
+      this.navigationOptionsLoading ||
+      !this.hass?.callWS
+    ) {
+      return;
+    }
+
+    this.navigationOptionsLoading = true;
+
+    try {
+      const dashboards = await this.hass.callWS<LovelaceDashboard[]>({
+        type: 'lovelace/dashboards/list',
+      });
+      const options: NavigationOption[] = [];
+      const paths = new Set<string>();
+      const dashboardList = Array.isArray(dashboards) && dashboards.length
+        ? dashboards
+        : [{ title: 'Overview', url_path: 'lovelace' }];
+
+      for (const dashboard of dashboardList) {
+        const dashboardPath = this.normalizeDashboardPath(
+          dashboard.url_path || dashboard.id || 'lovelace',
+        );
+        const dashboardTitle = dashboard.title || dashboardPath;
+        const config = await this.fetchLovelaceConfig(dashboardPath);
+        const views = Array.isArray(config?.views) ? config.views : [];
+
+        if (!views.length) {
+          this.addNavigationOption(
+            options,
+            paths,
+            `/${dashboardPath}`,
+            dashboardTitle,
+          );
+          continue;
+        }
+
+        views.forEach((view, index) => {
+          const viewPath = this.normalizeDashboardPath(
+            view.path || String(index),
+          );
+          this.addNavigationOption(
+            options,
+            paths,
+            `/${dashboardPath}/${viewPath}`,
+            `${dashboardTitle} / ${view.title || view.path || `View ${index + 1}`}`,
+          );
+        });
+      }
+
+      this.navigationOptions = options;
+      this.navigationOptionsLoaded = true;
+    } catch {
+      this.navigationOptions = [];
+      this.navigationOptionsLoaded = true;
+    } finally {
+      this.navigationOptionsLoading = false;
+    }
+  }
+
+  private async fetchLovelaceConfig(
+    dashboardPath: string,
+  ): Promise<LovelaceConfig | undefined> {
+    if (!this.hass?.callWS) {
+      return undefined;
+    }
+
+    const messages: Record<string, unknown>[] = [
+      {
+        type: 'lovelace/config',
+        url_path: dashboardPath,
+        force: false,
+      },
+    ];
+
+    if (dashboardPath === 'lovelace') {
+      messages.push({ type: 'lovelace/config', force: false });
+    }
+
+    for (const message of messages) {
+      try {
+        return await this.hass.callWS<LovelaceConfig>(message);
+      } catch {
+        // Try the next supported request shape.
+      }
+    }
+
+    return undefined;
+  }
+
+  private normalizeDashboardPath(path: string): string {
+    return String(path || 'lovelace').replace(/^\/+|\/+$/g, '') || 'lovelace';
+  }
+
+  private addNavigationOption(
+    options: NavigationOption[],
+    paths: Set<string>,
+    path: string,
+    label: string,
+  ): void {
+    if (paths.has(path)) {
+      return;
+    }
+
+    paths.add(path);
+    options.push({ label, path });
   }
 
   private formChanged(event: Event): void {
@@ -1116,6 +1257,65 @@ class GlowMediaCardEditor extends LitElement {
     return action.action;
   }
 
+  private renderNavigationField(
+    label: string,
+    value: string,
+    actionKey: 'tap_action' | 'hold_action',
+    actionIndex?: number,
+  ): TemplateResult {
+    const handleNavigationChanged = (event: Event): void => {
+      if (actionIndex === undefined) {
+        this.actionFieldChanged(event);
+      } else {
+        this.multiActionFieldChanged(event);
+      }
+    };
+    const hasKnownPath = this.navigationOptions.some(
+      (option) => option.path === value,
+    );
+
+    return html`
+      <div style="margin-top: 6px;">
+        ${this.navigationOptions.length
+          ? html`
+              <ha-select
+                .label=${label}
+                .value=${hasKnownPath ? value : ''}
+                data-action-key=${actionKey}
+                data-action-index=${actionIndex ?? ''}
+                data-action-field="navigation_path"
+                @selected=${handleNavigationChanged}
+                @change=${handleNavigationChanged}
+                @closed=${(event: Event) => event.stopPropagation()}
+                fixedMenuPosition
+                naturalMenuWidth
+              >
+                ${this.navigationOptions.map(
+                  (option) => html`
+                    <mwc-list-item
+                      .value=${option.path}
+                      ?selected=${option.path === value}
+                    >
+                      ${option.label}
+                    </mwc-list-item>
+                  `,
+                )}
+              </ha-select>
+            `
+          : nothing}
+        <ha-textfield
+          .label=${this.navigationOptions.length ? 'Custom Path' : label}
+          .placeholder=${'/lovelace/0'}
+          .value=${value}
+          data-action-key=${actionKey}
+          data-action-index=${actionIndex ?? ''}
+          data-action-field="navigation_path"
+          @input=${handleNavigationChanged}
+        ></ha-textfield>
+      </div>
+    `;
+  }
+
   private renderActionFields(
     key: 'tap_action' | 'hold_action',
   ): TemplateResult {
@@ -1143,14 +1343,11 @@ class GlowMediaCardEditor extends LitElement {
     if (actionType === 'navigate') {
       return html`
         <div class="grid full">
-          <ha-textfield
-            .label=${key === 'tap_action' ? 'Navigation Path' : 'Navigation Path'}
-            .placeholder=${'#/dashboard/main'}
-            .value=${String((action as NavigateAction)?.navigation_path ?? '')}
-            data-action-key=${key}
-            data-action-field="navigation_path"
-            @input=${this.actionFieldChanged}
-          ></ha-textfield>
+          ${this.renderNavigationField(
+            'Navigation View',
+            String((action as NavigateAction)?.navigation_path ?? ''),
+            key,
+          )}
         </div>
       `;
     }
@@ -1262,7 +1459,13 @@ class GlowMediaCardEditor extends LitElement {
       return;
     }
 
+    const customEvent = event as CustomEvent<{
+      item?: { value?: string };
+      value?: string;
+    }>;
     const rawValue =
+      customEvent.detail?.value ??
+      customEvent.detail?.item?.value ??
       target.detail?.value ??
       (typeof target.value === 'string' ? target.value : undefined);
 
@@ -1403,26 +1606,21 @@ class GlowMediaCardEditor extends LitElement {
                         ></ha-textfield>
                       </div>
                     `
-                  : actionType === 'navigate'
-                    ? html`
-                        <div style="margin-top: 6px;">
-                          <ha-textfield
-                            .label=${'Path'}
-                            .value=${String(
-                              typeof action === 'object' &&
-                                action.action === 'navigate'
-                                ? action.navigation_path
-                                : '',
-                            )}
-                            data-action-key=${key}
-                            data-action-index=${index}
-                            data-action-field="navigation_path"
-                            @input=${this.multiActionFieldChanged}
-                            style="font-size: 12px;"
-                          ></ha-textfield>
-                        </div>
-                      `
-                    : nothing}
+                : actionType === 'navigate'
+                  ? html`
+                      ${this.renderNavigationField(
+                        'Navigation View',
+                        String(
+                          typeof action === 'object' &&
+                            action.action === 'navigate'
+                            ? action.navigation_path
+                            : '',
+                        ),
+                        key,
+                        index,
+                      )}
+                    `
+                  : nothing}
             </div>
           `;
         },
