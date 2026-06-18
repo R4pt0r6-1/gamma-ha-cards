@@ -31,6 +31,13 @@ type HomeAssistant = {
 
 type StateDisplayMode = 'state' | 'brightness' | 'auto';
 type ActionMode = 'toggle' | 'more-info' | 'none' | 'script' | 'navigate';
+type MultiActionMode =
+  | 'call-service'
+  | 'script'
+  | 'navigate'
+  | 'delay'
+  | 'toggle'
+  | 'more-info';
 type LightControlMode = 'color' | 'temperature' | 'effect';
 
 type ActionObject = {
@@ -51,7 +58,17 @@ type NavigateAction = {
   navigation_path: string;
 };
 
-type SingleAction = ActionMode | ActionObject | CallServiceAction | NavigateAction;
+type DelayAction = {
+  action: 'delay';
+  delay?: number;
+};
+
+type SingleAction =
+  | ActionMode
+  | ActionObject
+  | CallServiceAction
+  | NavigateAction
+  | DelayAction;
 
 type MultiAction = {
   action: 'multi';
@@ -138,21 +155,21 @@ const DEFAULT_CONFIG: Omit<GlowLightCardConfig, 'entity'> = {
 };
 
 const ACTIONS: Array<ActionMode | 'call-service' | 'multi'> = [
-  'toggle',
   'more-info',
   'none',
+  'toggle',
   'call-service',
   'script',
   'navigate',
   'multi',
 ];
-const MULTI_ACTIONS: Array<ActionMode | 'call-service'> = [
-  'more-info',
-  'none',
-  'toggle',
+const MULTI_ACTIONS: MultiActionMode[] = [
   'call-service',
   'script',
   'navigate',
+  'delay',
+  'toggle',
+  'more-info',
 ];
 const STATE_DISPLAY_MODES: StateDisplayMode[] = ['state', 'brightness', 'auto'];
 const LIGHT_CONTROL_LABELS: Record<LightControlMode, string> = {
@@ -1135,17 +1152,33 @@ export class GlowLightCard extends LitElement {
     }
 
     if (typeof action === 'object' && action.action === 'multi') {
-      this.performMultiAction(action);
+      void this.performMultiAction(action);
       return;
     }
 
     this.performSingleAction(action);
   }
 
-  private performMultiAction(action: MultiAction): void {
+  private async performMultiAction(action: MultiAction): Promise<void> {
     for (const singleAction of action.actions) {
+      if (typeof singleAction === 'object' && singleAction.action === 'delay') {
+        await this.wait(this.delayMilliseconds(singleAction));
+        continue;
+      }
+
       this.performSingleAction(singleAction);
     }
+  }
+
+  private delayMilliseconds(action: DelayAction): number {
+    const milliseconds = Number(action.delay ?? 1000);
+    return Number.isFinite(milliseconds) && milliseconds >= 0
+      ? milliseconds
+      : 1000;
+  }
+
+  private wait(milliseconds: number): Promise<void> {
+    return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
   }
 
   private performSingleAction(action: SingleAction | string): void {
@@ -1972,6 +2005,83 @@ class GlowLightCardEditor extends LitElement {
     this.updateConfig(customEvent.detail.value);
   }
 
+  private selectorValue(event: Event): string | undefined {
+    const customEvent = event as CustomEvent<{
+      item?: { value?: unknown };
+      value?: unknown;
+    }>;
+    const value = customEvent.detail?.value ?? customEvent.detail?.item?.value;
+
+    return value === undefined || value === null ? undefined : String(value);
+  }
+
+  private handleActionTypeSelected(
+    key: 'tap_action' | 'hold_action',
+    event: Event,
+  ): void {
+    const selectedAction = this.selectorValue(event);
+    if (!selectedAction || !ACTIONS.some((action) => action === selectedAction)) {
+      return;
+    }
+
+    this.updateActionType(key, selectedAction);
+  }
+
+  private updateActionType(
+    key: 'tap_action' | 'hold_action',
+    selectedAction: string,
+  ): void {
+    if (selectedAction === 'call-service') {
+      this.updateConfig(({
+        [key]: {
+          action: 'call-service',
+          service: '',
+        },
+      } as unknown) as Partial<GlowLightCardConfig>);
+      return;
+    }
+
+    if (selectedAction === 'script') {
+      this.updateConfig(({
+        [key]: {
+          action: 'call-service',
+          service: 'script.turn_on',
+        },
+      } as unknown) as Partial<GlowLightCardConfig>);
+      return;
+    }
+
+    if (selectedAction === 'navigate') {
+      this.updateConfig(({
+        [key]: {
+          action: 'navigate',
+          navigation_path: '',
+        },
+      } as unknown) as Partial<GlowLightCardConfig>);
+      return;
+    }
+
+    if (selectedAction === 'multi') {
+      this.updateConfig(({
+        [key]: {
+          action: 'multi',
+          actions: [],
+        },
+      } as unknown) as Partial<GlowLightCardConfig>);
+      return;
+    }
+
+    if (
+      selectedAction === 'more-info' ||
+      selectedAction === 'none' ||
+      selectedAction === 'toggle'
+    ) {
+      this.updateConfig({
+        [key]: selectedAction,
+      } as Partial<GlowLightCardConfig>);
+    }
+  }
+
   private valueChanged(event: Event): void {
     const target = (event.currentTarget as HTMLElement) ||
       (event.target as HTMLElement);
@@ -2002,49 +2112,7 @@ class GlowLightCardEditor extends LitElement {
 
     if ((configValue === 'tap_action' || configValue === 'hold_action')) {
       const selectedAction = String(value);
-      if (selectedAction === 'call-service') {
-        this.updateConfig(({
-          [configValue]: {
-            action: 'call-service',
-            service: '',
-          },
-        } as unknown) as Partial<GlowLightCardConfig>);
-        return;
-      }
-
-      if (selectedAction === 'script') {
-        this.updateConfig(({
-          [configValue]: {
-            action: 'call-service',
-            service: 'script.turn_on',
-          },
-        } as unknown) as Partial<GlowLightCardConfig>);
-        return;
-      }
-
-      if (selectedAction === 'navigate') {
-        this.updateConfig(({
-          [configValue]: {
-            action: 'navigate',
-            navigation_path: '',
-          },
-        } as unknown) as Partial<GlowLightCardConfig>);
-        return;
-      }
-
-      if (selectedAction === 'multi') {
-        this.updateConfig(({
-          [configValue]: {
-            action: 'multi',
-            actions: [],
-          },
-        } as unknown) as Partial<GlowLightCardConfig>);
-        return;
-      }
-
-      this.updateConfig({
-        [configValue]: selectedAction,
-      } as Partial<GlowLightCardConfig>);
+      this.updateActionType(configValue, selectedAction);
       return;
     }
 
@@ -2128,6 +2196,14 @@ class GlowLightCardEditor extends LitElement {
       key === 'tap_action' || key === 'hold_action'
         ? this.getEditorActionType(key)
         : (this.config[key] as string | undefined) ?? value;
+    const handleValueChanged = (event: Event): void => {
+      if (key === 'tap_action' || key === 'hold_action') {
+        this.handleActionTypeSelected(key, event);
+        return;
+      }
+
+      this.valueChanged(event);
+    };
 
     return html`
       <ha-selector
@@ -2144,7 +2220,8 @@ class GlowLightCardEditor extends LitElement {
         }}
         .value=${currentValue}
         data-config-value=${key}
-        @value-changed=${this.valueChanged}
+        @value-changed=${handleValueChanged}
+        @selected=${handleValueChanged}
       ></ha-selector>
     `;
   }
@@ -2315,6 +2392,59 @@ class GlowLightCardEditor extends LitElement {
     return html``;
   }
 
+  private handleMultiActionTypeSelected(
+    key: 'tap_action' | 'hold_action',
+    actionIndex: number,
+    event: Event,
+  ): void {
+    const selectedAction = this.selectorValue(event);
+    if (
+      !selectedAction ||
+      !MULTI_ACTIONS.some((action) => action === selectedAction)
+    ) {
+      return;
+    }
+
+    this.updateMultiActionType(key, actionIndex, selectedAction);
+  }
+
+  private updateMultiActionType(
+    key: 'tap_action' | 'hold_action',
+    actionIndex: number,
+    selectedAction: string,
+  ): void {
+    const action = this.getActionValue(key);
+    if (typeof action !== 'object' || action.action !== 'multi') {
+      return;
+    }
+
+    const newActions = [...action.actions];
+    if (!newActions[actionIndex]) {
+      return;
+    }
+
+    if (selectedAction === 'call-service') {
+      newActions[actionIndex] = { action: 'call-service', service: '' };
+    } else if (selectedAction === 'script') {
+      newActions[actionIndex] = {
+        action: 'call-service',
+        service: 'script.turn_on',
+      };
+    } else if (selectedAction === 'navigate') {
+      newActions[actionIndex] = { action: 'navigate', navigation_path: '' };
+    } else if (selectedAction === 'delay') {
+      newActions[actionIndex] = { action: 'delay', delay: 1000 };
+    } else if (selectedAction === 'more-info' || selectedAction === 'toggle') {
+      newActions[actionIndex] = selectedAction;
+    } else {
+      return;
+    }
+
+    this.updateConfig({
+      [key]: { action: 'multi', actions: newActions },
+    } as Partial<GlowLightCardConfig>);
+  }
+
   private renderMultiActionSequence(
     key: 'tap_action' | 'hold_action',
     multiAction: MultiAction | undefined,
@@ -2329,6 +2459,10 @@ class GlowLightCardEditor extends LitElement {
           const actionType = this.getActionSelectValue(action);
           const callAction =
             typeof action === 'object' && action.action === 'call-service'
+              ? action
+              : undefined;
+          const delayAction =
+            typeof action === 'object' && action.action === 'delay'
               ? action
               : undefined;
 
@@ -2359,8 +2493,10 @@ class GlowLightCardEditor extends LitElement {
                   .value=${actionType}
                   data-action-key=${key}
                   data-action-index=${index}
-                  data-action-field="action"
-                  @value-changed=${this.multiActionFieldChanged}
+                  @value-changed=${(event: Event) =>
+                    this.handleMultiActionTypeSelected(key, index, event)}
+                  @selected=${(event: Event) =>
+                    this.handleMultiActionTypeSelected(key, index, event)}
                   style="width: auto; font-size: 12px;"
                 ></ha-selector>
               </div>
@@ -2407,6 +2543,21 @@ class GlowLightCardEditor extends LitElement {
                         index,
                       )}
                     `
+                  : actionType === 'delay'
+                    ? html`
+                        <div style="margin-top: 6px;">
+                          <ha-textfield
+                            .label=${'Delay (ms)'}
+                            type="number"
+                            .value=${String(delayAction?.delay ?? 1000)}
+                            data-action-key=${key}
+                            data-action-index=${index}
+                            data-action-field="delay"
+                            @input=${this.multiActionFieldChanged}
+                            style="font-size: 12px;"
+                          ></ha-textfield>
+                        </div>
+                      `
                   : nothing}
             </div>
           `;
@@ -2527,6 +2678,15 @@ class GlowLightCardEditor extends LitElement {
       target.detail?.value ??
       (typeof target.value === 'string' ? target.value : undefined);
 
+    if (rawValue === undefined) {
+      return;
+    }
+
+    if (actionField === 'action') {
+      this.updateMultiActionType(actionKey, actionIndex, rawValue);
+      return;
+    }
+
     const action = this.getActionValue(actionKey);
     if (typeof action !== 'object' || action.action !== 'multi') {
       return;
@@ -2540,24 +2700,7 @@ class GlowLightCardEditor extends LitElement {
       return;
     }
 
-    if (actionField === 'action') {
-      if (rawValue === 'call-service') {
-        newActions[actionIndex] = { action: 'call-service', service: '' };
-      } else if (rawValue === 'script') {
-        newActions[actionIndex] = {
-          action: 'call-service',
-          service: 'script.turn_on',
-        };
-      } else if (rawValue === 'navigate') {
-        newActions[actionIndex] = { action: 'navigate', navigation_path: '' };
-      } else if (
-        rawValue === 'more-info' ||
-        rawValue === 'none' ||
-        rawValue === 'toggle'
-      ) {
-        newActions[actionIndex] = rawValue;
-      }
-    } else if (actionField === 'service') {
+    if (actionField === 'service') {
       if (typeof targetAction === 'object' && targetAction.action === 'call-service') {
         newActions[actionIndex] = {
           ...targetAction,
@@ -2575,6 +2718,14 @@ class GlowLightCardEditor extends LitElement {
         newActions[actionIndex] = {
           ...targetAction,
           navigation_path: rawValue ?? '',
+        };
+      }
+    } else if (actionField === 'delay') {
+      if (typeof targetAction === 'object' && targetAction.action === 'delay') {
+        const delay = Number(rawValue);
+        newActions[actionIndex] = {
+          ...targetAction,
+          delay: Number.isFinite(delay) && delay >= 0 ? delay : 1000,
         };
       }
     }
