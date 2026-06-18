@@ -2006,17 +2006,15 @@ class GlowLightCardEditor extends LitElement {
   }
 
   private selectorValue(event: Event): string | undefined {
-    const select = event.currentTarget as HTMLElement & {
-      selected?: { value?: unknown };
-      selectedItem?: { value?: unknown };
-      items?: Array<{ value?: unknown }>;
-      index?: number;
-    };
-    const selectedItem =
-      select.selected ??
-      select.selectedItem ??
-      (typeof select.index === 'number' ? select.items?.[select.index] : undefined);
-    const value = selectedItem?.value;
+    const target = event.target as HTMLElement & { value?: unknown };
+    const customEvent = event as CustomEvent<{
+      item?: { value?: unknown };
+      value?: unknown;
+    }>;
+    const value =
+      target?.value ??
+      customEvent.detail?.item?.value ??
+      customEvent.detail?.value;
 
     return value === undefined || value === null ? undefined : String(value);
   }
@@ -2213,7 +2211,6 @@ class GlowLightCardEditor extends LitElement {
           .value=${currentValue}
           data-config-value=${key}
           @selected=${handleValueChanged}
-          @closed=${handleValueChanged}
         >
           ${options.map(
             (option) => html`
@@ -2502,8 +2499,6 @@ class GlowLightCardEditor extends LitElement {
                   data-action-key=${key}
                   data-action-index=${index}
                   @selected=${(event: Event) =>
-                    this.handleMultiActionTypeSelected(key, index, event)}
-                  @closed=${(event: Event) =>
                     this.handleMultiActionTypeSelected(key, index, event)}
                   style="width: auto; font-size: 12px;"
                 >

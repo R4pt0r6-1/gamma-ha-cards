@@ -1913,8 +1913,8 @@ const Wt = class Wt extends m {
     (i = e.detail) != null && i.value && this.updateConfig(e.detail.value);
   }
   selectorValue(t) {
-    var n;
-    const e = t.currentTarget, i = e.selected ?? e.selectedItem ?? (typeof e.index == "number" ? (n = e.items) == null ? void 0 : n[e.index] : void 0), r = i == null ? void 0 : i.value;
+    var n, o, c;
+    const e = t.target, i = t, r = (e == null ? void 0 : e.value) ?? ((o = (n = i.detail) == null ? void 0 : n.item) == null ? void 0 : o.value) ?? ((c = i.detail) == null ? void 0 : c.value);
     return r == null ? void 0 : String(r);
   }
   handleActionTypeSelected(t, e) {
@@ -2027,27 +2027,22 @@ const Wt = class Wt extends m {
   }
   renderSelect(t, e, i, r) {
     const n = e === "tap_action" || e === "hold_action" ? this.getEditorActionType(e) : this.config[e] ?? r;
-    if (e === "tap_action" || e === "hold_action") {
-      const o = (c) => {
-        this.handleActionTypeSelected(e, c);
-      };
-      return a`
+    return e === "tap_action" || e === "hold_action" ? a`
         <ha-select
           .label=${t}
           .value=${n}
           data-config-value=${e}
-          @selected=${o}
-          @closed=${o}
+          @selected=${(c) => {
+      this.handleActionTypeSelected(e, c);
+    }}
         >
           ${i.map(
-        (c) => a`
+      (c) => a`
               <mwc-list-item .value=${c}>${c}</mwc-list-item>
             `
-      )}
+    )}
         </ha-select>
-      `;
-    }
-    return a`
+      ` : a`
       <ha-selector
         .hass=${this.hass}
         .label=${t}
@@ -2226,7 +2221,6 @@ const Wt = class Wt extends m {
                   data-action-key=${t}
                   data-action-index=${r}
                   @selected=${(d) => this.handleMultiActionTypeSelected(t, r, d)}
-                  @closed=${(d) => this.handleMultiActionTypeSelected(t, r, d)}
                   style="width: auto; font-size: 12px;"
                 >
                   ${Ce.map(
@@ -5991,8 +5985,8 @@ const Qt = class Qt extends m {
     (i = e.detail) != null && i.value && this.updateConfig(e.detail.value);
   }
   selectorValue(t) {
-    var n;
-    const e = t.currentTarget, i = e.selected ?? e.selectedItem ?? (typeof e.index == "number" ? (n = e.items) == null ? void 0 : n[e.index] : void 0), r = i == null ? void 0 : i.value;
+    var n, o, c;
+    const e = t.target, i = t, r = (e == null ? void 0 : e.value) ?? ((o = (n = i.detail) == null ? void 0 : n.item) == null ? void 0 : o.value) ?? ((c = i.detail) == null ? void 0 : c.value);
     return r == null ? void 0 : String(r);
   }
   handleActionTypeSelected(t, e) {
@@ -6113,27 +6107,22 @@ const Qt = class Qt extends m {
   renderSelect(t, e, i, r) {
     const n = this.config[e];
     let o = typeof n == "string" ? n : (n == null ? void 0 : n.action) ?? r;
-    if ((e === "tap_action" || e === "hold_action") && this.isScriptAction(n) && (o = "script"), e === "tap_action" || e === "hold_action") {
-      const c = (l) => {
-        this.handleActionTypeSelected(e, l);
-      };
-      return a`
+    return (e === "tap_action" || e === "hold_action") && this.isScriptAction(n) && (o = "script"), e === "tap_action" || e === "hold_action" ? a`
         <ha-select
           .label=${t}
           .value=${o}
           data-config-value=${e}
-          @selected=${c}
-          @closed=${c}
+          @selected=${(l) => {
+      this.handleActionTypeSelected(e, l);
+    }}
         >
           ${i.map(
-        (l) => a`
+      (l) => a`
               <mwc-list-item .value=${l}>${l}</mwc-list-item>
             `
-      )}
+    )}
         </ha-select>
-      `;
-    }
-    return a`
+      ` : a`
       <ha-selector
         .hass=${this.hass}
         .label=${t}
@@ -6407,7 +6396,6 @@ const Qt = class Qt extends m {
                   data-action-key=${t}
                   data-action-index=${r}
                   @selected=${(d) => this.handleMultiActionTypeSelected(t, r, d)}
-                  @closed=${(d) => this.handleMultiActionTypeSelected(t, r, d)}
                   style="width: auto; font-size: 12px;"
                 >
                   ${Oe.map(
