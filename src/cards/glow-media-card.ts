@@ -1034,11 +1034,17 @@ class GlowMediaCardEditor extends LitElement {
   }
 
   private selectorValue(event: Event): string | undefined {
-    const customEvent = event as CustomEvent<{
-      item?: { value?: unknown };
-      value?: unknown;
-    }>;
-    const value = customEvent.detail?.value ?? customEvent.detail?.item?.value;
+    const select = event.currentTarget as HTMLElement & {
+      selected?: { value?: unknown };
+      selectedItem?: { value?: unknown };
+      items?: Array<{ value?: unknown }>;
+      index?: number;
+    };
+    const selectedItem =
+      select.selected ??
+      select.selectedItem ??
+      (typeof select.index === 'number' ? select.items?.[select.index] : undefined);
+    const value = selectedItem?.value;
 
     return value === undefined || value === null ? undefined : String(value);
   }
@@ -1245,14 +1251,27 @@ class GlowMediaCardEditor extends LitElement {
     ) {
       selectedValue = 'script';
     }
-    const handleValueChanged = (event: Event): void => {
-      if (key === 'tap_action' || key === 'hold_action') {
+    if (key === 'tap_action' || key === 'hold_action') {
+      const handleValueChanged = (event: Event): void => {
         this.handleActionTypeSelected(key, event);
-        return;
-      }
+      };
 
-      this.valueChanged(event);
-    };
+      return html`
+        <ha-select
+          .label=${label}
+          .value=${selectedValue}
+          data-config-value=${key}
+          @selected=${handleValueChanged}
+          @closed=${handleValueChanged}
+        >
+          ${options.map(
+            (option) => html`
+              <mwc-list-item .value=${option}>${option}</mwc-list-item>
+            `,
+          )}
+        </ha-select>
+      `;
+    }
 
     return html`
       <ha-selector
@@ -1269,8 +1288,7 @@ class GlowMediaCardEditor extends LitElement {
         }}
         .value=${selectedValue}
         data-config-value=${key}
-        @value-changed=${handleValueChanged}
-        @selected=${handleValueChanged}
+        @value-changed=${this.valueChanged}
       ></ha-selector>
     `;
   }
@@ -1676,27 +1694,23 @@ class GlowMediaCardEditor extends LitElement {
                 </button>
               </div>
               <div style="font-size: 12px;">
-                <ha-selector
-                  .hass=${this.hass}
+                <ha-select
                   .label=${'Type'}
-                  .selector=${{
-                    select: {
-                      mode: 'dropdown',
-                      options: MULTI_ACTIONS.map((option) => ({
-                        label: option,
-                        value: option,
-                      })),
-                    },
-                  }}
                   .value=${actionType}
                   data-action-key=${key}
                   data-action-index=${index}
-                  @value-changed=${(event: Event) =>
-                    this.handleMultiActionTypeSelected(key, index, event)}
                   @selected=${(event: Event) =>
                     this.handleMultiActionTypeSelected(key, index, event)}
+                  @closed=${(event: Event) =>
+                    this.handleMultiActionTypeSelected(key, index, event)}
                   style="width: auto; font-size: 12px;"
-                ></ha-selector>
+                >
+                  ${MULTI_ACTIONS.map(
+                    (option) => html`
+                      <mwc-list-item .value=${option}>${option}</mwc-list-item>
+                    `,
+                  )}
+                </ha-select>
               </div>
               ${actionType === 'script'
                 ? html`

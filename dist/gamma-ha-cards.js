@@ -1913,9 +1913,9 @@ const Wt = class Wt extends m {
     (i = e.detail) != null && i.value && this.updateConfig(e.detail.value);
   }
   selectorValue(t) {
-    var r, n, o;
-    const e = t, i = ((r = e.detail) == null ? void 0 : r.value) ?? ((o = (n = e.detail) == null ? void 0 : n.item) == null ? void 0 : o.value);
-    return i == null ? void 0 : String(i);
+    var n;
+    const e = t.currentTarget, i = e.selected ?? e.selectedItem ?? (typeof e.index == "number" ? (n = e.items) == null ? void 0 : n[e.index] : void 0), r = i == null ? void 0 : i.value;
+    return r == null ? void 0 : String(r);
   }
   handleActionTypeSelected(t, e) {
     const i = this.selectorValue(e);
@@ -2026,13 +2026,27 @@ const Wt = class Wt extends m {
     `;
   }
   renderSelect(t, e, i, r) {
-    const n = e === "tap_action" || e === "hold_action" ? this.getEditorActionType(e) : this.config[e] ?? r, o = (c) => {
-      if (e === "tap_action" || e === "hold_action") {
+    const n = e === "tap_action" || e === "hold_action" ? this.getEditorActionType(e) : this.config[e] ?? r;
+    if (e === "tap_action" || e === "hold_action") {
+      const o = (c) => {
         this.handleActionTypeSelected(e, c);
-        return;
-      }
-      this.valueChanged(c);
-    };
+      };
+      return a`
+        <ha-select
+          .label=${t}
+          .value=${n}
+          data-config-value=${e}
+          @selected=${o}
+          @closed=${o}
+        >
+          ${i.map(
+        (c) => a`
+              <mwc-list-item .value=${c}>${c}</mwc-list-item>
+            `
+      )}
+        </ha-select>
+      `;
+    }
     return a`
       <ha-selector
         .hass=${this.hass}
@@ -2040,16 +2054,15 @@ const Wt = class Wt extends m {
         .selector=${{
       select: {
         mode: "dropdown",
-        options: i.map((c) => ({
-          label: c,
-          value: c
+        options: i.map((o) => ({
+          label: o,
+          value: o
         }))
       }
     }}
         .value=${n}
         data-config-value=${e}
-        @value-changed=${o}
-        @selected=${o}
+        @value-changed=${this.valueChanged}
       ></ha-selector>
     `;
   }
@@ -2207,25 +2220,21 @@ const Wt = class Wt extends m {
                 </button>
               </div>
               <div style="font-size: 12px;">
-                <ha-selector
-                  .hass=${this.hass}
+                <ha-select
                   .label=${"Type"}
-                  .selector=${{
-          select: {
-            mode: "dropdown",
-            options: Ce.map((d) => ({
-              label: d,
-              value: d
-            }))
-          }
-        }}
                   .value=${n}
                   data-action-key=${t}
                   data-action-index=${r}
-                  @value-changed=${(d) => this.handleMultiActionTypeSelected(t, r, d)}
                   @selected=${(d) => this.handleMultiActionTypeSelected(t, r, d)}
+                  @closed=${(d) => this.handleMultiActionTypeSelected(t, r, d)}
                   style="width: auto; font-size: 12px;"
-                ></ha-selector>
+                >
+                  ${Ce.map(
+          (d) => a`
+                      <mwc-list-item .value=${d}>${d}</mwc-list-item>
+                    `
+        )}
+                </ha-select>
               </div>
               ${n === "script" ? a`
                     <div style="margin-top: 6px;">
@@ -5982,9 +5991,9 @@ const Qt = class Qt extends m {
     (i = e.detail) != null && i.value && this.updateConfig(e.detail.value);
   }
   selectorValue(t) {
-    var r, n, o;
-    const e = t, i = ((r = e.detail) == null ? void 0 : r.value) ?? ((o = (n = e.detail) == null ? void 0 : n.item) == null ? void 0 : o.value);
-    return i == null ? void 0 : String(i);
+    var n;
+    const e = t.currentTarget, i = e.selected ?? e.selectedItem ?? (typeof e.index == "number" ? (n = e.items) == null ? void 0 : n[e.index] : void 0), r = i == null ? void 0 : i.value;
+    return r == null ? void 0 : String(r);
   }
   handleActionTypeSelected(t, e) {
     const i = this.selectorValue(e);
@@ -6104,14 +6113,26 @@ const Qt = class Qt extends m {
   renderSelect(t, e, i, r) {
     const n = this.config[e];
     let o = typeof n == "string" ? n : (n == null ? void 0 : n.action) ?? r;
-    (e === "tap_action" || e === "hold_action") && this.isScriptAction(n) && (o = "script");
-    const c = (l) => {
-      if (e === "tap_action" || e === "hold_action") {
+    if ((e === "tap_action" || e === "hold_action") && this.isScriptAction(n) && (o = "script"), e === "tap_action" || e === "hold_action") {
+      const c = (l) => {
         this.handleActionTypeSelected(e, l);
-        return;
-      }
-      this.valueChanged(l);
-    };
+      };
+      return a`
+        <ha-select
+          .label=${t}
+          .value=${o}
+          data-config-value=${e}
+          @selected=${c}
+          @closed=${c}
+        >
+          ${i.map(
+        (l) => a`
+              <mwc-list-item .value=${l}>${l}</mwc-list-item>
+            `
+      )}
+        </ha-select>
+      `;
+    }
     return a`
       <ha-selector
         .hass=${this.hass}
@@ -6119,16 +6140,15 @@ const Qt = class Qt extends m {
         .selector=${{
       select: {
         mode: "dropdown",
-        options: i.map((l) => ({
-          label: l,
-          value: l
+        options: i.map((c) => ({
+          label: c,
+          value: c
         }))
       }
     }}
         .value=${o}
         data-config-value=${e}
-        @value-changed=${c}
-        @selected=${c}
+        @value-changed=${this.valueChanged}
       ></ha-selector>
     `;
   }
@@ -6381,25 +6401,21 @@ const Qt = class Qt extends m {
                 </button>
               </div>
               <div style="font-size: 12px;">
-                <ha-selector
-                  .hass=${this.hass}
+                <ha-select
                   .label=${"Type"}
-                  .selector=${{
-          select: {
-            mode: "dropdown",
-            options: Oe.map((d) => ({
-              label: d,
-              value: d
-            }))
-          }
-        }}
                   .value=${n}
                   data-action-key=${t}
                   data-action-index=${r}
-                  @value-changed=${(d) => this.handleMultiActionTypeSelected(t, r, d)}
                   @selected=${(d) => this.handleMultiActionTypeSelected(t, r, d)}
+                  @closed=${(d) => this.handleMultiActionTypeSelected(t, r, d)}
                   style="width: auto; font-size: 12px;"
-                ></ha-selector>
+                >
+                  ${Oe.map(
+          (d) => a`
+                      <mwc-list-item .value=${d}>${d}</mwc-list-item>
+                    `
+        )}
+                </ha-select>
               </div>
               ${n === "script" ? a`
                     <div style="margin-top: 6px;">
