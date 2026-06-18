@@ -1808,6 +1808,54 @@ const Bt = class Bt extends m {
         grid-column: 1 / -1;
       }
 
+      .navigation-select-field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .navigation-select-label {
+        color: var(--secondary-text-color);
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+      }
+
+      .navigation-select {
+        appearance: none;
+        -webkit-appearance: none;
+        background:
+          linear-gradient(45deg, transparent 50%, currentColor 50%),
+          linear-gradient(135deg, currentColor 50%, transparent 50%),
+          color-mix(in srgb, var(--primary-text-color) 8%, transparent);
+        background-position:
+          calc(100% - 18px) 50%,
+          calc(100% - 13px) 50%,
+          0 0;
+        background-repeat: no-repeat;
+        background-size:
+          5px 5px,
+          5px 5px,
+          100% 100%;
+        border: 1px solid color-mix(in srgb, var(--divider-color) 72%, transparent);
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: var(--primary-text-color);
+        cursor: pointer;
+        font: inherit;
+        min-height: 48px;
+        padding: 0 34px 0 12px;
+      }
+
+      .navigation-select:focus-visible {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+      }
+
+      .navigation-select option {
+        background: var(--card-background-color, #1c1c1c);
+        color: var(--primary-text-color, #fff);
+      }
+
       h3 {
         color: var(--primary-text-color);
         font-size: 15px;
@@ -2047,30 +2095,31 @@ const Bt = class Bt extends m {
     return a`
       <div style="margin-top: 6px;">
         ${this.navigationOptions.length ? a`
-              <ha-select
-                .label=${t}
-                .value=${o ? e : ""}
-                value=${o ? e : ""}
-                data-action-key=${i}
-                data-action-index=${r ?? ""}
-                data-action-field="navigation_path"
-                @change=${n}
-                @closed=${(c) => c.stopPropagation()}
-                fixedMenuPosition
-                naturalMenuWidth
-              >
-                ${this.navigationOptions.map(
+              <label class="navigation-select-field">
+                <span class="navigation-select-label">${t}</span>
+                <select
+                  class="navigation-select"
+                  .value=${o ? e : ""}
+                  data-action-key=${i}
+                  data-action-index=${r ?? ""}
+                  data-action-field="navigation_path"
+                  @change=${n}
+                >
+                  <option value="" ?selected=${!o} disabled>
+                    Select dashboard view
+                  </option>
+                  ${this.navigationOptions.map(
       (c) => a`
-                    <mwc-list-item
-                      .value=${c.path}
-                      value=${c.path}
-                      ?selected=${c.path === e}
-                    >
-                      ${c.label}
-                    </mwc-list-item>
-                  `
+                      <option
+                        value=${c.path}
+                        ?selected=${c.path === e}
+                      >
+                        ${c.label}
+                      </option>
+                    `
     )}
-              </ha-select>
+                </select>
+              </label>
             ` : p}
         <ha-textfield
           .label=${this.navigationOptions.length ? "Custom Path" : t}
@@ -5802,6 +5851,54 @@ const Yt = class Yt extends m {
         grid-column: 1 / -1;
       }
 
+      .navigation-select-field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .navigation-select-label {
+        color: var(--secondary-text-color);
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+      }
+
+      .navigation-select {
+        appearance: none;
+        -webkit-appearance: none;
+        background:
+          linear-gradient(45deg, transparent 50%, currentColor 50%),
+          linear-gradient(135deg, currentColor 50%, transparent 50%),
+          color-mix(in srgb, var(--primary-text-color) 8%, transparent);
+        background-position:
+          calc(100% - 18px) 50%,
+          calc(100% - 13px) 50%,
+          0 0;
+        background-repeat: no-repeat;
+        background-size:
+          5px 5px,
+          5px 5px,
+          100% 100%;
+        border: 1px solid color-mix(in srgb, var(--divider-color) 72%, transparent);
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: var(--primary-text-color);
+        cursor: pointer;
+        font: inherit;
+        min-height: 48px;
+        padding: 0 34px 0 12px;
+      }
+
+      .navigation-select:focus-visible {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+      }
+
+      .navigation-select option {
+        background: var(--card-background-color, #1c1c1c);
+        color: var(--primary-text-color, #fff);
+      }
+
       h3 {
         color: var(--primary-text-color);
         font-size: 15px;
@@ -6060,30 +6157,31 @@ const Yt = class Yt extends m {
     return a`
       <div style="margin-top: 6px;">
         ${this.navigationOptions.length ? a`
-              <ha-select
-                .label=${t}
-                .value=${o ? e : ""}
-                value=${o ? e : ""}
-                data-action-key=${i}
-                data-action-index=${r ?? ""}
-                data-action-field="navigation_path"
-                @change=${n}
-                @closed=${(c) => c.stopPropagation()}
-                fixedMenuPosition
-                naturalMenuWidth
-              >
-                ${this.navigationOptions.map(
+              <label class="navigation-select-field">
+                <span class="navigation-select-label">${t}</span>
+                <select
+                  class="navigation-select"
+                  .value=${o ? e : ""}
+                  data-action-key=${i}
+                  data-action-index=${r ?? ""}
+                  data-action-field="navigation_path"
+                  @change=${n}
+                >
+                  <option value="" ?selected=${!o} disabled>
+                    Select dashboard view
+                  </option>
+                  ${this.navigationOptions.map(
       (c) => a`
-                    <mwc-list-item
-                      .value=${c.path}
-                      value=${c.path}
-                      ?selected=${c.path === e}
-                    >
-                      ${c.label}
-                    </mwc-list-item>
-                  `
+                      <option
+                        value=${c.path}
+                        ?selected=${c.path === e}
+                      >
+                        ${c.label}
+                      </option>
+                    `
     )}
-              </ha-select>
+                </select>
+              </label>
             ` : p}
         <ha-textfield
           .label=${this.navigationOptions.length ? "Custom Path" : t}
