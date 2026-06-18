@@ -1144,7 +1144,7 @@ class DualOutletCardEditor extends LitElement {
   }
 
   private valueChanged(event: Event): void {
-    const target = event.target as ConfigElement;
+    const target = (event.currentTarget || event.target) as ConfigElement;
     const customEvent = event as CustomEvent<{ value?: string }>;
 
     if (!target.configValue) {
@@ -1234,15 +1234,16 @@ class DualOutletCardEditor extends LitElement {
       <ha-select
         .label=${label}
         .value=${this.config[key] ?? value}
+        value=${this.config[key] ?? value}
         .configValue=${key}
-        @selected=${this.valueChanged}
+        @change=${this.valueChanged}
         @closed=${(event: Event) => event.stopPropagation()}
         fixedMenuPosition
         naturalMenuWidth
       >
         ${options.map(
           (option) => html`
-            <mwc-list-item .value=${option}>${option}</mwc-list-item>
+            <mwc-list-item .value=${option} value=${option}>${option}</mwc-list-item>
           `,
         )}
       </ha-select>

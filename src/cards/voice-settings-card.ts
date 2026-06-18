@@ -560,7 +560,7 @@ class VoiceSettingsCardEditor extends LitElement {
   }
 
   private valueChanged(event: Event): void {
-    const target = event.target as ConfigElement;
+    const target = (event.currentTarget || event.target) as ConfigElement;
     const customEvent = event as CustomEvent<{ value?: string }>;
 
     if (!target.configValue) {
@@ -576,7 +576,7 @@ class VoiceSettingsCardEditor extends LitElement {
   }
 
   private rowValueChanged(event: Event): void {
-    const target = event.target as ConfigElement;
+    const target = (event.currentTarget || event.target) as ConfigElement;
     const customEvent = event as CustomEvent<{ value?: string }>;
 
     const rowIndex = target.rowIndex;

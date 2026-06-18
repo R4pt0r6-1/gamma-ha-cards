@@ -2133,8 +2133,8 @@ class GlowLightCardEditor extends LitElement {
       <ha-select
         .label=${label}
         .value=${currentValue}
+        value=${currentValue}
         data-config-value=${key}
-        @selected=${this.valueChanged}
         @change=${this.valueChanged}
         @closed=${(event: Event) => event.stopPropagation()}
         fixedMenuPosition
@@ -2144,6 +2144,7 @@ class GlowLightCardEditor extends LitElement {
           (option) => html`
             <mwc-list-item
               .value=${option}
+              value=${option}
               ?selected=${option === currentValue}
             >
               ${option}
@@ -2212,10 +2213,10 @@ class GlowLightCardEditor extends LitElement {
               <ha-select
                 .label=${label}
                 .value=${hasKnownPath ? value : ''}
+                value=${hasKnownPath ? value : ''}
                 data-action-key=${actionKey}
                 data-action-index=${actionIndex ?? ''}
                 data-action-field="navigation_path"
-                @selected=${handleNavigationChanged}
                 @change=${handleNavigationChanged}
                 @closed=${(event: Event) => event.stopPropagation()}
                 fixedMenuPosition
@@ -2225,6 +2226,7 @@ class GlowLightCardEditor extends LitElement {
                   (option) => html`
                     <mwc-list-item
                       .value=${option.path}
+                      value=${option.path}
                       ?selected=${option.path === value}
                     >
                       ${option.label}
@@ -2357,10 +2359,10 @@ class GlowLightCardEditor extends LitElement {
                 Type:
                 <ha-select
                   .value=${actionType}
+                  value=${actionType}
                   data-action-key=${key}
                   data-action-index=${index}
                   data-action-field="action"
-                  @selected=${this.multiActionFieldChanged}
                   @change=${this.multiActionFieldChanged}
                   @closed=${(event: Event) => event.stopPropagation()}
                   style="width: auto; font-size: 12px;"
@@ -2371,6 +2373,7 @@ class GlowLightCardEditor extends LitElement {
                     (option) => html`
                       <mwc-list-item
                         .value=${option}
+                        value=${option}
                         ?selected=${option === actionType}
                       >
                         ${option}
@@ -2456,7 +2459,7 @@ class GlowLightCardEditor extends LitElement {
   }
 
   private actionFieldChanged(event: Event): void {
-    const target = event.target as HTMLElement & {
+    const target = (event.currentTarget || event.target) as HTMLElement & {
       value?: string;
       dataset?: { actionKey?: string; actionField?: string };
       detail?: { value?: string };
@@ -2508,7 +2511,7 @@ class GlowLightCardEditor extends LitElement {
   }
 
   private multiActionFieldChanged(event: Event): void {
-    const target = event.target as HTMLElement & {
+    const target = (event.currentTarget || event.target) as HTMLElement & {
       value?: string;
       dataset?: { actionKey?: string; actionIndex?: string; actionField?: string };
       detail?: { value?: string };

@@ -2007,8 +2007,8 @@ const Bt = class Bt extends m {
       <ha-select
         .label=${t}
         .value=${n}
+        value=${n}
         data-config-value=${e}
-        @selected=${this.valueChanged}
         @change=${this.valueChanged}
         @closed=${(o) => o.stopPropagation()}
         fixedMenuPosition
@@ -2018,6 +2018,7 @@ const Bt = class Bt extends m {
       (o) => a`
             <mwc-list-item
               .value=${o}
+              value=${o}
               ?selected=${o === n}
             >
               ${o}
@@ -2049,10 +2050,10 @@ const Bt = class Bt extends m {
               <ha-select
                 .label=${t}
                 .value=${o ? e : ""}
+                value=${o ? e : ""}
                 data-action-key=${i}
                 data-action-index=${r ?? ""}
                 data-action-field="navigation_path"
-                @selected=${n}
                 @change=${n}
                 @closed=${(c) => c.stopPropagation()}
                 fixedMenuPosition
@@ -2062,6 +2063,7 @@ const Bt = class Bt extends m {
       (c) => a`
                     <mwc-list-item
                       .value=${c.path}
+                      value=${c.path}
                       ?selected=${c.path === e}
                     >
                       ${c.label}
@@ -2159,10 +2161,10 @@ const Bt = class Bt extends m {
                 Type:
                 <ha-select
                   .value=${n}
+                  value=${n}
                   data-action-key=${t}
                   data-action-index=${r}
                   data-action-field="action"
-                  @selected=${this.multiActionFieldChanged}
                   @change=${this.multiActionFieldChanged}
                   @closed=${(l) => l.stopPropagation()}
                   style="width: auto; font-size: 12px;"
@@ -2173,6 +2175,7 @@ const Bt = class Bt extends m {
           (l) => a`
                       <mwc-list-item
                         .value=${l}
+                        value=${l}
                         ?selected=${l === n}
                       >
                         ${l}
@@ -2245,7 +2248,7 @@ const Bt = class Bt extends m {
   }
   actionFieldChanged(t) {
     var h, d, g, u, f, v;
-    const e = t.target, i = (h = e.dataset) == null ? void 0 : h.actionKey, r = (d = e.dataset) == null ? void 0 : d.actionField;
+    const e = t.currentTarget || t.target, i = (h = e.dataset) == null ? void 0 : h.actionKey, r = (d = e.dataset) == null ? void 0 : d.actionField;
     if (!i || !r)
       return;
     const n = t, o = ((g = n.detail) == null ? void 0 : g.value) ?? ((f = (u = n.detail) == null ? void 0 : u.item) == null ? void 0 : f.value) ?? ((v = e.detail) == null ? void 0 : v.value) ?? (typeof e.value == "string" ? e.value : void 0);
@@ -2256,7 +2259,7 @@ const Bt = class Bt extends m {
   }
   multiActionFieldChanged(t) {
     var u, f, v, y, F, I, N;
-    const e = t.target, i = (u = e.dataset) == null ? void 0 : u.actionKey, r = ((f = e.dataset) == null ? void 0 : f.actionIndex) !== void 0 ? Number(e.dataset.actionIndex) : void 0, n = (v = e.dataset) == null ? void 0 : v.actionField;
+    const e = t.currentTarget || t.target, i = (u = e.dataset) == null ? void 0 : u.actionKey, r = ((f = e.dataset) == null ? void 0 : f.actionIndex) !== void 0 ? Number(e.dataset.actionIndex) : void 0, n = (v = e.dataset) == null ? void 0 : v.actionField;
     if (!i || r === void 0 || !Number.isInteger(r) || !n)
       return;
     const o = t, c = ((y = o.detail) == null ? void 0 : y.value) ?? ((I = (F = o.detail) == null ? void 0 : F.item) == null ? void 0 : I.value) ?? ((N = e.detail) == null ? void 0 : N.value) ?? (typeof e.value == "string" ? e.value : void 0), l = this.getActionValue(i);
@@ -2904,7 +2907,7 @@ const Wt = class Wt extends m {
   }
   valueChanged(t) {
     var r;
-    const e = t.target, i = t;
+    const e = t.currentTarget || t.target, i = t;
     e.configValue && this.updateConfig({
       [e.configValue]: e.checked !== void 0 ? e.checked : ((r = i.detail) == null ? void 0 : r.value) ?? e.value
     });
@@ -2948,15 +2951,16 @@ const Wt = class Wt extends m {
       <ha-select
         .label=${t}
         .value=${this.config[e] ?? r}
+        value=${this.config[e] ?? r}
         .configValue=${e}
-        @selected=${this.valueChanged}
+        @change=${this.valueChanged}
         @closed=${(n) => n.stopPropagation()}
         fixedMenuPosition
         naturalMenuWidth
       >
         ${i.map(
       (n) => a`
-            <mwc-list-item .value=${n}>${n}</mwc-list-item>
+            <mwc-list-item .value=${n} value=${n}>${n}</mwc-list-item>
           `
     )}
       </ha-select>
@@ -3604,7 +3608,7 @@ const Gt = class Gt extends m {
   }
   valueChanged(t) {
     var r;
-    const e = t.target, i = t;
+    const e = t.currentTarget || t.target, i = t;
     e.configValue && this.updateConfig({
       [e.configValue]: e.checked !== void 0 ? e.checked : ((r = i.detail) == null ? void 0 : r.value) ?? e.value
     });
@@ -3668,15 +3672,16 @@ const Gt = class Gt extends m {
       <ha-select
         .label=${t}
         .value=${this.config[e] ?? r}
+        value=${this.config[e] ?? r}
         .configValue=${e}
-        @selected=${this.valueChanged}
+        @change=${this.valueChanged}
         @closed=${(n) => n.stopPropagation()}
         fixedMenuPosition
         naturalMenuWidth
       >
         ${i.map(
       (n) => a`
-            <mwc-list-item .value=${n}>${n}</mwc-list-item>
+            <mwc-list-item .value=${n} value=${n}>${n}</mwc-list-item>
           `
     )}
       </ha-select>
@@ -4976,7 +4981,7 @@ const qt = class qt extends m {
   }
   valueChanged(t) {
     var r;
-    const e = t.target, i = t;
+    const e = t.currentTarget || t.target, i = t;
     e.configValue && this.updateConfig({
       [e.configValue]: e.checked !== void 0 ? e.checked : ((r = i.detail) == null ? void 0 : r.value) ?? e.value
     });
@@ -5064,15 +5069,16 @@ const qt = class qt extends m {
       <ha-select
         .label=${t}
         .value=${this.config[e] ?? r}
+        value=${this.config[e] ?? r}
         .configValue=${e}
-        @selected=${this.valueChanged}
+        @change=${this.valueChanged}
         @closed=${(n) => n.stopPropagation()}
         fixedMenuPosition
         naturalMenuWidth
       >
         ${i.map(
       (n) => a`
-            <mwc-list-item .value=${n}>${n}</mwc-list-item>
+            <mwc-list-item .value=${n} value=${n}>${n}</mwc-list-item>
           `
     )}
       </ha-select>
@@ -6003,8 +6009,8 @@ const Yt = class Yt extends m {
       <ha-select
         .label=${t}
         .value=${o}
+        value=${o}
         data-config-value=${e}
-        @selected=${this.valueChanged}
         @change=${this.valueChanged}
         @closed=${(c) => c.stopPropagation()}
         fixedMenuPosition
@@ -6014,6 +6020,7 @@ const Yt = class Yt extends m {
       (c) => a`
             <mwc-list-item
               .value=${c}
+              value=${c}
               ?selected=${c === o}
             >
               ${c}
@@ -6056,10 +6063,10 @@ const Yt = class Yt extends m {
               <ha-select
                 .label=${t}
                 .value=${o ? e : ""}
+                value=${o ? e : ""}
                 data-action-key=${i}
                 data-action-index=${r ?? ""}
                 data-action-field="navigation_path"
-                @selected=${n}
                 @change=${n}
                 @closed=${(c) => c.stopPropagation()}
                 fixedMenuPosition
@@ -6069,6 +6076,7 @@ const Yt = class Yt extends m {
       (c) => a`
                     <mwc-list-item
                       .value=${c.path}
+                      value=${c.path}
                       ?selected=${c.path === e}
                     >
                       ${c.label}
@@ -6204,7 +6212,7 @@ const Yt = class Yt extends m {
   }
   actionFieldChanged(t) {
     var h, d, g, u, f, v;
-    const e = t.target, i = (h = e.dataset) == null ? void 0 : h.actionKey, r = (d = e.dataset) == null ? void 0 : d.actionField;
+    const e = t.currentTarget || t.target, i = (h = e.dataset) == null ? void 0 : h.actionKey, r = (d = e.dataset) == null ? void 0 : d.actionField;
     if (!i || !r)
       return;
     const n = t, o = ((g = n.detail) == null ? void 0 : g.value) ?? ((f = (u = n.detail) == null ? void 0 : u.item) == null ? void 0 : f.value) ?? ((v = e.detail) == null ? void 0 : v.value) ?? (typeof e.value == "string" ? e.value : void 0);
@@ -6250,10 +6258,10 @@ const Yt = class Yt extends m {
                 Type:
                 <ha-select
                   .value=${n}
+                  value=${n}
                   data-action-key=${t}
                   data-action-index=${r}
                   data-action-field="action"
-                  @selected=${this.multiActionFieldChanged}
                   @change=${this.multiActionFieldChanged}
                   @closed=${(l) => l.stopPropagation()}
                   style="width: auto; font-size: 12px;"
@@ -6264,6 +6272,7 @@ const Yt = class Yt extends m {
           (l) => a`
                       <mwc-list-item
                         .value=${l}
+                        value=${l}
                         ?selected=${l === n}
                       >
                         ${l}
@@ -6336,7 +6345,7 @@ const Yt = class Yt extends m {
   }
   multiActionFieldChanged(t) {
     var u, f, v, y, F, I, N;
-    const e = t.target, i = (u = e.dataset) == null ? void 0 : u.actionKey, r = ((f = e.dataset) == null ? void 0 : f.actionIndex) !== void 0 ? Number(e.dataset.actionIndex) : void 0, n = (v = e.dataset) == null ? void 0 : v.actionField;
+    const e = t.currentTarget || t.target, i = (u = e.dataset) == null ? void 0 : u.actionKey, r = ((f = e.dataset) == null ? void 0 : f.actionIndex) !== void 0 ? Number(e.dataset.actionIndex) : void 0, n = (v = e.dataset) == null ? void 0 : v.actionField;
     if (!i || r === void 0 || !Number.isInteger(r) || !n)
       return;
     const o = t, c = ((y = o.detail) == null ? void 0 : y.value) ?? ((I = (F = o.detail) == null ? void 0 : F.item) == null ? void 0 : I.value) ?? ((N = e.detail) == null ? void 0 : N.value) ?? (typeof e.value == "string" ? e.value : void 0), l = this.getActionValue(i);
@@ -7404,7 +7413,7 @@ const Zt = class Zt extends m {
   }
   valueChanged(t) {
     var r;
-    const e = t.target, i = t;
+    const e = t.currentTarget || t.target, i = t;
     e.configValue && this.updateConfig({
       [e.configValue]: e.checked !== void 0 ? e.checked : ((r = i.detail) == null ? void 0 : r.value) ?? e.value
     });
@@ -7461,15 +7470,16 @@ const Zt = class Zt extends m {
       <ha-select
         .label=${t}
         .value=${this.config[e] ?? r}
+        value=${this.config[e] ?? r}
         .configValue=${e}
-        @selected=${this.valueChanged}
+        @change=${this.valueChanged}
         @closed=${(n) => n.stopPropagation()}
         fixedMenuPosition
         naturalMenuWidth
       >
         ${i.map(
       (n) => a`
-            <mwc-list-item .value=${n}>${n}</mwc-list-item>
+            <mwc-list-item .value=${n} value=${n}>${n}</mwc-list-item>
           `
     )}
       </ha-select>
@@ -8215,7 +8225,7 @@ const te = class te extends m {
   }
   valueChanged(t) {
     var r;
-    const e = t.target, i = t;
+    const e = t.currentTarget || t.target, i = t;
     e.configValue && this.updateConfig({
       [e.configValue]: e.checked !== void 0 ? e.checked : ((r = i.detail) == null ? void 0 : r.value) ?? e.value
     });
@@ -8284,15 +8294,16 @@ const te = class te extends m {
       <ha-select
         .label=${t}
         .value=${this.config[e] ?? r}
+        value=${this.config[e] ?? r}
         .configValue=${e}
-        @selected=${this.valueChanged}
+        @change=${this.valueChanged}
         @closed=${(n) => n.stopPropagation()}
         fixedMenuPosition
         naturalMenuWidth
       >
         ${i.map(
       (n) => a`
-            <mwc-list-item .value=${n}>${n}</mwc-list-item>
+            <mwc-list-item .value=${n} value=${n}>${n}</mwc-list-item>
           `
     )}
       </ha-select>
@@ -9826,7 +9837,7 @@ const ie = class ie extends m {
   }
   valueChanged(t) {
     var r;
-    const e = t.target, i = t;
+    const e = t.currentTarget || t.target, i = t;
     e.configValue && this.updateConfig({
       [e.configValue]: e.checked !== void 0 ? e.checked : ((r = i.detail) == null ? void 0 : r.value) ?? e.value
     });
@@ -9859,15 +9870,16 @@ const ie = class ie extends m {
       <ha-select
         .label=${t}
         .value=${this.config[e] ?? r}
+        value=${this.config[e] ?? r}
         .configValue=${e}
-        @selected=${this.valueChanged}
+        @change=${this.valueChanged}
         @closed=${(n) => n.stopPropagation()}
         fixedMenuPosition
         naturalMenuWidth
       >
         ${i.map(
       (n) => a`
-            <mwc-list-item .value=${n}>${n}</mwc-list-item>
+            <mwc-list-item .value=${n} value=${n}>${n}</mwc-list-item>
           `
     )}
       </ha-select>
@@ -12808,14 +12820,14 @@ const ae = class ae extends m {
   }
   valueChanged(t) {
     var r;
-    const e = t.target, i = t;
+    const e = t.currentTarget || t.target, i = t;
     e.configValue && this.updateConfig({
       [e.configValue]: e.checked !== void 0 ? e.checked : ((r = i.detail) == null ? void 0 : r.value) ?? e.value
     });
   }
   rowValueChanged(t) {
     var c, l;
-    const e = t.target, i = t, r = e.rowIndex, n = e.rowKey;
+    const e = t.currentTarget || t.target, i = t, r = e.rowIndex, n = e.rowKey;
     if (r === void 0 || !n)
       return;
     const o = [...(c = this.config.rows) != null && c.length ? this.config.rows : V];
@@ -13916,7 +13928,7 @@ const le = class le extends m {
   }
   valueChanged(t) {
     var r;
-    const e = t.target, i = t;
+    const e = t.currentTarget || t.target, i = t;
     e.configValue && this.updateConfig({
       [e.configValue]: e.checked !== void 0 ? e.checked : ((r = i.detail) == null ? void 0 : r.value) ?? e.value
     });
@@ -14006,15 +14018,16 @@ const le = class le extends m {
       <ha-select
         .label=${t}
         .value=${this.config[e] ?? r}
+        value=${this.config[e] ?? r}
         .configValue=${e}
-        @selected=${this.valueChanged}
+        @change=${this.valueChanged}
         @closed=${(n) => n.stopPropagation()}
         fixedMenuPosition
         naturalMenuWidth
       >
         ${i.map(
       (n) => a`
-            <mwc-list-item .value=${n}>${n}</mwc-list-item>
+            <mwc-list-item .value=${n} value=${n}>${n}</mwc-list-item>
           `
     )}
       </ha-select>
