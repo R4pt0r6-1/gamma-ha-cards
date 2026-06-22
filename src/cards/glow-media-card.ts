@@ -22,6 +22,7 @@ type HomeAssistant = {
     serviceData?: Record<string, unknown>,
     target?: Record<string, unknown>,
   ) => Promise<unknown> | void;
+  callWS?: <T = unknown>(message: Record<string, unknown>) => Promise<T>;
 };
 
 type ActionMode = 'toggle' | 'more-info' | 'none' | 'script' | 'navigate';
@@ -52,6 +53,32 @@ type MultiAction = {
 };
 
 type ActionConfig = SingleAction | MultiAction;
+
+type LovelaceDashboard = {
+  id?: string;
+  title?: string;
+  url_path?: string;
+};
+
+type LovelaceView = {
+  title?: string;
+  path?: string;
+};
+
+type LovelaceConfig = {
+  views?: LovelaceView[];
+};
+
+type NavigationViewOption = {
+  label: string;
+  path: string;
+};
+
+type NavigationDashboardOption = {
+  label: string;
+  path: string;
+  views: NavigationViewOption[];
+};
 
 interface GlowMediaCardConfig {
   type?: string;
@@ -757,10 +784,15 @@ class GlowMediaCardEditor extends LitElement {
   static properties = {
     hass: { attribute: false },
     config: { state: true },
+    navigationDashboards: { state: true },
   };
 
   public hass?: HomeAssistant;
   private config: Partial<GlowMediaCardConfig> = {};
+  private navigationDashboards: NavigationDashboardOption[] = [];
+  private navigationOptionsLoaded = false;
+  private navigationOptionsLoading = false;
+  private selectedNavigationDashboards: Record<string, string | undefined> = {};
 
   static get styles(): CSSResultGroup {
     return css`
@@ -820,6 +852,12 @@ class GlowMediaCardEditor extends LitElement {
     this.config = { ...config };
   }
 
+  protected updated(changedProperties: Map<string, unknown>): void {
+    if (changedProperties.has('hass')) {
+      void this.loadNavigationDashboards();
+    }
+  }
+
   private updateConfig(patch: Partial<GlowMediaCardConfig>): void {
     const next = { ...this.config, ...patch };
     Object.keys(next).forEach((key) => {
@@ -830,6 +868,160 @@ class GlowMediaCardEditor extends LitElement {
     });
     this.config = next;
     fireConfigChanged(this, next);
+  }
+
+  private async loadNavigationDashboards(): Promise<void> {
+    if (
+      this.navigationOptionsLoaded ||
+      this.navigationOptionsLoading ||
+      !this.hass?.callWS
+    ) {
+      return;
+    }
+
+    this.navigationOptionsLoading = true;
+    try {
+      const dashboards = await this.hass.callWS<LovelaceDashboard[]>({
+        type: 'lovelace/dashboards/list',
+      });
+      const dashboardList = this.withOverviewDashboard(
+        Array.isArray(dashboards) ? dashboards : [],
+      );
+      const options: NavigationDashboardOption[] = [];
+
+      for (const dashboard of dashboardList) {
+        const dashboardPath = this.normalizeNavigationSegment(
+          dashboard.url_path || dashboard.id || 'lovelace',
+        );
+        const dashboardTitle = dashboard.title || dashboardPath;
+        const config = await this.fetchLovelaceConfig(dashboardPath);
+        const views = Array.isArray(config?.views) ? config.views : [];
+
+        options.push({
+          label: dashboardTitle,
+          path: dashboardPath,
+          views: views.length
+            ? views.map((view, index) => {
+                const viewPath = this.normalizeNavigationSegment(
+                  view.path || String(index),
+                );
+                return {
+                  label: view.title || view.path || `View ${index + 1}`,
+                  path: `/${dashboardPath}/${viewPath}`,
+                };
+              })
+            : [{ label: dashboardTitle, path: `/${dashboardPath}` }],
+        });
+      }
+
+      this.navigationDashboards = options;
+      this.navigationOptionsLoaded = true;
+    } catch {
+      this.navigationDashboards = [];
+      this.navigationOptionsLoaded = true;
+    } finally {
+      this.navigationOptionsLoading = false;
+    }
+  }
+
+  private withOverviewDashboard(
+    dashboards: LovelaceDashboard[],
+  ): LovelaceDashboard[] {
+    const result: LovelaceDashboard[] = [
+      { title: 'Overview', url_path: 'lovelace' },
+    ];
+    const seen = new Set(['lovelace']);
+
+    dashboards.forEach((dashboard) => {
+      const path = this.normalizeNavigationSegment(
+        dashboard.url_path || dashboard.id || 'lovelace',
+      );
+      if (seen.has(path)) {
+        return;
+      }
+      seen.add(path);
+      result.push(dashboard);
+    });
+
+    return result;
+  }
+
+  private async fetchLovelaceConfig(
+    dashboardPath: string,
+  ): Promise<LovelaceConfig | undefined> {
+    if (!this.hass?.callWS) {
+      return undefined;
+    }
+
+    const messages: Record<string, unknown>[] = [
+      {
+        type: 'lovelace/config',
+        url_path: dashboardPath,
+        force: false,
+      },
+    ];
+
+    if (dashboardPath === 'lovelace') {
+      messages.push({ type: 'lovelace/config', force: false });
+    }
+
+    for (const message of messages) {
+      try {
+        return await this.hass.callWS<LovelaceConfig>(message);
+      } catch {
+        // Try the next supported request shape.
+      }
+    }
+
+    return undefined;
+  }
+
+  private normalizeNavigationSegment(value: string): string {
+    return (
+      String(value || '')
+        .replace(/^#/, '')
+        .replace(/^\/+|\/+$/g, '') || 'lovelace'
+    );
+  }
+
+  private navigationSelectionKey(
+    actionKey: 'tap_action' | 'hold_action',
+    actionIndex?: number,
+  ): string {
+    return actionIndex === undefined
+      ? actionKey
+      : `${actionKey}.${actionIndex}`;
+  }
+
+  private selectedNavigationDashboard(
+    actionKey: 'tap_action' | 'hold_action',
+    navigationPath: string,
+    actionIndex?: number,
+  ): NavigationDashboardOption | undefined {
+    const selectedPath =
+      this.selectedNavigationDashboards[
+        this.navigationSelectionKey(actionKey, actionIndex)
+      ];
+    return (
+      this.navigationDashboards.find((dashboard) => dashboard.path === selectedPath) ||
+      this.navigationDashboards.find((dashboard) =>
+        dashboard.views.some((view) => view.path === navigationPath),
+      ) ||
+      this.navigationDashboards[0]
+    );
+  }
+
+  private navigationDashboardChanged(
+    actionKey: 'tap_action' | 'hold_action',
+    event: Event,
+    actionIndex?: number,
+  ): void {
+    const target = event.target as HTMLSelectElement;
+    this.selectedNavigationDashboards = {
+      ...this.selectedNavigationDashboards,
+      [this.navigationSelectionKey(actionKey, actionIndex)]: target.value,
+    };
+    this.requestUpdate();
   }
 
   private formChanged(event: Event): void {
@@ -1063,6 +1255,88 @@ class GlowMediaCardEditor extends LitElement {
     );
   }
 
+  private renderNavigationFields(
+    label: string,
+    navigationPath: string,
+    actionKey: 'tap_action' | 'hold_action',
+    actionIndex?: number,
+  ): TemplateResult {
+    const selectedDashboard = this.selectedNavigationDashboard(
+      actionKey,
+      navigationPath,
+      actionIndex,
+    );
+    const selectedViewPath = selectedDashboard?.views.some(
+      (view) => view.path === navigationPath,
+    )
+      ? navigationPath
+      : '';
+    const handlePathChanged = (event: Event): void => {
+      if (actionIndex === undefined) {
+        this.actionFieldChanged(event);
+        return;
+      }
+      this.multiActionFieldChanged(event);
+    };
+
+    return html`
+      ${this.navigationDashboards.length
+        ? html`
+            <label>
+              <span>Dashboard</span>
+              <select
+                .value=${selectedDashboard?.path ?? ''}
+                @change=${(event: Event) =>
+                  this.navigationDashboardChanged(actionKey, event, actionIndex)}
+              >
+                ${this.navigationDashboards.map(
+                  (dashboard) => html`
+                    <option
+                      value=${dashboard.path}
+                      ?selected=${dashboard.path === selectedDashboard?.path}
+                    >
+                      ${dashboard.label}
+                    </option>
+                  `,
+                )}
+              </select>
+            </label>
+            <label>
+              <span>View/Page</span>
+              <select
+                .value=${selectedViewPath}
+                data-action-key=${actionKey}
+                data-action-index=${actionIndex ?? ''}
+                data-action-field="navigation_path"
+                @change=${handlePathChanged}
+              >
+                <option value="">Select view/page</option>
+                ${selectedDashboard?.views.map(
+                  (view) => html`
+                    <option
+                      value=${view.path}
+                      ?selected=${view.path === selectedViewPath}
+                    >
+                      ${view.label}
+                    </option>
+                  `,
+                )}
+              </select>
+            </label>
+          `
+        : nothing}
+      <ha-textfield
+        .label=${label}
+        .placeholder=${'/lovelace/0'}
+        .value=${navigationPath}
+        data-action-key=${actionKey}
+        data-action-index=${actionIndex ?? ''}
+        data-action-field="navigation_path"
+        @input=${handlePathChanged}
+      ></ha-textfield>
+    `;
+  }
+
   private renderActionFields(
     key: 'tap_action' | 'hold_action',
   ): TemplateResult {
@@ -1090,14 +1364,11 @@ class GlowMediaCardEditor extends LitElement {
     if (actionType === 'navigate') {
       return html`
         <div class="grid full">
-          <ha-textfield
-            .label=${key === 'tap_action' ? 'Navigation Path' : 'Navigation Path'}
-            .placeholder=${'#/dashboard/main'}
-            .value=${String((action as NavigateAction)?.navigation_path ?? '')}
-            data-action-key=${key}
-            data-action-field="navigation_path"
-            @input=${this.actionFieldChanged}
-          ></ha-textfield>
+          ${this.renderNavigationFields(
+            'Navigation Path',
+            String((action as NavigateAction)?.navigation_path ?? ''),
+            key,
+          )}
         </div>
       `;
     }
@@ -1322,15 +1593,12 @@ class GlowMediaCardEditor extends LitElement {
                     : action.action === 'navigate'
                       ? html`
                           <div style="margin-top: 6px;">
-                            <ha-textfield
-                              .label=${'Path'}
-                              .value=${String((action as NavigateAction).navigation_path ?? '')}
-                              data-action-key=${key}
-                              data-action-index=${index}
-                              data-action-field="navigation_path"
-                              @input=${this.multiActionFieldChanged}
-                              style="font-size: 12px;"
-                            ></ha-textfield>
+                            ${this.renderNavigationFields(
+                              'Path',
+                              String((action as NavigateAction).navigation_path ?? ''),
+                              key,
+                              index,
+                            )}
                           </div>
                         `
                       : nothing

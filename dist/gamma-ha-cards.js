@@ -22,7 +22,7 @@ let Oe = class {
     return this.cssText;
   }
 };
-const Re = (s) => new Oe(typeof s == "string" ? s : s + "", void 0, zt), m = (s, ...t) => {
+const Re = (s) => new Oe(typeof s == "string" ? s : s + "", void 0, zt), b = (s, ...t) => {
   const e = s.length === 1 ? s[0] : t.reduce((i, r, n) => i + ((o) => {
     if (o._$cssResult$ === !0) return o.cssText;
     if (typeof o == "number") return o;
@@ -45,7 +45,7 @@ const Re = (s) => new Oe(typeof s == "string" ? s : s + "", void 0, zt), m = (s,
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const { is: Be, defineProperty: Ve, getOwnPropertyDescriptor: He, getOwnPropertyNames: We, getOwnPropertySymbols: Ge, getPrototypeOf: Ke } = Object, w = globalThis, ce = w.trustedTypes, qe = ce ? ce.emptyScript : "", et = w.reactiveElementPolyfillSupport, U = (s, t) => s, at = { toAttribute(s, t) {
+const { is: Be, defineProperty: Ve, getOwnPropertyDescriptor: He, getOwnPropertyNames: We, getOwnPropertySymbols: Ge, getPrototypeOf: Ke } = Object, w = globalThis, ce = w.trustedTypes, qe = ce ? ce.emptyScript : "", et = w.reactiveElementPolyfillSupport, D = (s, t) => s, at = { toAttribute(s, t) {
   switch (t) {
     case Boolean:
       s = s ? qe : null;
@@ -103,13 +103,13 @@ let P = class extends HTMLElement {
     return this.elementProperties.get(t) ?? le;
   }
   static _$Ei() {
-    if (this.hasOwnProperty(U("elementProperties"))) return;
+    if (this.hasOwnProperty(D("elementProperties"))) return;
     const t = Ke(this);
     t.finalize(), t.l !== void 0 && (this.l = [...t.l]), this.elementProperties = new Map(t.elementProperties);
   }
   static finalize() {
-    if (this.hasOwnProperty(U("finalized"))) return;
-    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(U("properties"))) {
+    if (this.hasOwnProperty(D("finalized"))) return;
+    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(D("properties"))) {
       const e = this.properties, i = [...We(e), ...Ge(e)];
       for (const r of i) this.createProperty(r, e[r]);
     }
@@ -278,13 +278,13 @@ let P = class extends HTMLElement {
   firstUpdated(t) {
   }
 };
-P.elementStyles = [], P.shadowRootOptions = { mode: "open" }, P[U("elementProperties")] = /* @__PURE__ */ new Map(), P[U("finalized")] = /* @__PURE__ */ new Map(), et == null || et({ ReactiveElement: P }), (w.reactiveElementVersions ?? (w.reactiveElementVersions = [])).push("2.1.2");
+P.elementStyles = [], P.shadowRootOptions = { mode: "open" }, P[D("elementProperties")] = /* @__PURE__ */ new Map(), P[D("finalized")] = /* @__PURE__ */ new Map(), et == null || et({ ReactiveElement: P }), (w.reactiveElementVersions ?? (w.reactiveElementVersions = [])).push("2.1.2");
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const D = globalThis, de = (s) => s, Z = D.trustedTypes, he = Z ? Z.createPolicy("lit-html", { createHTML: (s) => s }) : void 0, ze = "$lit$", y = `lit$${Math.random().toFixed(9).slice(2)}$`, Fe = "?" + y, Je = `<${Fe}>`, T = document, R = () => T.createComment(""), j = (s) => s === null || typeof s != "object" && typeof s != "function", Ft = Array.isArray, Ye = (s) => Ft(s) || typeof (s == null ? void 0 : s[Symbol.iterator]) == "function", it = `[ 	
+const U = globalThis, de = (s) => s, Z = U.trustedTypes, he = Z ? Z.createPolicy("lit-html", { createHTML: (s) => s }) : void 0, ze = "$lit$", y = `lit$${Math.random().toFixed(9).slice(2)}$`, Fe = "?" + y, Je = `<${Fe}>`, T = document, R = () => T.createComment(""), j = (s) => s === null || typeof s != "object" && typeof s != "function", Ft = Array.isArray, Ye = (s) => Ft(s) || typeof (s == null ? void 0 : s[Symbol.iterator]) == "function", it = `[ 	
 \f\r]`, z = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, pe = /-->/g, ge = />/g, $ = RegExp(`>|${it}(?:([^\\s"'>=/]+)(${it}*=${it}*(?:[^ 	
 \f\r"'\`<>=]|("|')|))|$)`, "g"), ue = /'/g, fe = /"/g, Ie = /^(?:script|style|textarea|title)$/i, Xe = (s) => (t, ...e) => ({ _$litType$: s, strings: t, values: e }), a = Xe(1), O = Symbol.for("lit-noChange"), p = Symbol.for("lit-nothing"), me = /* @__PURE__ */ new WeakMap(), k = T.createTreeWalker(T, 129);
 function Ne(s, t) {
@@ -296,8 +296,8 @@ const Ze = (s, t) => {
   let r, n = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", o = z;
   for (let c = 0; c < e; c++) {
     const l = s[c];
-    let h, d, g = -1, b = 0;
-    for (; b < l.length && (o.lastIndex = b, d = o.exec(l), d !== null); ) b = o.lastIndex, o === z ? d[1] === "!--" ? o = pe : d[1] !== void 0 ? o = ge : d[2] !== void 0 ? (Ie.test(d[2]) && (r = RegExp("</" + d[2], "g")), o = $) : d[3] !== void 0 && (o = $) : o === $ ? d[0] === ">" ? (o = r ?? z, g = -1) : d[1] === void 0 ? g = -2 : (g = o.lastIndex - d[2].length, h = d[1], o = d[3] === void 0 ? $ : d[3] === '"' ? fe : ue) : o === fe || o === ue ? o = $ : o === pe || o === ge ? o = z : (o = $, r = void 0);
+    let h, d, g = -1, m = 0;
+    for (; m < l.length && (o.lastIndex = m, d = o.exec(l), d !== null); ) m = o.lastIndex, o === z ? d[1] === "!--" ? o = pe : d[1] !== void 0 ? o = ge : d[2] !== void 0 ? (Ie.test(d[2]) && (r = RegExp("</" + d[2], "g")), o = $) : d[3] !== void 0 && (o = $) : o === $ ? d[0] === ">" ? (o = r ?? z, g = -1) : d[1] === void 0 ? g = -2 : (g = o.lastIndex - d[2].length, h = d[1], o = d[3] === void 0 ? $ : d[3] === '"' ? fe : ue) : o === fe || o === ue ? o = $ : o === pe || o === ge ? o = z : (o = $, r = void 0);
     const x = o === $ && s[c + 1].startsWith("/>") ? " " : "";
     n += o === z ? l + Je : g >= 0 ? (i.push(h), l.slice(0, g) + ze + l.slice(g) + y + x) : l + y + (g === -2 ? c : x);
   }
@@ -316,15 +316,15 @@ class B {
     for (; (r = k.nextNode()) !== null && l.length < c; ) {
       if (r.nodeType === 1) {
         if (r.hasAttributes()) for (const g of r.getAttributeNames()) if (g.endsWith(ze)) {
-          const b = d[o++], x = r.getAttribute(g).split(y), v = /([.?@])?(.*)/.exec(b);
+          const m = d[o++], x = r.getAttribute(g).split(y), v = /([.?@])?(.*)/.exec(m);
           l.push({ type: 1, index: n, name: v[2], strings: x, ctor: v[1] === "." ? ti : v[1] === "?" ? ei : v[1] === "@" ? ii : tt }), r.removeAttribute(g);
         } else g.startsWith(y) && (l.push({ type: 6, index: n }), r.removeAttribute(g));
         if (Ie.test(r.tagName)) {
-          const g = r.textContent.split(y), b = g.length - 1;
-          if (b > 0) {
+          const g = r.textContent.split(y), m = g.length - 1;
+          if (m > 0) {
             r.textContent = Z ? Z.emptyScript : "";
-            for (let x = 0; x < b; x++) r.append(g[x], R()), k.nextNode(), l.push({ type: 2, index: ++n });
-            r.append(g[b], R());
+            for (let x = 0; x < m; x++) r.append(g[x], R()), k.nextNode(), l.push({ type: 2, index: ++n });
+            r.append(g[m], R());
           }
         }
       } else if (r.nodeType === 8) if (r.data === Fe) l.push({ type: 2, index: n });
@@ -504,8 +504,8 @@ class ri {
     M(this, t);
   }
 }
-const rt = D.litHtmlPolyfillSupport;
-rt == null || rt(B, W), (D.litHtmlVersions ?? (D.litHtmlVersions = [])).push("3.3.2");
+const rt = U.litHtmlPolyfillSupport;
+rt == null || rt(B, W), (U.litHtmlVersions ?? (U.litHtmlVersions = [])).push("3.3.2");
 const ni = (s, t, e) => {
   const i = (e == null ? void 0 : e.renderBefore) ?? t;
   let r = i._$litPart$;
@@ -604,12 +604,12 @@ function li(s, t) {
     })
   );
 }
-const Ut = class Ut extends u {
+const Dt = class Dt extends u {
   constructor() {
     super(...arguments), this.holdActive = !1, this.isDimming = !1, this.pendingDimmerPointer = !1, this.pointerStartX = 0, this.pointerStartY = 0, this.suppressClick = !1;
   }
   static get styles() {
-    return m`
+    return b`
       :host {
         --glow-card-width: 260px;
         --glow-card-height: 56px;
@@ -1743,7 +1743,7 @@ const Ut = class Ut extends u {
     `;
   }
 };
-Ut.properties = {
+Dt.properties = {
   hass: { attribute: !1 },
   config: { state: !0 },
   holdActive: { state: !0 },
@@ -1755,14 +1755,14 @@ Ut.properties = {
   optimisticKelvin: { state: !0 },
   optimisticEffect: { state: !0 }
 };
-let ct = Ut;
+let ct = Dt;
 customElements.get("glow-light-card") || customElements.define("glow-light-card", ct);
-const Dt = class Dt extends u {
+const Ut = class Ut extends u {
   constructor() {
     super(...arguments), this.config = {};
   }
   static get styles() {
-    return m`
+    return b`
       .editor {
         display: grid;
         gap: 14px;
@@ -2107,8 +2107,8 @@ const Dt = class Dt extends u {
     r === "service" ? c.service = n : r === "script" ? (c.service = "script.turn_on", n ? c.target = { entity_id: n } : delete c.target) : r === "navigation_path" && (c.navigation_path = n), this.updateConfig({ [i]: c });
   }
   multiActionFieldChanged(t) {
-    var g, b, x, v;
-    const e = t.target, i = (g = e.dataset) == null ? void 0 : g.actionKey, r = (b = e.dataset) != null && b.actionIndex ? Number(e.dataset.actionIndex) : void 0, n = (x = e.dataset) == null ? void 0 : x.actionField;
+    var g, m, x, v;
+    const e = t.target, i = (g = e.dataset) == null ? void 0 : g.actionKey, r = (m = e.dataset) != null && m.actionIndex ? Number(e.dataset.actionIndex) : void 0, n = (x = e.dataset) == null ? void 0 : x.actionField;
     if (!i || r === void 0 || !n)
       return;
     const o = ((v = e.detail) == null ? void 0 : v.value) ?? (typeof e.value == "string" ? e.value : void 0), c = this.getActionValue(i);
@@ -2199,11 +2199,11 @@ const Dt = class Dt extends u {
     `;
   }
 };
-Dt.properties = {
+Ut.properties = {
   hass: { attribute: !1 },
   config: { state: !0 }
 };
-let lt = Dt;
+let lt = Ut;
 customElements.get("glow-light-card-editor") || customElements.define("glow-light-card-editor", lt);
 window.customCards = window.customCards || [];
 window.customCards.push({
@@ -2240,7 +2240,7 @@ const Lt = class Lt extends u {
     super(...arguments), this.holdActive = !1;
   }
   static get styles() {
-    return m`
+    return b`
       :host {
         --switch-card-width: 260px;
         --switch-card-height: 56px;
@@ -2679,7 +2679,7 @@ const Rt = class Rt extends u {
     super(...arguments), this.config = {};
   }
   static get styles() {
-    return m`
+    return b`
       .editor {
         display: grid;
         gap: 14px;
@@ -2913,7 +2913,7 @@ const jt = class jt extends u {
     super(...arguments), this.holdActive = !1;
   }
   static get styles() {
-    return m`
+    return b`
       :host {
         --lock-card-width: 260px;
         --lock-card-height: 56px;
@@ -3379,7 +3379,7 @@ const Bt = class Bt extends u {
     super(...arguments), this.config = {};
   }
   static get styles() {
-    return m`
+    return b`
       .editor {
         display: grid;
         gap: 14px;
@@ -3645,7 +3645,7 @@ const Vt = class Vt extends u {
     super(...arguments), this.holdActive = !1, this.handledControlPointer = !1;
   }
   static get styles() {
-    return m`
+    return b`
       :host {
         --thermostat-card-width: 320px;
         --thermostat-card-height: auto;
@@ -4750,7 +4750,7 @@ const Ht = class Ht extends u {
     super(...arguments), this.config = {};
   }
   static get styles() {
-    return m`
+    return b`
       .editor {
         display: grid;
         gap: 14px;
@@ -5087,7 +5087,7 @@ const Wt = class Wt extends u {
     super(...arguments), this.holdActive = !1;
   }
   static get styles() {
-    return m`
+    return b`
       :host {
         --media-card-width: 280px;
         --media-card-height: 120px;
@@ -5581,10 +5581,10 @@ let mt = Wt;
 customElements.get("glow-media-card") || customElements.define("glow-media-card", mt);
 const Gt = class Gt extends u {
   constructor() {
-    super(...arguments), this.config = {};
+    super(...arguments), this.config = {}, this.navigationDashboards = [], this.navigationOptionsLoaded = !1, this.navigationOptionsLoading = !1, this.selectedNavigationDashboards = {};
   }
   static get styles() {
-    return m`
+    return b`
       .editor {
         display: grid;
         gap: 14px;
@@ -5639,12 +5639,99 @@ const Gt = class Gt extends u {
   setConfig(t) {
     this.config = { ...t };
   }
+  updated(t) {
+    t.has("hass") && this.loadNavigationDashboards();
+  }
   updateConfig(t) {
     const e = { ...this.config, ...t };
     Object.keys(e).forEach((i) => {
       const r = i;
       e[r] === "" && delete e[r];
     }), this.config = e, mi(this, e);
+  }
+  async loadNavigationDashboards() {
+    var t;
+    if (!(this.navigationOptionsLoaded || this.navigationOptionsLoading || !((t = this.hass) != null && t.callWS))) {
+      this.navigationOptionsLoading = !0;
+      try {
+        const e = await this.hass.callWS({
+          type: "lovelace/dashboards/list"
+        }), i = this.withOverviewDashboard(
+          Array.isArray(e) ? e : []
+        ), r = [];
+        for (const n of i) {
+          const o = this.normalizeNavigationSegment(
+            n.url_path || n.id || "lovelace"
+          ), c = n.title || o, l = await this.fetchLovelaceConfig(o), h = Array.isArray(l == null ? void 0 : l.views) ? l.views : [];
+          r.push({
+            label: c,
+            path: o,
+            views: h.length ? h.map((d, g) => {
+              const m = this.normalizeNavigationSegment(
+                d.path || String(g)
+              );
+              return {
+                label: d.title || d.path || `View ${g + 1}`,
+                path: `/${o}/${m}`
+              };
+            }) : [{ label: c, path: `/${o}` }]
+          });
+        }
+        this.navigationDashboards = r, this.navigationOptionsLoaded = !0;
+      } catch {
+        this.navigationDashboards = [], this.navigationOptionsLoaded = !0;
+      } finally {
+        this.navigationOptionsLoading = !1;
+      }
+    }
+  }
+  withOverviewDashboard(t) {
+    const e = [
+      { title: "Overview", url_path: "lovelace" }
+    ], i = /* @__PURE__ */ new Set(["lovelace"]);
+    return t.forEach((r) => {
+      const n = this.normalizeNavigationSegment(
+        r.url_path || r.id || "lovelace"
+      );
+      i.has(n) || (i.add(n), e.push(r));
+    }), e;
+  }
+  async fetchLovelaceConfig(t) {
+    var i;
+    if (!((i = this.hass) != null && i.callWS))
+      return;
+    const e = [
+      {
+        type: "lovelace/config",
+        url_path: t,
+        force: !1
+      }
+    ];
+    t === "lovelace" && e.push({ type: "lovelace/config", force: !1 });
+    for (const r of e)
+      try {
+        return await this.hass.callWS(r);
+      } catch {
+      }
+  }
+  normalizeNavigationSegment(t) {
+    return String(t || "").replace(/^#/, "").replace(/^\/+|\/+$/g, "") || "lovelace";
+  }
+  navigationSelectionKey(t, e) {
+    return e === void 0 ? t : `${t}.${e}`;
+  }
+  selectedNavigationDashboard(t, e, i) {
+    const r = this.selectedNavigationDashboards[this.navigationSelectionKey(t, i)];
+    return this.navigationDashboards.find((n) => n.path === r) || this.navigationDashboards.find(
+      (n) => n.views.some((o) => o.path === e)
+    ) || this.navigationDashboards[0];
+  }
+  navigationDashboardChanged(t, e, i) {
+    const r = e.target;
+    this.selectedNavigationDashboards = {
+      ...this.selectedNavigationDashboards,
+      [this.navigationSelectionKey(t, i)]: r.value
+    }, this.requestUpdate();
   }
   formChanged(t) {
     var i;
@@ -5800,6 +5887,74 @@ const Gt = class Gt extends u {
   isScriptAction(t) {
     return typeof t == "object" && t.action === "call-service" && t.service === "script.turn_on";
   }
+  renderNavigationFields(t, e, i, r) {
+    const n = this.selectedNavigationDashboard(
+      i,
+      e,
+      r
+    ), o = n != null && n.views.some(
+      (l) => l.path === e
+    ) ? e : "", c = (l) => {
+      if (r === void 0) {
+        this.actionFieldChanged(l);
+        return;
+      }
+      this.multiActionFieldChanged(l);
+    };
+    return a`
+      ${this.navigationDashboards.length ? a`
+            <label>
+              <span>Dashboard</span>
+              <select
+                .value=${(n == null ? void 0 : n.path) ?? ""}
+                @change=${(l) => this.navigationDashboardChanged(i, l, r)}
+              >
+                ${this.navigationDashboards.map(
+      (l) => a`
+                    <option
+                      value=${l.path}
+                      ?selected=${l.path === (n == null ? void 0 : n.path)}
+                    >
+                      ${l.label}
+                    </option>
+                  `
+    )}
+              </select>
+            </label>
+            <label>
+              <span>View/Page</span>
+              <select
+                .value=${o}
+                data-action-key=${i}
+                data-action-index=${r ?? ""}
+                data-action-field="navigation_path"
+                @change=${c}
+              >
+                <option value="">Select view/page</option>
+                ${n == null ? void 0 : n.views.map(
+      (l) => a`
+                    <option
+                      value=${l.path}
+                      ?selected=${l.path === o}
+                    >
+                      ${l.label}
+                    </option>
+                  `
+    )}
+              </select>
+            </label>
+          ` : p}
+      <ha-textfield
+        .label=${t}
+        .placeholder=${"/lovelace/0"}
+        .value=${e}
+        data-action-key=${i}
+        data-action-index=${r ?? ""}
+        data-action-field="navigation_path"
+        @input=${c}
+      ></ha-textfield>
+    `;
+  }
   renderActionFields(t) {
     var r, n;
     const e = this.getActionValue(t), i = typeof e == "string" ? e : e == null ? void 0 : e.action;
@@ -5823,14 +5978,11 @@ const Gt = class Gt extends u {
     if (i === "navigate")
       return a`
         <div class="grid full">
-          <ha-textfield
-            .label=${"Navigation Path"}
-            .placeholder=${"#/dashboard/main"}
-            .value=${String((e == null ? void 0 : e.navigation_path) ?? "")}
-            data-action-key=${t}
-            data-action-field="navigation_path"
-            @input=${this.actionFieldChanged}
-          ></ha-textfield>
+          ${this.renderNavigationFields(
+        "Navigation Path",
+        String((e == null ? void 0 : e.navigation_path) ?? ""),
+        t
+      )}
         </div>
       `;
     if (i === "call-service" && this.isScriptAction(e))
@@ -5986,15 +6138,12 @@ const Gt = class Gt extends u {
                         </div>
                       ` : i.action === "navigate" ? a`
                           <div style="margin-top: 6px;">
-                            <ha-textfield
-                              .label=${"Path"}
-                              .value=${String(i.navigation_path ?? "")}
-                              data-action-key=${t}
-                              data-action-index=${r}
-                              data-action-field="navigation_path"
-                              @input=${this.multiActionFieldChanged}
-                              style="font-size: 12px;"
-                            ></ha-textfield>
+                            ${this.renderNavigationFields(
+        "Path",
+        String(i.navigation_path ?? ""),
+        t,
+        r
+      )}
                           </div>
                         ` : p}
                 `}
@@ -6025,8 +6174,8 @@ const Gt = class Gt extends u {
     }
   }
   multiActionFieldChanged(t) {
-    var g, b, x, v;
-    const e = t.target, i = (g = e.dataset) == null ? void 0 : g.actionKey, r = (b = e.dataset) != null && b.actionIndex ? Number(e.dataset.actionIndex) : void 0, n = (x = e.dataset) == null ? void 0 : x.actionField;
+    var g, m, x, v;
+    const e = t.target, i = (g = e.dataset) == null ? void 0 : g.actionKey, r = (m = e.dataset) != null && m.actionIndex ? Number(e.dataset.actionIndex) : void 0, n = (x = e.dataset) == null ? void 0 : x.actionField;
     if (!i || r === void 0 || !n)
       return;
     const o = ((v = e.detail) == null ? void 0 : v.value) ?? (typeof e.value == "string" ? e.value : void 0), c = this.getActionValue(i);
@@ -6148,7 +6297,8 @@ const Gt = class Gt extends u {
 };
 Gt.properties = {
   hass: { attribute: !1 },
-  config: { state: !0 }
+  config: { state: !0 },
+  navigationDashboards: { state: !0 }
 };
 let bt = Gt;
 customElements.get("glow-media-card-editor") || customElements.define("glow-media-card-editor", bt);
@@ -6191,7 +6341,7 @@ const Kt = class Kt extends u {
     super(...arguments), this.optimisticTimers = {}, this.optimisticStates = {}, this.holdActive = !1;
   }
   static get styles() {
-    return m`
+    return b`
       :host {
         --outlet-card-width: 540px;
         --outlet-button-height: 54px;
@@ -7018,7 +7168,7 @@ const qt = class qt extends u {
     super(...arguments), this.config = {};
   }
   static get styles() {
-    return m`
+    return b`
       .editor {
         display: grid;
         gap: 14px;
@@ -7267,7 +7417,7 @@ const Jt = class Jt extends u {
     super(...arguments), this.holdActive = !1, this.handledSpeedPointer = !1;
   }
   static get styles() {
-    return m`
+    return b`
       :host {
         --fan-card-width: 260px;
         --fan-card-height: 56px;
@@ -7829,7 +7979,7 @@ const Yt = class Yt extends u {
     super(...arguments), this.config = {};
   }
   static get styles() {
-    return m`
+    return b`
       .editor {
         display: grid;
         gap: 14px;
@@ -8196,7 +8346,7 @@ function Q(s) {
   if (!f(s))
     return Nt(s == null ? void 0 : s.state, s == null ? void 0 : s.attributes.unit_of_measurement);
 }
-function Ue(s) {
+function De(s) {
   if (!f(s))
     return Pi((s == null ? void 0 : s.state) ?? "") ?? Nt(s == null ? void 0 : s.state, s == null ? void 0 : s.attributes.unit_of_measurement);
 }
@@ -8205,7 +8355,7 @@ const Xt = class Xt extends u {
     super(...arguments), this.settingsOpen = !1;
   }
   static get styles() {
-    return m`
+    return b`
       :host {
         --laundry-card-width: 100%;
         --laundry-card-radius: 14px;
@@ -9026,7 +9176,7 @@ const Xt = class Xt extends u {
     }[this.stateGroup];
   }
   get remainingMinutes() {
-    return Ue(this.entity(this.config.remaining_time_entity));
+    return De(this.entity(this.config.remaining_time_entity));
   }
   get totalMinutes() {
     return Q(this.entity(this.config.total_time_entity));
@@ -9342,7 +9492,7 @@ const Xt = class Xt extends u {
   render() {
     if (!this.config)
       return a``;
-    const t = this.entity(this.config.power_entity), e = this.entity(this.config.operation_entity), i = this.stateGroup === "running", r = this.stateGroup === "running" || this.stateGroup === "paused", n = !!(this.config.power_entity && t), o = !e || e.state === "unavailable", c = o || !this.canCallOperation("start") || !this.isRemoteStartReady() || i, l = o || !this.canCallOperation("stop") || !r, h = n ? f(t) : !this.canCallOperation("power_on") && !this.canCallOperation("power_off"), d = t ? t.state !== "on" : this.stateGroup === "off", g = this.kindContrastColor, b = this.config.show_stats === !1 ? this.configuredMetricEntities() : [];
+    const t = this.entity(this.config.power_entity), e = this.entity(this.config.operation_entity), i = this.stateGroup === "running", r = this.stateGroup === "running" || this.stateGroup === "paused", n = !!(this.config.power_entity && t), o = !e || e.state === "unavailable", c = o || !this.canCallOperation("start") || !this.isRemoteStartReady() || i, l = o || !this.canCallOperation("stop") || !r, h = n ? f(t) : !this.canCallOperation("power_on") && !this.canCallOperation("power_off"), d = t ? t.state !== "on" : this.stateGroup === "off", g = this.kindContrastColor, m = this.config.show_stats === !1 ? this.configuredMetricEntities() : [];
     return a`
       <ha-card>
         <article
@@ -9386,9 +9536,9 @@ const Xt = class Xt extends u {
             <div class="progress-bar"></div>
           </div>
 
-          ${b.length ? a`
+          ${m.length ? a`
                 <div class="machine-metrics">
-                  ${b.map((x) => this.renderMetric(x))}
+                  ${m.map((x) => this.renderMetric(x))}
                 </div>
               ` : p}
 
@@ -9441,7 +9591,7 @@ const Zt = class Zt extends u {
     super(...arguments), this.config = {};
   }
   static get styles() {
-    return m`
+    return b`
       .editor {
         display: grid;
         gap: 14px;
@@ -9672,7 +9822,7 @@ window.customCards.push({
   name: "LG Laundry Card",
   description: "A polished LG ThinQ washer and dryer dashboard card."
 });
-const De = {
+const Ue = {
   name: "Laundry",
   width: "420px",
   fill_container: !1,
@@ -9714,8 +9864,8 @@ const De = {
   "spinning",
   "steam_softening",
   "wrinkle_care"
-]), Fi = /* @__PURE__ */ new Set(["end"]), Ii = /* @__PURE__ */ new Set(["pause", "reserved", "rinse_hold"]), Ni = /* @__PURE__ */ new Set(["power_off", "initial"]), Ui = /* @__PURE__ */ new Set(["error"]);
-function Di(s, t) {
+]), Fi = /* @__PURE__ */ new Set(["end"]), Ii = /* @__PURE__ */ new Set(["pause", "reserved", "rinse_hold"]), Ni = /* @__PURE__ */ new Set(["power_off", "initial"]), Di = /* @__PURE__ */ new Set(["error"]);
+function Ui(s, t) {
   s.dispatchEvent(
     new CustomEvent("config-changed", {
       detail: { config: t },
@@ -9738,7 +9888,7 @@ const Qt = class Qt extends u {
     super(...arguments), this.optimisticOperations = {}, this.optimisticTimers = {};
   }
   static get styles() {
-    return m`
+    return b`
       :host {
         --laundry-pair-width: 100%;
         --laundry-pair-radius: 14px;
@@ -10519,7 +10669,7 @@ const Qt = class Qt extends u {
     if (!((e = t == null ? void 0 : t.washer) != null && e.entity) || !((i = t == null ? void 0 : t.dryer) != null && i.entity))
       throw new Error("Washer and dryer status entities are required");
     this.config = {
-      ...De,
+      ...Ue,
       ...t,
       washer: {
         name: "Washer",
@@ -10641,7 +10791,7 @@ const Qt = class Qt extends u {
   stateGroup(t, e) {
     var r, n;
     const i = this.rawStatus(t, e);
-    return Ui.has(i) || (r = this.entity(e.error_entity)) != null && r.attributes.event_type ? "error" : zi.has(i) ? "running" : Fi.has(i) ? "complete" : Ii.has(i) ? "paused" : (Ni.has(i) || ((n = this.entity(e.power_entity)) == null ? void 0 : n.state) === "off", "off");
+    return Di.has(i) || (r = this.entity(e.error_entity)) != null && r.attributes.event_type ? "error" : zi.has(i) ? "running" : Fi.has(i) ? "complete" : Ii.has(i) ? "paused" : (Ni.has(i) || ((n = this.entity(e.power_entity)) == null ? void 0 : n.state) === "off", "off");
   }
   stateColor(t, e, i) {
     return {
@@ -10653,7 +10803,7 @@ const Qt = class Qt extends u {
     }[i];
   }
   remainingMinutes(t) {
-    return Ue(this.entity(t.remaining_time_entity));
+    return De(this.entity(t.remaining_time_entity));
   }
   totalMinutes(t) {
     return Q(this.entity(t.total_time_entity));
@@ -10786,16 +10936,16 @@ const Qt = class Qt extends u {
   }
   controlDisabled(t, e, i, r) {
     var x, v;
-    const n = r.action ?? "more_info", o = this.entity(e.power_entity), c = this.entity(e.operation_entity), l = !!(e.power_entity && o), h = !c || c.state === "unavailable", d = i === "running", g = i === "running" || i === "paused", b = r.option ?? n;
+    const n = r.action ?? "more_info", o = this.entity(e.power_entity), c = this.entity(e.operation_entity), l = !!(e.power_entity && o), h = !c || c.state === "unavailable", d = i === "running", g = i === "running" || i === "paused", m = r.option ?? n;
     switch (n) {
       case "power_toggle":
         return l ? f(o) : !this.canCallOperation(e, "power_on") && !this.canCallOperation(e, "power_off");
       case "power_on":
         return l ? f(o) || (o == null ? void 0 : o.state) === "on" : !this.canCallOperation(e, "power_on");
       case "start":
-        return h || !this.canCallOperation(e, b) || !this.isRemoteStartReady(e) || d;
+        return h || !this.canCallOperation(e, m) || !this.isRemoteStartReady(e) || d;
       case "stop":
-        return h || !this.canCallOperation(e, b) || !g;
+        return h || !this.canCallOperation(e, m) || !g;
       case "power_off":
         return l ? f(o) || (o == null ? void 0 : o.state) === "off" : !this.canCallOperation(e, "power_off");
       case "toggle":
@@ -11152,7 +11302,7 @@ const te = class te extends u {
     super(...arguments), this.config = {};
   }
   static get styles() {
-    return m`
+    return b`
       .editor {
         display: grid;
         gap: 14px;
@@ -11195,7 +11345,7 @@ const te = class te extends u {
   }
   setConfig(t) {
     this.config = {
-      ...De,
+      ...Ue,
       ...t,
       washer: {
         name: "Washer",
@@ -11211,7 +11361,7 @@ const te = class te extends u {
     this.config = {
       ...this.config,
       ...t
-    }, Di(this, this.config);
+    }, Ui(this, this.config);
   }
   updatePath(t, e) {
     const [i, r] = t.split(".");
@@ -11408,7 +11558,7 @@ function Te(s) {
 }
 const ee = class ee extends u {
   static get styles() {
-    return m`
+    return b`
       :host {
         --laundry-usage-width: 500px;
         --laundry-usage-radius: 16px;
@@ -12066,7 +12216,7 @@ function Vi(s) {
 }
 const ie = class ie extends u {
   static get styles() {
-    return m`
+    return b`
       :host {
         --voice-card-width: 360px;
         --voice-card-radius: 16px;
@@ -12401,7 +12551,7 @@ const re = class re extends u {
     super(...arguments), this.config = {};
   }
   static get styles() {
-    return m`
+    return b`
       .editor {
         display: grid;
         gap: 14px;
@@ -12638,7 +12788,7 @@ const ne = class ne extends u {
     super(...arguments), this.pending = !1;
   }
   static get styles() {
-    return m`
+    return b`
       :host {
         --pet-feeder-width: 320px;
         --pet-feeder-height: 118px;
@@ -13529,7 +13679,7 @@ const oe = class oe extends u {
     super(...arguments), this.config = {};
   }
   static get styles() {
-    return m`
+    return b`
       .editor {
         display: grid;
         gap: 14px;
