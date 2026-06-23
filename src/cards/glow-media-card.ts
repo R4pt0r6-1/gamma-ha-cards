@@ -953,17 +953,23 @@ class GlowMediaCardEditor extends LitElement {
       return undefined;
     }
 
-    const messages: Record<string, unknown>[] = [
-      {
-        type: 'lovelace/config',
-        url_path: dashboardPath,
-        force: false,
-      },
-    ];
-
-    if (dashboardPath === 'lovelace') {
-      messages.push({ type: 'lovelace/config', force: false });
-    }
+    const messages: Record<string, unknown>[] =
+      dashboardPath === 'lovelace'
+        ? [
+            { type: 'lovelace/config', force: false },
+            {
+              type: 'lovelace/config',
+              url_path: 'lovelace',
+              force: false,
+            },
+          ]
+        : [
+            {
+              type: 'lovelace/config',
+              url_path: dashboardPath,
+              force: false,
+            },
+          ];
 
     for (const message of messages) {
       try {
@@ -1009,6 +1015,18 @@ class GlowMediaCardEditor extends LitElement {
       ) ||
       this.navigationDashboards[0]
     );
+  }
+
+  private navigationViewOptions(
+    dashboard: NavigationDashboardOption | undefined,
+  ): NavigationViewOption[] {
+    if (!dashboard) {
+      return [];
+    }
+
+    return dashboard.views.length
+      ? dashboard.views
+      : [{ label: dashboard.label, path: `/${dashboard.path}` }];
   }
 
   private navigationDashboardChanged(
@@ -1255,6 +1273,15 @@ class GlowMediaCardEditor extends LitElement {
     );
   }
 
+  private getScriptEntityId(action: CallServiceAction | undefined): string {
+    const entityId =
+      action?.target?.entity_id ??
+      action?.service_data?.entity_id ??
+      action?.data?.entity_id;
+
+    return typeof entityId === 'string' ? entityId : '';
+  }
+
   private renderNavigationFields(
     label: string,
     navigationPath: string,
@@ -1266,7 +1293,8 @@ class GlowMediaCardEditor extends LitElement {
       navigationPath,
       actionIndex,
     );
-    const selectedViewPath = selectedDashboard?.views.some(
+    const viewOptions = this.navigationViewOptions(selectedDashboard);
+    const selectedViewPath = viewOptions.some(
       (view) => view.path === navigationPath,
     )
       ? navigationPath
@@ -1311,7 +1339,7 @@ class GlowMediaCardEditor extends LitElement {
                 @change=${handlePathChanged}
               >
                 <option value="">Select view/page</option>
-                ${selectedDashboard?.views.map(
+                ${viewOptions.map(
                   (view) => html`
                     <option
                       value=${view.path}
@@ -1380,7 +1408,7 @@ class GlowMediaCardEditor extends LitElement {
             .hass=${this.hass}
             .label=${key === 'tap_action' ? 'Tap Script' : 'Hold Script'}
             .selector=${{ entity: { domain: 'script' } }}
-            .value=${String((action as CallServiceAction).target?.entity_id ?? '')}
+            .value=${this.getScriptEntityId(action as CallServiceAction)}
             data-action-key=${key}
             data-action-field="script"
             @value-changed=${this.actionFieldChanged}
@@ -1465,7 +1493,7 @@ class GlowMediaCardEditor extends LitElement {
   }
 
   private actionFieldChanged(event: Event): void {
-    const target = event.target as HTMLElement & {
+    const target = (event.currentTarget || event.target) as HTMLElement & {
       value?: string;
       dataset?: { actionKey?: string; actionField?: string };
       detail?: { value?: string };
@@ -1480,7 +1508,13 @@ class GlowMediaCardEditor extends LitElement {
       return;
     }
 
+    const customEvent = event as CustomEvent<{
+      item?: { value?: string };
+      value?: string;
+    }>;
     const rawValue =
+      customEvent.detail?.value ??
+      customEvent.detail?.item?.value ??
       target.detail?.value ??
       (typeof target.value === 'string' ? target.value : undefined);
 
@@ -1497,12 +1531,17 @@ class GlowMediaCardEditor extends LitElement {
     if (actionField === 'service') {
       (action as CallServiceAction).service = rawValue;
     } else if (actionField === 'script') {
-      (action as CallServiceAction).service = 'script.turn_on';
+      const scriptAction: CallServiceAction = {
+        action: 'call-service',
+        service: 'script.turn_on',
+      };
       if (rawValue) {
-        (action as CallServiceAction).target = { entity_id: rawValue };
-      } else {
-        delete (action as CallServiceAction).target;
+        scriptAction.target = { entity_id: rawValue };
       }
+      this.updateConfig({
+        [actionKey]: scriptAction,
+      } as Partial<GlowMediaCardConfig>);
+      return;
     } else if (actionField === 'target_entity') {
       const targetObj = rawValue
         ? { entity_id: rawValue }
