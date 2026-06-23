@@ -26,6 +26,7 @@ type HomeAssistant = {
     serviceData?: Record<string, unknown>,
     target?: Record<string, unknown>,
   ) => Promise<unknown> | void;
+  callWS?: <T = unknown>(message: Record<string, unknown>) => Promise<T>;
 };
 
 type StateDisplayMode = 'state' | 'brightness' | 'auto';
@@ -58,6 +59,17 @@ type MultiAction = {
 };
 
 type ActionConfig = SingleAction | MultiAction;
+
+type LovelaceDashboard = {
+  id?: string;
+  title?: string;
+  url_path?: string;
+};
+
+type NavigationDashboardOption = {
+  label: string;
+  path: string;
+};
 
 type LightColorPreset = {
   name: string;
@@ -124,6 +136,14 @@ const ACTIONS: Array<ActionMode | 'call-service' | 'multi'> = [
   'script',
   'navigate',
   'multi',
+];
+const MULTI_ACTIONS: Array<ActionMode | 'call-service'> = [
+  'call-service',
+  'script',
+  'navigate',
+  'toggle',
+  'more-info',
+  'none',
 ];
 const STATE_DISPLAY_MODES: StateDisplayMode[] = ['state', 'brightness', 'auto'];
 const LIGHT_CONTROL_LABELS: Record<LightControlMode, string> = {
@@ -1171,7 +1191,8 @@ export class GlowLightCard extends LitElement {
     }
 
     if (action.action === 'navigate') {
-      const path = action.navigation_path;
+      const path =
+        'navigation_path' in action ? action.navigation_path : undefined;
       if (path && window.location) {
         window.history.pushState(null, '', path);
         this.dispatchEvent(
@@ -1735,10 +1756,14 @@ class GlowLightCardEditor extends LitElement {
   static properties = {
     hass: { attribute: false },
     config: { state: true },
+    navigationDashboards: { state: true },
   };
 
   public hass?: HomeAssistant;
   private config: Partial<GlowLightCardConfig> = {};
+  private navigationDashboards: NavigationDashboardOption[] = [];
+  private navigationOptionsLoaded = false;
+  private navigationOptionsLoading = false;
 
   static get styles(): CSSResultGroup {
     return css`
@@ -1798,6 +1823,12 @@ class GlowLightCardEditor extends LitElement {
     this.config = { ...config };
   }
 
+  protected updated(changedProperties: Map<string, unknown>): void {
+    if (changedProperties.has('hass')) {
+      void this.loadNavigationDashboards();
+    }
+  }
+
   private updateConfig(patch: Partial<GlowLightCardConfig>): void {
     const next = { ...this.config, ...patch };
     Object.keys(next).forEach((key) => {
@@ -1808,6 +1839,132 @@ class GlowLightCardEditor extends LitElement {
     });
     this.config = next;
     fireConfigChanged(this, next);
+  }
+
+  private async loadNavigationDashboards(): Promise<void> {
+    if (
+      this.navigationOptionsLoaded ||
+      this.navigationOptionsLoading ||
+      !this.hass?.callWS
+    ) {
+      return;
+    }
+
+    this.navigationOptionsLoading = true;
+    try {
+      const dashboards = await this.hass.callWS<LovelaceDashboard[]>({
+        type: 'lovelace/dashboards/list',
+      });
+      const dashboardList = this.withOverviewDashboard(
+        Array.isArray(dashboards) ? dashboards : [],
+      );
+
+      this.navigationDashboards = dashboardList.map((dashboard) => {
+        const dashboardPath = this.normalizeNavigationSegment(
+          dashboard.url_path || dashboard.id || 'lovelace',
+        );
+
+        return {
+          label: dashboard.title || dashboardPath,
+          path: dashboardPath,
+        };
+      });
+      this.navigationOptionsLoaded = true;
+    } catch {
+      this.navigationDashboards = [];
+      this.navigationOptionsLoaded = true;
+    } finally {
+      this.navigationOptionsLoading = false;
+    }
+  }
+
+  private withOverviewDashboard(
+    dashboards: LovelaceDashboard[],
+  ): LovelaceDashboard[] {
+    const result: LovelaceDashboard[] = [
+      { title: 'Overview', url_path: 'lovelace' },
+    ];
+    const seen = new Set(['lovelace']);
+
+    dashboards.forEach((dashboard) => {
+      const path = this.normalizeNavigationSegment(
+        dashboard.url_path || dashboard.id || 'lovelace',
+      );
+      if (seen.has(path)) {
+        return;
+      }
+      seen.add(path);
+      result.push(dashboard);
+    });
+
+    return result;
+  }
+
+  private normalizeNavigationSegment(value: string): string {
+    return (
+      String(value || '')
+        .replace(/^#/, '')
+        .replace(/^\/+|\/+$/g, '') || 'lovelace'
+    );
+  }
+
+  private dashboardNavigationPath(dashboardPath: string): string {
+    return `/${this.normalizeNavigationSegment(dashboardPath)}`;
+  }
+
+  private selectedNavigationDashboard(
+    navigationPath: string,
+  ): NavigationDashboardOption | undefined {
+    if (!String(navigationPath || '').trim()) {
+      return undefined;
+    }
+
+    const normalizedPath = this.normalizeNavigationSegment(navigationPath);
+
+    return this.navigationDashboards.find((dashboard) =>
+      normalizedPath === dashboard.path ||
+        normalizedPath.startsWith(`${dashboard.path}/`),
+    );
+  }
+
+  private navigationDashboardChanged(
+    actionKey: 'tap_action' | 'hold_action',
+    event: Event,
+    actionIndex?: number,
+  ): void {
+    const target = (event.currentTarget || event.target) as HTMLSelectElement;
+    const navigationPath = target.value
+      ? this.dashboardNavigationPath(target.value)
+      : '';
+
+    if (actionIndex === undefined) {
+      this.updateConfig({
+        [actionKey]: {
+          action: 'navigate',
+          navigation_path: navigationPath,
+        },
+      } as Partial<GlowLightCardConfig>);
+      return;
+    }
+
+    const action = this.getActionValue(actionKey);
+    if (typeof action !== 'object' || action.action !== 'multi') {
+      return;
+    }
+
+    const newActions = [...action.actions];
+    if (!newActions[actionIndex]) {
+      return;
+    }
+
+    newActions[actionIndex] = {
+      action: 'navigate',
+      navigation_path: navigationPath,
+    };
+
+    this.updateConfig({
+      [actionKey]: { action: 'multi', actions: newActions },
+    } as Partial<GlowLightCardConfig>);
   }
 
   private formChanged(event: Event): void {
@@ -2010,6 +2167,67 @@ class GlowLightCardEditor extends LitElement {
     );
   }
 
+  private getScriptEntityId(action: CallServiceAction | undefined): string {
+    const entityId =
+      action?.target?.entity_id ??
+      action?.service_data?.entity_id ??
+      action?.data?.entity_id;
+
+    return typeof entityId === 'string' ? entityId : '';
+  }
+
+  private renderNavigationFields(
+    label: string,
+    navigationPath: string,
+    actionKey: 'tap_action' | 'hold_action',
+    actionIndex?: number,
+  ): TemplateResult {
+    const selectedDashboard = this.selectedNavigationDashboard(navigationPath);
+    const handlePathChanged = (event: Event): void => {
+      if (actionIndex === undefined) {
+        this.actionFieldChanged(event);
+        return;
+      }
+      this.multiActionFieldChanged(event);
+    };
+
+    return html`
+      ${this.navigationDashboards.length
+        ? html`
+            <label>
+              <span>Dashboard</span>
+              <select
+                .value=${selectedDashboard?.path ?? ''}
+                @change=${(event: Event) =>
+                  this.navigationDashboardChanged(actionKey, event, actionIndex)}
+              >
+                <option value="">Select dashboard</option>
+                ${this.navigationDashboards.map(
+                  (dashboard) => html`
+                    <option
+                      value=${dashboard.path}
+                      ?selected=${dashboard.path === selectedDashboard?.path}
+                    >
+                      ${dashboard.label}
+                    </option>
+                  `,
+                )}
+              </select>
+            </label>
+          `
+        : nothing}
+      <ha-textfield
+        .label=${label}
+        .placeholder=${'/lovelace'}
+        .value=${navigationPath}
+        data-action-key=${actionKey}
+        data-action-index=${actionIndex ?? ''}
+        data-action-field="navigation_path"
+        @input=${handlePathChanged}
+      ></ha-textfield>
+    `;
+  }
+
   private renderActionFields(
     key: 'tap_action' | 'hold_action',
   ): TemplateResult {
@@ -2037,14 +2255,11 @@ class GlowLightCardEditor extends LitElement {
     if (actionType === 'navigate') {
       return html`
         <div class="grid full">
-          <ha-textfield
-            .label=${key === 'tap_action' ? 'Navigation Path' : 'Navigation Path'}
-            .placeholder=${'#/dashboard/main'}
-            .value=${String((action as NavigateAction)?.navigation_path ?? '')}
-            data-action-key=${key}
-            data-action-field="navigation_path"
-            @input=${this.actionFieldChanged}
-          ></ha-textfield>
+          ${this.renderNavigationFields(
+            'Navigation Path',
+            String((action as NavigateAction)?.navigation_path ?? ''),
+            key,
+          )}
         </div>
       `;
     }
@@ -2056,7 +2271,7 @@ class GlowLightCardEditor extends LitElement {
             .hass=${this.hass}
             .label=${key === 'tap_action' ? 'Tap Script' : 'Hold Script'}
             .selector=${{ entity: { domain: 'script' } }}
-            .value=${String((action as CallServiceAction).target?.entity_id ?? '')}
+            .value=${this.getScriptEntityId(action as CallServiceAction)}
             data-action-key=${key}
             data-action-field="script"
             @value-changed=${this.actionFieldChanged}
@@ -2083,6 +2298,21 @@ class GlowLightCardEditor extends LitElement {
     return html``;
   }
 
+  private getMultiActionType(action: SingleAction): string {
+    if (typeof action === 'string') {
+      return action;
+    }
+
+    if (
+      action.action === 'call-service' &&
+      action.service === 'script.turn_on'
+    ) {
+      return 'script';
+    }
+
+    return action.action;
+  }
+
   private renderMultiActionSequence(
     key: 'tap_action' | 'hold_action',
     multiAction: MultiAction | undefined,
@@ -2093,68 +2323,97 @@ class GlowLightCardEditor extends LitElement {
 
     return html`
       ${multiAction.actions.map(
-        (action, index) => html`
-          <div style="margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,.03); border-radius: 6px; border: 1px solid rgba(255,255,255,.08);">
-            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
-              <span style="font-size: 11px; color: var(--secondary-text-color);">Step ${index + 1}</span>
-              <button
-                @click=${() => this.removeMultiAction(key, index)}
-                style="margin-left: auto; padding: 2px 6px; background: rgba(255,0,0,.2); border: 1px solid rgba(255,0,0,.4); border-radius: 4px; color: inherit; cursor: pointer; font-size: 11px;"
-              >
-                Remove
-              </button>
-            </div>
-            ${typeof action === 'string'
-              ? html`<div style="font-size: 12px;">Action: ${action}</div>`
-              : html`
-                  <div style="font-size: 12px;">
-                    Type:
-                    <select
-                      .value=${action.action}
-                      data-action-key=${key}
-                      data-action-index=${index}
-                      data-action-field="action"
-                      @change=${this.multiActionFieldChanged}
-                      style="width: auto; font-size: 12px;"
-                    >
-                      <option value="call-service">Call Service</option>
-                      <option value="navigate">Navigate</option>
-                    </select>
-                  </div>
-                  ${action.action === 'call-service'
+        (action, index) => {
+          const actionType = this.getMultiActionType(action);
+          const callAction =
+            typeof action === 'object' && action.action === 'call-service'
+              ? action as CallServiceAction
+              : undefined;
+          const navigationPath =
+            typeof action === 'object' &&
+            action.action === 'navigate' &&
+            'navigation_path' in action
+              ? String(action.navigation_path ?? '')
+              : '';
+
+          return html`
+            <div style="margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,.03); border-radius: 6px; border: 1px solid rgba(255,255,255,.08);">
+              <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 11px; color: var(--secondary-text-color);">Step ${index + 1}</span>
+                <button
+                  @click=${() => this.removeMultiAction(key, index)}
+                  style="margin-left: auto; padding: 2px 6px; background: rgba(255,0,0,.2); border: 1px solid rgba(255,0,0,.4); border-radius: 4px; color: inherit; cursor: pointer; font-size: 11px;"
+                >
+                  Remove
+                </button>
+              </div>
+              <div style="font-size: 12px;">
+                Type:
+                <select
+                  .value=${actionType}
+                  data-action-key=${key}
+                  data-action-index=${index}
+                  data-action-field="action"
+                  @change=${this.multiActionFieldChanged}
+                  style="width: auto; font-size: 12px;"
+                >
+                  ${MULTI_ACTIONS.map(
+                    (option) => html`
+                      <option
+                        value=${option}
+                        ?selected=${option === actionType}
+                      >
+                        ${option}
+                      </option>
+                    `,
+                  )}
+                </select>
+              </div>
+              ${actionType === 'call-service'
+                ? html`
+                    <div style="margin-top: 6px;">
+                      <ha-textfield
+                        .label=${'Service'}
+                        .value=${String(callAction?.service ?? '')}
+                        data-action-key=${key}
+                        data-action-index=${index}
+                        data-action-field="service"
+                        @input=${this.multiActionFieldChanged}
+                        style="font-size: 12px;"
+                      ></ha-textfield>
+                    </div>
+                  `
+                : actionType === 'script'
+                  ? html`
+                      <div style="margin-top: 6px;">
+                        <ha-selector
+                          .hass=${this.hass}
+                          .label=${'Script'}
+                          .selector=${{ entity: { domain: 'script' } }}
+                          .value=${this.getScriptEntityId(callAction)}
+                          data-action-key=${key}
+                          data-action-index=${index}
+                          data-action-field="script"
+                          @value-changed=${this.multiActionFieldChanged}
+                        ></ha-selector>
+                      </div>
+                    `
+                  : actionType === 'navigate'
                     ? html`
                         <div style="margin-top: 6px;">
-                          <ha-textfield
-                            .label=${'Service'}
-                            .value=${String((action as CallServiceAction).service ?? '')}
-                            data-action-key=${key}
-                            data-action-index=${index}
-                            data-action-field="service"
-                            @input=${this.multiActionFieldChanged}
-                            style="font-size: 12px;"
-                          ></ha-textfield>
+                          ${this.renderNavigationFields(
+                            'Path',
+                            navigationPath,
+                            key,
+                            index,
+                          )}
                         </div>
                       `
-                    : action.action === 'navigate'
-                      ? html`
-                          <div style="margin-top: 6px;">
-                            <ha-textfield
-                              .label=${'Path'}
-                              .value=${String((action as NavigateAction).navigation_path ?? '')}
-                              data-action-key=${key}
-                              data-action-index=${index}
-                              data-action-field="navigation_path"
-                              @input=${this.multiActionFieldChanged}
-                              style="font-size: 12px;"
-                            ></ha-textfield>
-                          </div>
-                        `
-                      : nothing
-                  }
-                `
-            }
-          </div>
-        `,
+                    : nothing
+              }
+            </div>
+          `;
+        },
       )}
     `;
   }
@@ -2185,7 +2444,7 @@ class GlowLightCardEditor extends LitElement {
   }
 
   private actionFieldChanged(event: Event): void {
-    const target = event.target as HTMLElement & {
+    const target = (event.currentTarget || event.target) as HTMLElement & {
       value?: string;
       dataset?: { actionKey?: string; actionField?: string };
       detail?: { value?: string };
@@ -2200,7 +2459,13 @@ class GlowLightCardEditor extends LitElement {
       return;
     }
 
+    const customEvent = event as CustomEvent<{
+      item?: { value?: string };
+      value?: string;
+    }>;
     const rawValue =
+      customEvent.detail?.value ??
+      customEvent.detail?.item?.value ??
       target.detail?.value ??
       (typeof target.value === 'string' ? target.value : undefined);
 
@@ -2217,12 +2482,17 @@ class GlowLightCardEditor extends LitElement {
     if (actionField === 'service') {
       (action as CallServiceAction).service = rawValue;
     } else if (actionField === 'script') {
-      (action as CallServiceAction).service = 'script.turn_on';
+      const scriptAction: CallServiceAction = {
+        action: 'call-service',
+        service: 'script.turn_on',
+      };
       if (rawValue) {
-        (action as CallServiceAction).target = { entity_id: rawValue };
-      } else {
-        delete (action as CallServiceAction).target;
+        scriptAction.target = { entity_id: rawValue };
       }
+      this.updateConfig({
+        [actionKey]: scriptAction,
+      } as Partial<GlowLightCardConfig>);
+      return;
     } else if (actionField === 'navigation_path') {
       (action as NavigateAction).navigation_path = rawValue;
     }
@@ -2231,7 +2501,7 @@ class GlowLightCardEditor extends LitElement {
   }
 
   private multiActionFieldChanged(event: Event): void {
-    const target = event.target as HTMLElement & {
+    const target = (event.currentTarget || event.target) as HTMLElement & {
       value?: string;
       dataset?: { actionKey?: string; actionIndex?: string; actionField?: string };
       detail?: { value?: string };
@@ -2249,7 +2519,13 @@ class GlowLightCardEditor extends LitElement {
       return;
     }
 
+    const customEvent = event as CustomEvent<{
+      item?: { value?: string };
+      value?: string;
+    }>;
     const rawValue =
+      customEvent.detail?.value ??
+      customEvent.detail?.item?.value ??
       target.detail?.value ??
       (typeof target.value === 'string' ? target.value : undefined);
 
@@ -2269,17 +2545,41 @@ class GlowLightCardEditor extends LitElement {
     if (actionField === 'action') {
       if (rawValue === 'call-service') {
         newActions[actionIndex] = { action: 'call-service', service: '' };
+      } else if (rawValue === 'script') {
+        newActions[actionIndex] = {
+          action: 'call-service',
+          service: 'script.turn_on',
+        };
       } else if (rawValue === 'navigate') {
         newActions[actionIndex] = { action: 'navigate', navigation_path: '' };
+      } else if (
+        rawValue === 'toggle' ||
+        rawValue === 'more-info' ||
+        rawValue === 'none'
+      ) {
+        newActions[actionIndex] = rawValue;
       }
     } else if (actionField === 'service') {
-      if (typeof targetAction === 'object' && targetAction.action === 'call-service') {
-        (targetAction as CallServiceAction).service = rawValue ?? '';
+      const nextAction =
+        typeof targetAction === 'object' && targetAction.action === 'call-service'
+          ? { ...targetAction }
+          : { action: 'call-service', service: '' } as CallServiceAction;
+      nextAction.service = rawValue ?? '';
+      newActions[actionIndex] = nextAction;
+    } else if (actionField === 'script') {
+      const scriptAction: CallServiceAction = {
+        action: 'call-service',
+        service: 'script.turn_on',
+      };
+      if (rawValue) {
+        scriptAction.target = { entity_id: rawValue };
       }
+      newActions[actionIndex] = scriptAction;
     } else if (actionField === 'navigation_path') {
-      if (typeof targetAction === 'object' && targetAction.action === 'navigate') {
-        (targetAction as NavigateAction).navigation_path = rawValue ?? '';
-      }
+      newActions[actionIndex] = {
+        action: 'navigate',
+        navigation_path: rawValue ?? '',
+      };
     }
 
     this.updateConfig({
