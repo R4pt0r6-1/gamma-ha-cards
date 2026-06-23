@@ -60,24 +60,9 @@ type LovelaceDashboard = {
   url_path?: string;
 };
 
-type LovelaceView = {
-  title?: string;
-  path?: string;
-};
-
-type LovelaceConfig = {
-  views?: LovelaceView[];
-};
-
-type NavigationViewOption = {
-  label: string;
-  path: string;
-};
-
 type NavigationDashboardOption = {
   label: string;
   path: string;
-  views: NavigationViewOption[];
 };
 
 interface GlowMediaCardConfig {
@@ -792,7 +777,6 @@ class GlowMediaCardEditor extends LitElement {
   private navigationDashboards: NavigationDashboardOption[] = [];
   private navigationOptionsLoaded = false;
   private navigationOptionsLoading = false;
-  private selectedNavigationDashboards: Record<string, string | undefined> = {};
 
   static get styles(): CSSResultGroup {
     return css`
@@ -894,23 +878,10 @@ class GlowMediaCardEditor extends LitElement {
           dashboard.url_path || dashboard.id || 'lovelace',
         );
         const dashboardTitle = dashboard.title || dashboardPath;
-        const config = await this.fetchLovelaceConfig(dashboardPath);
-        const views = Array.isArray(config?.views) ? config.views : [];
 
         options.push({
           label: dashboardTitle,
           path: dashboardPath,
-          views: views.length
-            ? views.map((view, index) => {
-                const viewPath = this.normalizeNavigationSegment(
-                  view.path || String(index),
-                );
-                return {
-                  label: view.title || view.path || `View ${index + 1}`,
-                  path: `/${dashboardPath}/${viewPath}`,
-                };
-              })
-            : [{ label: dashboardTitle, path: `/${dashboardPath}` }],
         });
       }
 
@@ -946,42 +917,6 @@ class GlowMediaCardEditor extends LitElement {
     return result;
   }
 
-  private async fetchLovelaceConfig(
-    dashboardPath: string,
-  ): Promise<LovelaceConfig | undefined> {
-    if (!this.hass?.callWS) {
-      return undefined;
-    }
-
-    const messages: Record<string, unknown>[] =
-      dashboardPath === 'lovelace'
-        ? [
-            { type: 'lovelace/config', force: false },
-            {
-              type: 'lovelace/config',
-              url_path: 'lovelace',
-              force: false,
-            },
-          ]
-        : [
-            {
-              type: 'lovelace/config',
-              url_path: dashboardPath,
-              force: false,
-            },
-          ];
-
-    for (const message of messages) {
-      try {
-        return await this.hass.callWS<LovelaceConfig>(message);
-      } catch {
-        // Try the next supported request shape.
-      }
-    }
-
-    return undefined;
-  }
-
   private normalizeNavigationSegment(value: string): string {
     return (
       String(value || '')
@@ -990,43 +925,25 @@ class GlowMediaCardEditor extends LitElement {
     );
   }
 
-  private navigationSelectionKey(
-    actionKey: 'tap_action' | 'hold_action',
-    actionIndex?: number,
-  ): string {
-    return actionIndex === undefined
-      ? actionKey
-      : `${actionKey}.${actionIndex}`;
+  private dashboardNavigationPath(dashboardPath: string): string {
+    return `/${this.normalizeNavigationSegment(dashboardPath)}`;
   }
 
   private selectedNavigationDashboard(
-    actionKey: 'tap_action' | 'hold_action',
     navigationPath: string,
-    actionIndex?: number,
   ): NavigationDashboardOption | undefined {
-    const selectedPath =
-      this.selectedNavigationDashboards[
-        this.navigationSelectionKey(actionKey, actionIndex)
-      ];
-    return (
-      this.navigationDashboards.find((dashboard) => dashboard.path === selectedPath) ||
-      this.navigationDashboards.find((dashboard) =>
-        dashboard.views.some((view) => view.path === navigationPath),
-      ) ||
-      this.navigationDashboards[0]
-    );
-  }
-
-  private navigationViewOptions(
-    dashboard: NavigationDashboardOption | undefined,
-  ): NavigationViewOption[] {
-    if (!dashboard) {
-      return [];
+    if (!String(navigationPath || '').trim()) {
+      return undefined;
     }
 
-    return dashboard.views.length
-      ? dashboard.views
-      : [{ label: dashboard.label, path: `/${dashboard.path}` }];
+    const normalizedPath = this.normalizeNavigationSegment(navigationPath);
+
+    return (
+      this.navigationDashboards.find((dashboard) =>
+        normalizedPath === dashboard.path ||
+          normalizedPath.startsWith(`${dashboard.path}/`),
+      )
+    );
   }
 
   private navigationDashboardChanged(
@@ -1035,11 +952,38 @@ class GlowMediaCardEditor extends LitElement {
     actionIndex?: number,
   ): void {
     const target = event.target as HTMLSelectElement;
-    this.selectedNavigationDashboards = {
-      ...this.selectedNavigationDashboards,
-      [this.navigationSelectionKey(actionKey, actionIndex)]: target.value,
+    const navigationPath = target.value
+      ? this.dashboardNavigationPath(target.value)
+      : '';
+
+    if (actionIndex === undefined) {
+      this.updateConfig({
+        [actionKey]: {
+          action: 'navigate',
+          navigation_path: navigationPath,
+        },
+      } as Partial<GlowMediaCardConfig>);
+      return;
+    }
+
+    const action = this.getActionValue(actionKey);
+    if (typeof action !== 'object' || action.action !== 'multi') {
+      return;
+    }
+
+    const newActions = [...action.actions];
+    if (!newActions[actionIndex]) {
+      return;
+    }
+
+    newActions[actionIndex] = {
+      action: 'navigate',
+      navigation_path: navigationPath,
     };
-    this.requestUpdate();
+
+    this.updateConfig({
+      [actionKey]: { action: 'multi', actions: newActions },
+    } as Partial<GlowMediaCardConfig>);
   }
 
   private formChanged(event: Event): void {
@@ -1289,16 +1233,8 @@ class GlowMediaCardEditor extends LitElement {
     actionIndex?: number,
   ): TemplateResult {
     const selectedDashboard = this.selectedNavigationDashboard(
-      actionKey,
       navigationPath,
-      actionIndex,
     );
-    const viewOptions = this.navigationViewOptions(selectedDashboard);
-    const selectedViewPath = viewOptions.some(
-      (view) => view.path === navigationPath,
-    )
-      ? navigationPath
-      : '';
     const handlePathChanged = (event: Event): void => {
       if (actionIndex === undefined) {
         this.actionFieldChanged(event);
@@ -1317,6 +1253,7 @@ class GlowMediaCardEditor extends LitElement {
                 @change=${(event: Event) =>
                   this.navigationDashboardChanged(actionKey, event, actionIndex)}
               >
+                <option value="">Select dashboard</option>
                 ${this.navigationDashboards.map(
                   (dashboard) => html`
                     <option
@@ -1324,28 +1261,6 @@ class GlowMediaCardEditor extends LitElement {
                       ?selected=${dashboard.path === selectedDashboard?.path}
                     >
                       ${dashboard.label}
-                    </option>
-                  `,
-                )}
-              </select>
-            </label>
-            <label>
-              <span>View/Page</span>
-              <select
-                .value=${selectedViewPath}
-                data-action-key=${actionKey}
-                data-action-index=${actionIndex ?? ''}
-                data-action-field="navigation_path"
-                @change=${handlePathChanged}
-              >
-                <option value="">Select view/page</option>
-                ${viewOptions.map(
-                  (view) => html`
-                    <option
-                      value=${view.path}
-                      ?selected=${view.path === selectedViewPath}
-                    >
-                      ${view.label}
                     </option>
                   `,
                 )}

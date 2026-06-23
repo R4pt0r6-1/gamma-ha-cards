@@ -194,8 +194,8 @@ let O = class extends HTMLElement {
     if (r !== void 0 && this._$Em !== r) {
       const c = i.getPropertyOptions(r), l = typeof c.converter == "function" ? { fromAttribute: c.converter } : ((n = c.converter) == null ? void 0 : n.fromAttribute) !== void 0 ? c.converter : ct;
       this._$Em = r;
-      const d = l.fromAttribute(e, c.type);
-      this[r] = d ?? ((o = this._$Ej) == null ? void 0 : o.get(r)) ?? d, this._$Em = null;
+      const h = l.fromAttribute(e, c.type);
+      this[r] = h ?? ((o = this._$Ej) == null ? void 0 : o.get(r)) ?? h, this._$Em = null;
     }
   }
   requestUpdate(t, e, i, r = !1, n) {
@@ -296,10 +296,10 @@ const Qe = (s, t) => {
   let r, n = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", o = F;
   for (let c = 0; c < e; c++) {
     const l = s[c];
-    let d, h, g = -1, f = 0;
-    for (; f < l.length && (o.lastIndex = f, h = o.exec(l), h !== null); ) f = o.lastIndex, o === F ? h[1] === "!--" ? o = ge : h[1] !== void 0 ? o = ue : h[2] !== void 0 ? (Ne.test(h[2]) && (r = RegExp("</" + h[2], "g")), o = k) : h[3] !== void 0 && (o = k) : o === k ? h[0] === ">" ? (o = r ?? F, g = -1) : h[1] === void 0 ? g = -2 : (g = o.lastIndex - h[2].length, d = h[1], o = h[3] === void 0 ? k : h[3] === '"' ? me : fe) : o === me || o === fe ? o = k : o === ge || o === ue ? o = F : (o = k, r = void 0);
+    let h, d, g = -1, m = 0;
+    for (; m < l.length && (o.lastIndex = m, d = o.exec(l), d !== null); ) m = o.lastIndex, o === F ? d[1] === "!--" ? o = ge : d[1] !== void 0 ? o = ue : d[2] !== void 0 ? (Ne.test(d[2]) && (r = RegExp("</" + d[2], "g")), o = k) : d[3] !== void 0 && (o = k) : o === k ? d[0] === ">" ? (o = r ?? F, g = -1) : d[1] === void 0 ? g = -2 : (g = o.lastIndex - d[2].length, h = d[1], o = d[3] === void 0 ? k : d[3] === '"' ? me : fe) : o === me || o === fe ? o = k : o === ge || o === ue ? o = F : (o = k, r = void 0);
     const x = o === k && s[c + 1].startsWith("/>") ? " " : "";
-    n += o === F ? l + Ye : g >= 0 ? (i.push(d), l.slice(0, g) + Fe + l.slice(g) + w + x) : l + w + (g === -2 ? c : x);
+    n += o === F ? l + Ye : g >= 0 ? (i.push(h), l.slice(0, g) + Fe + l.slice(g) + w + x) : l + w + (g === -2 ? c : x);
   }
   return [De(s, n + (s[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), i];
 };
@@ -308,23 +308,23 @@ class V {
     let r;
     this.parts = [];
     let n = 0, o = 0;
-    const c = t.length - 1, l = this.parts, [d, h] = Qe(t, e);
-    if (this.el = V.createElement(d, i), C.currentNode = this.el.content, e === 2 || e === 3) {
+    const c = t.length - 1, l = this.parts, [h, d] = Qe(t, e);
+    if (this.el = V.createElement(h, i), C.currentNode = this.el.content, e === 2 || e === 3) {
       const g = this.el.content.firstChild;
       g.replaceWith(...g.childNodes);
     }
     for (; (r = C.nextNode()) !== null && l.length < c; ) {
       if (r.nodeType === 1) {
         if (r.hasAttributes()) for (const g of r.getAttributeNames()) if (g.endsWith(Fe)) {
-          const f = h[o++], x = r.getAttribute(g).split(w), v = /([.?@])?(.*)/.exec(f);
+          const m = d[o++], x = r.getAttribute(g).split(w), v = /([.?@])?(.*)/.exec(m);
           l.push({ type: 1, index: n, name: v[2], strings: x, ctor: v[1] === "." ? ei : v[1] === "?" ? ii : v[1] === "@" ? ri : et }), r.removeAttribute(g);
         } else g.startsWith(w) && (l.push({ type: 6, index: n }), r.removeAttribute(g));
         if (Ne.test(r.tagName)) {
-          const g = r.textContent.split(w), f = g.length - 1;
-          if (f > 0) {
+          const g = r.textContent.split(w), m = g.length - 1;
+          if (m > 0) {
             r.textContent = Q ? Q.emptyScript : "";
-            for (let x = 0; x < f; x++) r.append(g[x], j()), C.nextNode(), l.push({ type: 2, index: ++n });
-            r.append(g[f], j());
+            for (let x = 0; x < m; x++) r.append(g[x], j()), C.nextNode(), l.push({ type: 2, index: ++n });
+            r.append(g[m], j());
           }
         }
       } else if (r.nodeType === 8) if (r.data === Ie) l.push({ type: 2, index: n });
@@ -363,8 +363,8 @@ class ti {
     let n = C.nextNode(), o = 0, c = 0, l = i[0];
     for (; l !== void 0; ) {
       if (o === l.index) {
-        let d;
-        l.type === 2 ? d = new G(n, n.nextSibling, this, t) : l.type === 1 ? d = new l.ctor(n, l.name, l.strings, this, t) : l.type === 6 && (d = new ni(n, this, t)), this._$AV.push(d), l = i[++c];
+        let h;
+        l.type === 2 ? h = new G(n, n.nextSibling, this, t) : l.type === 1 ? h = new l.ctor(n, l.name, l.strings, this, t) : l.type === 6 && (h = new ni(n, this, t)), this._$AV.push(h), l = i[++c];
       }
       o !== (l == null ? void 0 : l.index) && (n = C.nextNode(), o++);
     }
@@ -454,8 +454,8 @@ class et {
     if (n === void 0) t = z(this, t, e, 0), o = !B(t) || t !== this._$AH && t !== M, o && (this._$AH = t);
     else {
       const c = t;
-      let l, d;
-      for (t = n[0], l = 0; l < n.length - 1; l++) d = z(this, c[i + l], e, l), d === M && (d = this._$AH[l]), o || (o = !B(d) || d !== this._$AH[l]), d === p ? t = p : t !== p && (t += (d ?? "") + n[l + 1]), this._$AH[l] = d;
+      let l, h;
+      for (t = n[0], l = 0; l < n.length - 1; l++) h = z(this, c[i + l], e, l), h === M && (h = this._$AH[l]), o || (o = !B(h) || h !== this._$AH[l]), h === p ? t = p : t !== p && (t += (h ?? "") + n[l + 1]), this._$AH[l] = h;
     }
     o && !r && this.j(t);
   }
@@ -1400,20 +1400,20 @@ const Ut = class Ut extends u {
         return;
       }
       if (t.action === "call-service") {
-        const c = String(t.service || "").trim(), [l, d] = c.split(".");
-        if (!l || !d)
+        const c = String(t.service || "").trim(), [l, h] = c.split(".");
+        if (!l || !h)
           return;
-        const h = {
+        const d = {
           ...t.service_data ?? t.data ?? {}
         };
-        if (!Object.prototype.hasOwnProperty.call(h, "entity_id")) {
+        if (!Object.prototype.hasOwnProperty.call(d, "entity_id")) {
           const g = (r = t.target) == null ? void 0 : r.entity_id;
-          typeof g == "string" && g.startsWith("script.") ? h.entity_id = g : h.entity_id = this.config.entity;
+          typeof g == "string" && g.startsWith("script.") ? d.entity_id = g : d.entity_id = this.config.entity;
         }
         t.target ? this.trackServiceResult(
-          (n = this.hass) == null ? void 0 : n.callService(l, d, h, t.target)
+          (n = this.hass) == null ? void 0 : n.callService(l, h, d, t.target)
         ) : this.trackServiceResult(
-          (o = this.hass) == null ? void 0 : o.callService(l, d, h)
+          (o = this.hass) == null ? void 0 : o.callService(l, h, d)
         );
         return;
       }
@@ -2096,27 +2096,27 @@ const Lt = class Lt extends u {
     }
   }
   actionFieldChanged(t) {
-    var l, d, h;
-    const e = t.target, i = (l = e.dataset) == null ? void 0 : l.actionKey, r = (d = e.dataset) == null ? void 0 : d.actionField;
+    var l, h, d;
+    const e = t.target, i = (l = e.dataset) == null ? void 0 : l.actionKey, r = (h = e.dataset) == null ? void 0 : h.actionField;
     if (!i || !r)
       return;
-    const n = ((h = e.detail) == null ? void 0 : h.value) ?? (typeof e.value == "string" ? e.value : void 0);
+    const n = ((d = e.detail) == null ? void 0 : d.value) ?? (typeof e.value == "string" ? e.value : void 0);
     if (n === void 0)
       return;
     const o = this.getActionValue(i), c = typeof o == "object" ? { ...o } : { action: o ?? "more-info" };
     r === "service" ? c.service = n : r === "script" ? (c.service = "script.turn_on", n ? c.target = { entity_id: n } : delete c.target) : r === "navigation_path" && (c.navigation_path = n), this.updateConfig({ [i]: c });
   }
   multiActionFieldChanged(t) {
-    var g, f, x, v;
-    const e = t.target, i = (g = e.dataset) == null ? void 0 : g.actionKey, r = (f = e.dataset) != null && f.actionIndex ? Number(e.dataset.actionIndex) : void 0, n = (x = e.dataset) == null ? void 0 : x.actionField;
+    var g, m, x, v;
+    const e = t.target, i = (g = e.dataset) == null ? void 0 : g.actionKey, r = (m = e.dataset) != null && m.actionIndex ? Number(e.dataset.actionIndex) : void 0, n = (x = e.dataset) == null ? void 0 : x.actionField;
     if (!i || r === void 0 || !n)
       return;
     const o = ((v = e.detail) == null ? void 0 : v.value) ?? (typeof e.value == "string" ? e.value : void 0), c = this.getActionValue(i);
     if (typeof c != "object" || c.action !== "multi")
       return;
-    const d = [...c.actions], h = d[r];
-    h && (n === "action" ? o === "call-service" ? d[r] = { action: "call-service", service: "" } : o === "navigate" && (d[r] = { action: "navigate", navigation_path: "" }) : n === "service" ? typeof h == "object" && h.action === "call-service" && (h.service = o ?? "") : n === "navigation_path" && typeof h == "object" && h.action === "navigate" && (h.navigation_path = o ?? ""), this.updateConfig({
-      [i]: { action: "multi", actions: d }
+    const h = [...c.actions], d = h[r];
+    d && (n === "action" ? o === "call-service" ? h[r] = { action: "call-service", service: "" } : o === "navigate" && (h[r] = { action: "navigate", navigation_path: "" }) : n === "service" ? typeof d == "object" && d.action === "call-service" && (d.service = o ?? "") : n === "navigation_path" && typeof d == "object" && d.action === "navigate" && (d.navigation_path = o ?? ""), this.updateConfig({
+      [i]: { action: "multi", actions: h }
     }));
   }
   renderEntityForm() {
@@ -4506,8 +4506,8 @@ const Ht = class Ht extends u {
         aria-label=${`${t}: ${c}. Tap to change.`}
         @click=${(l) => {
       l.stopPropagation();
-      const d = this.nextOption(r, c);
-      d && this.setClimateMode(o, n, d);
+      const h = this.nextOption(r, c);
+      h && this.setClimateMode(o, n, h);
     }}
       >
         <ha-icon class="feature-icon" .icon=${e}></ha-icon>
@@ -5581,7 +5581,7 @@ let bt = Gt;
 customElements.get("glow-media-card") || customElements.define("glow-media-card", bt);
 const Kt = class Kt extends u {
   constructor() {
-    super(...arguments), this.config = {}, this.navigationDashboards = [], this.navigationOptionsLoaded = !1, this.navigationOptionsLoading = !1, this.selectedNavigationDashboards = {};
+    super(...arguments), this.config = {}, this.navigationDashboards = [], this.navigationOptionsLoaded = !1, this.navigationOptionsLoading = !1;
   }
   static get styles() {
     return b`
@@ -5662,19 +5662,10 @@ const Kt = class Kt extends u {
         for (const n of i) {
           const o = this.normalizeNavigationSegment(
             n.url_path || n.id || "lovelace"
-          ), c = n.title || o, l = await this.fetchLovelaceConfig(o), d = Array.isArray(l == null ? void 0 : l.views) ? l.views : [];
+          ), c = n.title || o;
           r.push({
             label: c,
-            path: o,
-            views: d.length ? d.map((h, g) => {
-              const f = this.normalizeNavigationSegment(
-                h.path || String(g)
-              );
-              return {
-                label: h.title || h.path || `View ${g + 1}`,
-                path: `/${o}/${f}`
-              };
-            }) : [{ label: c, path: `/${o}` }]
+            path: o
           });
         }
         this.navigationDashboards = r, this.navigationOptionsLoaded = !0;
@@ -5696,51 +5687,41 @@ const Kt = class Kt extends u {
       i.has(n) || (i.add(n), e.push(r));
     }), e;
   }
-  async fetchLovelaceConfig(t) {
-    var i;
-    if (!((i = this.hass) != null && i.callWS))
-      return;
-    const e = t === "lovelace" ? [
-      { type: "lovelace/config", force: !1 },
-      {
-        type: "lovelace/config",
-        url_path: "lovelace",
-        force: !1
-      }
-    ] : [
-      {
-        type: "lovelace/config",
-        url_path: t,
-        force: !1
-      }
-    ];
-    for (const r of e)
-      try {
-        return await this.hass.callWS(r);
-      } catch {
-      }
-  }
   normalizeNavigationSegment(t) {
     return String(t || "").replace(/^#/, "").replace(/^\/+|\/+$/g, "") || "lovelace";
   }
-  navigationSelectionKey(t, e) {
-    return e === void 0 ? t : `${t}.${e}`;
+  dashboardNavigationPath(t) {
+    return `/${this.normalizeNavigationSegment(t)}`;
   }
-  selectedNavigationDashboard(t, e, i) {
-    const r = this.selectedNavigationDashboards[this.navigationSelectionKey(t, i)];
-    return this.navigationDashboards.find((n) => n.path === r) || this.navigationDashboards.find(
-      (n) => n.views.some((o) => o.path === e)
-    ) || this.navigationDashboards[0];
-  }
-  navigationViewOptions(t) {
-    return t ? t.views.length ? t.views : [{ label: t.label, path: `/${t.path}` }] : [];
+  selectedNavigationDashboard(t) {
+    if (!String(t || "").trim())
+      return;
+    const e = this.normalizeNavigationSegment(t);
+    return this.navigationDashboards.find(
+      (i) => e === i.path || e.startsWith(`${i.path}/`)
+    );
   }
   navigationDashboardChanged(t, e, i) {
-    const r = e.target;
-    this.selectedNavigationDashboards = {
-      ...this.selectedNavigationDashboards,
-      [this.navigationSelectionKey(t, i)]: r.value
-    }, this.requestUpdate();
+    const r = e.target, n = r.value ? this.dashboardNavigationPath(r.value) : "";
+    if (i === void 0) {
+      this.updateConfig({
+        [t]: {
+          action: "navigate",
+          navigation_path: n
+        }
+      });
+      return;
+    }
+    const o = this.getActionValue(t);
+    if (typeof o != "object" || o.action !== "multi")
+      return;
+    const c = [...o.actions];
+    c[i] && (c[i] = {
+      action: "navigate",
+      navigation_path: n
+    }, this.updateConfig({
+      [t]: { action: "multi", actions: c }
+    }));
   }
   formChanged(t) {
     var i;
@@ -5903,17 +5884,13 @@ const Kt = class Kt extends u {
   }
   renderNavigationFields(t, e, i, r) {
     const n = this.selectedNavigationDashboard(
-      i,
-      e,
-      r
-    ), o = this.navigationViewOptions(n), c = o.some(
-      (d) => d.path === e
-    ) ? e : "", l = (d) => {
+      e
+    ), o = (c) => {
       if (r === void 0) {
-        this.actionFieldChanged(d);
+        this.actionFieldChanged(c);
         return;
       }
-      this.multiActionFieldChanged(d);
+      this.multiActionFieldChanged(c);
     };
     return a`
       ${this.navigationDashboards.length ? a`
@@ -5921,37 +5898,16 @@ const Kt = class Kt extends u {
               <span>Dashboard</span>
               <select
                 .value=${(n == null ? void 0 : n.path) ?? ""}
-                @change=${(d) => this.navigationDashboardChanged(i, d, r)}
+                @change=${(c) => this.navigationDashboardChanged(i, c, r)}
               >
+                <option value="">Select dashboard</option>
                 ${this.navigationDashboards.map(
-      (d) => a`
+      (c) => a`
                     <option
-                      value=${d.path}
-                      ?selected=${d.path === (n == null ? void 0 : n.path)}
+                      value=${c.path}
+                      ?selected=${c.path === (n == null ? void 0 : n.path)}
                     >
-                      ${d.label}
-                    </option>
-                  `
-    )}
-              </select>
-            </label>
-            <label>
-              <span>View/Page</span>
-              <select
-                .value=${c}
-                data-action-key=${i}
-                data-action-index=${r ?? ""}
-                data-action-field="navigation_path"
-                @change=${l}
-              >
-                <option value="">Select view/page</option>
-                ${o.map(
-      (d) => a`
-                    <option
-                      value=${d.path}
-                      ?selected=${d.path === c}
-                    >
-                      ${d.label}
+                      ${c.label}
                     </option>
                   `
     )}
@@ -5965,7 +5921,7 @@ const Kt = class Kt extends u {
         data-action-key=${i}
         data-action-index=${r ?? ""}
         data-action-field="navigation_path"
-        @input=${l}
+        @input=${o}
       ></ha-textfield>
     `;
   }
@@ -6083,11 +6039,11 @@ const Kt = class Kt extends u {
     }
   }
   actionFieldChanged(t) {
-    var d, h, g, f, x, v;
-    const e = t.currentTarget || t.target, i = (d = e.dataset) == null ? void 0 : d.actionKey, r = (h = e.dataset) == null ? void 0 : h.actionField;
+    var h, d, g, m, x, v;
+    const e = t.currentTarget || t.target, i = (h = e.dataset) == null ? void 0 : h.actionKey, r = (d = e.dataset) == null ? void 0 : d.actionField;
     if (!i || !r)
       return;
-    const n = t, o = ((g = n.detail) == null ? void 0 : g.value) ?? ((x = (f = n.detail) == null ? void 0 : f.item) == null ? void 0 : x.value) ?? ((v = e.detail) == null ? void 0 : v.value) ?? (typeof e.value == "string" ? e.value : void 0);
+    const n = t, o = ((g = n.detail) == null ? void 0 : g.value) ?? ((x = (m = n.detail) == null ? void 0 : m.item) == null ? void 0 : x.value) ?? ((v = e.detail) == null ? void 0 : v.value) ?? (typeof e.value == "string" ? e.value : void 0);
     if (o === void 0)
       return;
     const c = this.getActionValue(i), l = typeof c == "object" ? { ...c } : { action: c ?? "more-info" };
@@ -6195,16 +6151,16 @@ const Kt = class Kt extends u {
     }
   }
   multiActionFieldChanged(t) {
-    var g, f, x, v;
-    const e = t.target, i = (g = e.dataset) == null ? void 0 : g.actionKey, r = (f = e.dataset) != null && f.actionIndex ? Number(e.dataset.actionIndex) : void 0, n = (x = e.dataset) == null ? void 0 : x.actionField;
+    var g, m, x, v;
+    const e = t.target, i = (g = e.dataset) == null ? void 0 : g.actionKey, r = (m = e.dataset) != null && m.actionIndex ? Number(e.dataset.actionIndex) : void 0, n = (x = e.dataset) == null ? void 0 : x.actionField;
     if (!i || r === void 0 || !n)
       return;
     const o = ((v = e.detail) == null ? void 0 : v.value) ?? (typeof e.value == "string" ? e.value : void 0), c = this.getActionValue(i);
     if (typeof c != "object" || c.action !== "multi")
       return;
-    const d = [...c.actions], h = d[r];
-    h && (n === "action" ? o === "call-service" ? d[r] = { action: "call-service", service: "" } : o === "navigate" && (d[r] = { action: "navigate", navigation_path: "" }) : n === "service" ? typeof h == "object" && h.action === "call-service" && (h.service = o ?? "") : n === "navigation_path" && typeof h == "object" && h.action === "navigate" && (h.navigation_path = o ?? ""), this.updateConfig({
-      [i]: { action: "multi", actions: d }
+    const h = [...c.actions], d = h[r];
+    d && (n === "action" ? o === "call-service" ? h[r] = { action: "call-service", service: "" } : o === "navigate" && (h[r] = { action: "navigate", navigation_path: "" }) : n === "service" ? typeof d == "object" && d.action === "call-service" && (d.service = o ?? "") : n === "navigation_path" && typeof d == "object" && d.action === "navigate" && (d.navigation_path = o ?? ""), this.updateConfig({
+      [i]: { action: "multi", actions: h }
     }));
   }
   parseActionData(t) {
@@ -6219,18 +6175,18 @@ const Kt = class Kt extends u {
           if (!o)
             return;
           const [, c, l] = o;
-          let d = l;
+          let h = l;
           if (/^\d+$/.test(l))
-            d = Number(l);
+            h = Number(l);
           else if (/^(true|false)$/i.test(l))
-            d = l.toLowerCase() === "true";
+            h = l.toLowerCase() === "true";
           else if (/^\[.*\]$/.test(l) || /^\{.*\}$/.test(l))
             try {
-              d = JSON.parse(l);
+              h = JSON.parse(l);
             } catch {
-              d = l;
+              h = l;
             }
-          r[c] = d;
+          r[c] = h;
         }
         return r;
       }
@@ -8260,7 +8216,7 @@ function Pi(s, t) {
     })
   );
 }
-function m(s) {
+function f(s) {
   return !s || ["unavailable", "unknown"].includes(s.state);
 }
 function T(s) {
@@ -8273,7 +8229,7 @@ function $(s) {
   return e <= 0 ? `${i}m` : i === 0 ? `${e}h` : `${e}h ${i}m`;
 }
 function S(s) {
-  if (m(s))
+  if (f(s))
     return "Unknown";
   if ((s == null ? void 0 : s.attributes.device_class) === "timestamp") {
     const n = Nt(s.state);
@@ -8292,7 +8248,7 @@ function S(s) {
 }
 function $t(s) {
   var i;
-  if (m(s))
+  if (f(s))
     return;
   const t = Number(s == null ? void 0 : s.state);
   if (!Number.isFinite(t))
@@ -8347,28 +8303,28 @@ function Dt(s, t) {
     /^P(?:T(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S)?)$/i
   );
   if (r) {
-    const c = Number(r[1] ?? 0), l = Number(r[2] ?? 0), d = Number(r[3] ?? 0);
-    return c * 60 + l + d / 60;
+    const c = Number(r[1] ?? 0), l = Number(r[2] ?? 0), h = Number(r[3] ?? 0);
+    return c * 60 + l + h / 60;
   }
   const n = e.match(/^(\d+):([0-5]\d)(?::([0-5]\d))?$/);
   if (n) {
-    const c = Number(n[1]), l = Number(n[2]), d = n[3] ? Number(n[3]) : void 0;
-    return d !== void 0 ? c * 60 + l + d / 60 : c > 12 ? c + l / 60 : c * 60 + l;
+    const c = Number(n[1]), l = Number(n[2]), h = n[3] ? Number(n[3]) : void 0;
+    return h !== void 0 ? c * 60 + l + h / 60 : c > 12 ? c + l / 60 : c * 60 + l;
   }
   const o = e.match(
     /^(?:(\d+(?:\.\d+)?)\s*h(?:ours?|rs?)?)?\s*(?:(\d+(?:\.\d+)?)\s*m(?:in(?:ute)?s?)?)?\s*(?:(\d+(?:\.\d+)?)\s*s(?:ec(?:ond)?s?)?)?$/i
   );
   if (o != null && o[1] || o != null && o[2] || o != null && o[3]) {
-    const c = Number(o[1] ?? 0), l = Number(o[2] ?? 0), d = Number(o[3] ?? 0);
-    return c * 60 + l + d / 60;
+    const c = Number(o[1] ?? 0), l = Number(o[2] ?? 0), h = Number(o[3] ?? 0);
+    return c * 60 + l + h / 60;
   }
 }
 function tt(s) {
-  if (!m(s))
+  if (!f(s))
     return Dt(s == null ? void 0 : s.state, s == null ? void 0 : s.attributes.unit_of_measurement);
 }
 function Ue(s) {
-  if (!m(s))
+  if (!f(s))
     return Oi((s == null ? void 0 : s.state) ?? "") ?? Dt(s == null ? void 0 : s.state, s == null ? void 0 : s.attributes.unit_of_measurement);
 }
 const Zt = class Zt extends u {
@@ -9174,7 +9130,7 @@ const Zt = class Zt extends u {
     return this.optimisticOperation ? this.optimisticOperation : ((t = this.statusEntity) == null ? void 0 : t.state) ?? "unknown";
   }
   get statusLabel() {
-    return m(this.statusEntity) ? "Unavailable" : this.rawStatus === "end" ? "Complete" : T(this.rawStatus);
+    return f(this.statusEntity) ? "Unavailable" : this.rawStatus === "end" ? "Complete" : T(this.rawStatus);
   }
   get stateGroup() {
     var e, i;
@@ -9221,7 +9177,7 @@ const Zt = class Zt extends u {
       const e = $(this.totalMinutes);
       return e === "--" ? "Ready" : `${e} cycle`;
     }
-    if (!m(t) && t) {
+    if (!f(t) && t) {
       const e = Nt(t.state);
       if (e)
         return `Finishes around ${e.toLocaleTimeString([], {
@@ -9272,7 +9228,7 @@ const Zt = class Zt extends u {
   setPower(t) {
     var r;
     const e = this.entity(this.config.power_entity);
-    if (this.setOptimisticOperation(t ? "initial" : "power_off"), this.config.power_entity && !m(e)) {
+    if (this.setOptimisticOperation(t ? "initial" : "power_off"), this.config.power_entity && !f(e)) {
       this.trackServiceResult(
         (r = this.hass) == null ? void 0 : r.callService("switch", t ? "turn_on" : "turn_off", {
           entity_id: this.config.power_entity
@@ -9353,7 +9309,7 @@ const Zt = class Zt extends u {
     ].filter((e) => !!e);
     return [...new Set(t)].filter((e) => {
       const i = this.entity(e);
-      return !m(i) || this.isActionableUnknown(e);
+      return !f(i) || this.isActionableUnknown(e);
     });
   }
   renderImage() {
@@ -9372,13 +9328,13 @@ const Zt = class Zt extends u {
     return a`
       <div class="stat">
         <span class="stat-label">${r ? "Cost" : t}</span>
-        <span class="stat-value">${r ?? (m(i) ? "--" : S(i))}</span>
+        <span class="stat-value">${r ?? (f(i) ? "--" : S(i))}</span>
       </div>
     `;
   }
   configuredMetricEntities() {
     const t = Array.isArray(this.config.metric_entities) && this.config.metric_entities.length ? this.config.metric_entities : [this.config.energy_entity, this.config.cycles_entity];
-    return [...new Set(t.filter((e) => !!e))].filter((e) => !m(this.entity(e)));
+    return [...new Set(t.filter((e) => !!e))].filter((e) => !f(this.entity(e)));
   }
   energyCostForMetric(t) {
     if (!(t !== this.config.energy_entity || H(this.config.energy_price_cents_per_kwh) === void 0))
@@ -9459,8 +9415,8 @@ const Zt = class Zt extends u {
                       type="button"
                       class="chip ${(e == null ? void 0 : e.state) === c ? "active" : ""}"
                       @click=${(l) => {
-        var d;
-        l.stopPropagation(), r && ((d = this.hass) == null || d.callService("select", "select_option", {
+        var h;
+        l.stopPropagation(), r && ((h = this.hass) == null || h.callService("select", "select_option", {
           entity_id: t,
           option: c
         }));
@@ -9513,7 +9469,7 @@ const Zt = class Zt extends u {
   render() {
     if (!this.config)
       return a``;
-    const t = this.entity(this.config.power_entity), e = this.entity(this.config.operation_entity), i = this.stateGroup === "running", r = this.stateGroup === "running" || this.stateGroup === "paused", n = !!(this.config.power_entity && t), o = !e || e.state === "unavailable", c = o || !this.canCallOperation("start") || !this.isRemoteStartReady() || i, l = o || !this.canCallOperation("stop") || !r, d = n ? m(t) : !this.canCallOperation("power_on") && !this.canCallOperation("power_off"), h = t ? t.state !== "on" : this.stateGroup === "off", g = this.kindContrastColor, f = this.config.show_stats === !1 ? this.configuredMetricEntities() : [];
+    const t = this.entity(this.config.power_entity), e = this.entity(this.config.operation_entity), i = this.stateGroup === "running", r = this.stateGroup === "running" || this.stateGroup === "paused", n = !!(this.config.power_entity && t), o = !e || e.state === "unavailable", c = o || !this.canCallOperation("start") || !this.isRemoteStartReady() || i, l = o || !this.canCallOperation("stop") || !r, h = n ? f(t) : !this.canCallOperation("power_on") && !this.canCallOperation("power_off"), d = t ? t.state !== "on" : this.stateGroup === "off", g = this.kindContrastColor, m = this.config.show_stats === !1 ? this.configuredMetricEntities() : [];
     return a`
       <ha-card>
         <article
@@ -9557,9 +9513,9 @@ const Zt = class Zt extends u {
             <div class="progress-bar"></div>
           </div>
 
-          ${f.length ? a`
+          ${m.length ? a`
                 <div class="machine-metrics">
-                  ${f.map((x) => this.renderMetric(x))}
+                  ${m.map((x) => this.renderMetric(x))}
                 </div>
               ` : p}
 
@@ -9575,8 +9531,8 @@ const Zt = class Zt extends u {
             ${this.renderControl(
       "Power",
       "mdi:power",
-      () => this.setPower(h),
-      d
+      () => this.setPower(d),
+      h
     )}
             ${this.renderControl(
       "Start",
@@ -10804,7 +10760,7 @@ const te = class te extends u {
     return e.name || ((r = i == null ? void 0 : i.attributes.friendly_name) == null ? void 0 : r.replace(" Current status", "")) || (t === "dryer" ? "Dryer" : "Washer");
   }
   statusLabel(t, e) {
-    if (m(this.entity(e.entity)))
+    if (f(this.entity(e.entity)))
       return "Unavailable";
     const i = this.rawStatus(t, e);
     return i === "end" ? "Complete" : T(i);
@@ -10895,7 +10851,7 @@ const te = class te extends u {
   setPower(t, e, i) {
     var o;
     const r = this.entity(e.power_entity);
-    if (this.setOptimisticOperation(t, i ? "initial" : "power_off"), e.power_entity && !m(r)) {
+    if (this.setOptimisticOperation(t, i ? "initial" : "power_off"), e.power_entity && !f(r)) {
       this.trackServiceResult(
         t,
         (o = this.hass) == null ? void 0 : o.callService("switch", i ? "turn_on" : "turn_off", {
@@ -10912,7 +10868,7 @@ const te = class te extends u {
     return a`
       <div class="stat">
         <span class="stat-label">${r ? "Cost" : t}</span>
-        <span class="stat-value">${r ?? (m(i) ? "--" : S(i))}</span>
+        <span class="stat-value">${r ?? (f(i) ? "--" : S(i))}</span>
       </div>
     `;
   }
@@ -10957,24 +10913,24 @@ const te = class te extends u {
   }
   controlDisabled(t, e, i, r) {
     var x, v;
-    const n = r.action ?? "more_info", o = this.entity(e.power_entity), c = this.entity(e.operation_entity), l = !!(e.power_entity && o), d = !c || c.state === "unavailable", h = i === "running", g = i === "running" || i === "paused", f = r.option ?? n;
+    const n = r.action ?? "more_info", o = this.entity(e.power_entity), c = this.entity(e.operation_entity), l = !!(e.power_entity && o), h = !c || c.state === "unavailable", d = i === "running", g = i === "running" || i === "paused", m = r.option ?? n;
     switch (n) {
       case "power_toggle":
-        return l ? m(o) : !this.canCallOperation(e, "power_on") && !this.canCallOperation(e, "power_off");
+        return l ? f(o) : !this.canCallOperation(e, "power_on") && !this.canCallOperation(e, "power_off");
       case "power_on":
-        return l ? m(o) || (o == null ? void 0 : o.state) === "on" : !this.canCallOperation(e, "power_on");
+        return l ? f(o) || (o == null ? void 0 : o.state) === "on" : !this.canCallOperation(e, "power_on");
       case "start":
-        return d || !this.canCallOperation(e, f) || !this.isRemoteStartReady(e) || h;
+        return h || !this.canCallOperation(e, m) || !this.isRemoteStartReady(e) || d;
       case "stop":
-        return d || !this.canCallOperation(e, f) || !g;
+        return h || !this.canCallOperation(e, m) || !g;
       case "power_off":
-        return l ? m(o) || (o == null ? void 0 : o.state) === "off" : !this.canCallOperation(e, "power_off");
+        return l ? f(o) || (o == null ? void 0 : o.state) === "off" : !this.canCallOperation(e, "power_off");
       case "toggle":
-        return !r.entity || m(this.entity(r.entity));
+        return !r.entity || f(this.entity(r.entity));
       case "press":
-        return !r.entity || m(this.entity(r.entity));
+        return !r.entity || f(this.entity(r.entity));
       case "select_option":
-        return !r.option || m(this.entity(r.entity ?? e.operation_entity)) || !((v = (x = this.entity(r.entity ?? e.operation_entity)) == null ? void 0 : x.attributes.options) != null && v.includes(r.option));
+        return !r.option || f(this.entity(r.entity ?? e.operation_entity)) || !((v = (x = this.entity(r.entity ?? e.operation_entity)) == null ? void 0 : x.attributes.options) != null && v.includes(r.option));
       case "service":
         return !r.service;
       case "settings":
@@ -11054,12 +11010,12 @@ const te = class te extends u {
     ].filter((i) => !!i);
     return [...new Set(e)].filter((i) => {
       const r = this.entity(i);
-      return !m(r) || this.isActionableUnknown(i);
+      return !f(r) || this.isActionableUnknown(i);
     });
   }
   configuredMetricEntities(t) {
     const e = Array.isArray(t.metric_entities) && t.metric_entities.length ? t.metric_entities : [t.energy_entity, t.cycles_entity];
-    return [...new Set(e.filter((i) => !!i))].filter((i) => !m(this.entity(i)));
+    return [...new Set(e.filter((i) => !!i))].filter((i) => !f(this.entity(i)));
   }
   energyCostForMetric(t, e) {
     if (!(t !== e.energy_entity || H(this.config.energy_price_cents_per_kwh) === void 0))
@@ -11098,7 +11054,7 @@ const te = class te extends u {
     });
   }
   renderSettingControl(t, e) {
-    if (!e || m(e))
+    if (!e || f(e))
       return a`
         <span class="settings-state">
           Unknown
@@ -11132,7 +11088,7 @@ const te = class te extends u {
   renderSettingEntity(t) {
     const e = this.entity(t), i = (e == null ? void 0 : e.attributes.options) ?? [], r = this.entityDomain(t) === "select";
     return a`
-      <div class="settings-row ${!e || m(e) ? "unavailable" : ""}">
+      <div class="settings-row ${!e || f(e) ? "unavailable" : ""}">
         <button
           type="button"
           class="settings-row-main"
@@ -12020,7 +11976,7 @@ const ie = class ie extends u {
       return (t ?? 0) + (e ?? 0);
   }
   totalCycles() {
-    const t = this.entity(this.config.washer_cycles_entity), e = this.entity(this.config.dryer_cycles_entity), i = m(t) ? void 0 : Number(t == null ? void 0 : t.state), r = m(e) ? void 0 : Number(e == null ? void 0 : e.state);
+    const t = this.entity(this.config.washer_cycles_entity), e = this.entity(this.config.dryer_cycles_entity), i = f(t) ? void 0 : Number(t == null ? void 0 : t.state), r = f(e) ? void 0 : Number(e == null ? void 0 : e.state);
     if (Number.isFinite(i) || Number.isFinite(r)) {
       const n = Number.isFinite(i) ? Number(i) : 0, o = Number.isFinite(r) ? Number(r) : 0;
       return Ae(String(n + o));
@@ -12669,9 +12625,9 @@ const ne = class ne extends u {
     o[r] = {
       ...o[r],
       [n]: ((l = i.detail) == null ? void 0 : l.value) ?? e.value
-    }, Object.keys(o[r]).forEach((d) => {
-      const h = d;
-      o[r][h] === "" && delete o[r][h];
+    }, Object.keys(o[r]).forEach((h) => {
+      const d = h;
+      o[r][d] === "" && delete o[r][d];
     }), this.updateConfig({ rows: o });
   }
   renderTextInput(t, e, i = "") {
@@ -13367,24 +13323,24 @@ const oe = class oe extends u {
     return document.createElement("smart-pet-feeder-card-editor");
   }
   static getStubConfig(t, e) {
-    const i = (h) => h.toLowerCase(), r = e.filter((h) => {
-      const g = i(h);
-      return h.startsWith("number.") && (g.includes("feed") || g.includes("feeder") || g.includes("portion") || g.includes("pet") || g.includes("nova"));
+    const i = (d) => d.toLowerCase(), r = e.filter((d) => {
+      const g = i(d);
+      return d.startsWith("number.") && (g.includes("feed") || g.includes("feeder") || g.includes("portion") || g.includes("pet") || g.includes("nova"));
     }), [n] = r, [o] = e.filter(
-      (h) => h.startsWith("binary_sensor.") && i(h).includes("feeding")
+      (d) => d.startsWith("binary_sensor.") && i(d).includes("feeding")
     ), [c] = e.filter(
-      (h) => h.startsWith("sensor.") && i(h).includes("battery")
+      (d) => d.startsWith("sensor.") && i(d).includes("battery")
     ), [l] = e.filter(
-      (h) => h.startsWith("sensor.") && (i(h).includes("last_amount") || i(h).includes("last") && i(h).includes("amount"))
-    ), [d] = e.filter(
-      (h) => h.startsWith("sensor.") && i(h).includes("last") && (i(h).includes("fed") || i(h).includes("feed"))
+      (d) => d.startsWith("sensor.") && (i(d).includes("last_amount") || i(d).includes("last") && i(d).includes("amount"))
+    ), [h] = e.filter(
+      (d) => d.startsWith("sensor.") && i(d).includes("last") && (i(d).includes("fed") || i(d).includes("feed"))
     );
     return {
       feed_entity: n ?? "",
       ...o ? { feeding_entity: o } : {},
       ...c ? { battery_entity: c } : {},
       ...l ? { last_amount_entity: l } : {},
-      ...d ? { last_fed_entity: d } : {}
+      ...h ? { last_fed_entity: h } : {}
     };
   }
   setConfig(t) {
